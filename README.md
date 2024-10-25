@@ -2,12 +2,13 @@
 
 Vous en avez marre de gâcher ? Périm'App est faite pour vous.
 
-Scannez votre article à la maison, entrez sa date de péremption, reçevez une notification afin de consommer votre produit avant de le jeter.
+Scannez votre article à la maison, entrez sa date de péremption, recevez une notification afin de consommer votre produit afin de ne pas le jeter.
+
+## Propriétaire
+
+Alexandre BOBIS
 
 ## Contributeurs
-
-- Alexandre BOBIS
-- Julien NGUYEN
 
 ## Link to documents
 
