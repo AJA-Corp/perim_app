@@ -4,8 +4,6 @@ on:
   push:
     branches-ignore:
       - develop
-    branches:
-      - 'feature/*'
 
 jobs:
   create_pull_request:
