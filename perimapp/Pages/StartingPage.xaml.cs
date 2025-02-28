@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace perimapp.Pages;
 
-public partial class LoadingPage : ContentPage
+public partial class StartingPage : ContentPage
 {
-    public LoadingPage()
+    public StartingPage()
     {
         InitializeComponent();
     }
