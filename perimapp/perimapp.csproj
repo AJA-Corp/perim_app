@@ -22,7 +22,7 @@
         <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>perimapp</ApplicationTitle>
+        <ApplicationTitle>Perim'App</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.companyname.perimapp</ApplicationId>
@@ -44,10 +44,10 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4"/>
+        <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\perimapp.svg" Color="#58BF7F"/>
 
         <!-- Splash Screen -->
-        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128"/>
+        <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#58BF7F" BaseSize="256,256"/>
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*"/>

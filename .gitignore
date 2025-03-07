@@ -6,6 +6,7 @@ riderModule.iml
 *.iml
 .gradle
 /local.properties
+.idea/.idea.perimapp/.idea/workspace.xml
 /.idea/
 /.idea/caches
 /.idea/libraries
