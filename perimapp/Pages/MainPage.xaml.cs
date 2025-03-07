@@ -1,4 +1,4 @@
-﻿namespace perimapp;
+﻿namespace perimapp.Pages;
 
 public partial class MainPage : ContentPage
 {
