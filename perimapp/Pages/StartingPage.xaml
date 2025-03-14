@@ -5,7 +5,7 @@
     <ContentPage.Content>
         <Grid>
             <!-- Image en arrière-plan -->
-            <Image Source="perimapplogo.svg"
+            <Image Source="perimapp.png"
                    Aspect="AspectFill"
                    HeightRequest="300"
                    HorizontalOptions="Center"
