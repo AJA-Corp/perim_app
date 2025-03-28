@@ -1,0 +1,14 @@
+services:
+  perimapp:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    init: true
+    depends_on: []
+    # env_file: ./.env  # Uncomment if .env file exists
+    networks:
+      - perimapp_network
+networks:
+  perimapp_network:
+    driver: bridge
