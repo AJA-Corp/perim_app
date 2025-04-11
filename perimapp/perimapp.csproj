@@ -42,7 +42,7 @@
 
     <ItemGroup>
         <!-- App Icon -->
-        <MauiIcon Include="Resources/AppIcon/appicon.svg" ForegroundFile="Resources/AppIcon/perimapp.svg" Color="#58BF7F" Resize="True"/>
+        <MauiIcon Include="Resources/AppIcon/appicon.svg" ForegroundFile="Resources/AppIcon/perimapp.svg" Color="#58BF7F"/>
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources/Splash/splash.svg" Color="#58BF7F" BaseSize="256,256"/>
