@@ -1,0 +1,23 @@
+<ContentPage 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="perimapp.Pages.LoadingPage"
+    BackgroundColor="#58BF7F">
+
+    <Grid>
+        <Label Text="Perim'APP"
+               FontSize="50"
+               FontAttributes="Bold"
+               FontFamily="InterBold"
+               TextColor="White"
+               HorizontalOptions="Center"
+               VerticalOptions="Start"
+               Margin="0,40,0,10"/>
+
+        <Image Source="perimapp.png"
+               Aspect="AspectFit"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               HeightRequest="300"/>
+    </Grid>
+</ContentPage>
