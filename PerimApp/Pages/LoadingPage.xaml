@@ -4,7 +4,7 @@
     x:Class="perimapp.Pages.LoadingPage"
     BackgroundColor="#58BF7F">
 
-    <Grid>
+    <Grid Padding="20 ">
         <Label Text="Perim'APP"
                FontSize="50"
                FontAttributes="Bold"
@@ -12,7 +12,7 @@
                TextColor="White"
                HorizontalOptions="Center"
                VerticalOptions="Start"
-               Margin="0,40,0,10"/>
+               Margin="0,40,0, 0"/>
 
         <Image Source="perimapp.png"
                Aspect="AspectFit"
