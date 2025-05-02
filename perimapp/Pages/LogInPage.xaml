@@ -39,6 +39,26 @@
                            Style="{StaticResource UnderlineEntryStyle}"/>
                 </StackLayout>
             </StackLayout>
+
+            <StackLayout Grid.Row="2" Spacing="10" VerticalOptions="End" HorizontalOptions="Center">
+                <Button Text="Suivant"
+                        FontSize="20"
+                        BackgroundColor="White"
+                        TextColor="#58BF7F"
+                        FontAttributes="Bold"
+                        CornerRadius="50"
+                        HeightRequest="50"
+                        WidthRequest="300"/>
+                <Button Text="Retour"
+                        FontSize="20"
+                        BackgroundColor="Black"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="50"
+                        HeightRequest="50"
+                        WidthRequest="300"/>
+            </StackLayout>
+
         </Grid>
     </ContentPage.Content>
 </ContentPage>
