@@ -21,5 +21,24 @@
                        TextColor="White"
                        HorizontalOptions="Center"/>
             </StackLayout>
+
+            <StackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
+                <StackLayout Spacing="5">
+                    <Entry Placeholder="Adresse mail"
+                           Style="{StaticResource UnderlineEntryStyle}"/>
+                </StackLayout>
+
+                <StackLayout Spacing="5">
+                    <Entry Placeholder="Mot de passe"
+                           Style="{StaticResource UnderlineEntryStyle}"
+                           IsPassword="True"/>
+                </StackLayout>
+
+                <StackLayout Spacing="5">
+                    <Entry Placeholder="Code foyer ?"
+                           Style="{StaticResource UnderlineEntryStyle}"/>
+                </StackLayout>
+            </StackLayout>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>
