@@ -1,64 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.LogInPage"
              BackgroundColor="#58BF7F">
 
-    <ContentPage.Content>
-        <Grid RowDefinitions="Auto,*,Auto" Padding="30">
+    <VerticalStackLayout Spacing="20">
 
-            <StackLayout Grid.Row="0" Spacing="10">
-                <Label Text="PerimApp"
-                       FontSize="50"
-                       FontAttributes="Bold"
-                       FontFamily="InterBold"
-                       TextColor="White"
-                       HorizontalOptions="Center"
-                       Margin="0,40,0,10"/>
-                <Label Text="Se connecter"
-                       FontSize="24"
-                       TextColor="White"
-                       HorizontalOptions="Center"/>
-            </StackLayout>
-
-            <StackLayout Grid.Row="1" Spacing="30" VerticalOptions="Center">
-                <StackLayout Spacing="5">
-                    <Entry Placeholder="Adresse mail"
-                           Style="{StaticResource UnderlineEntryStyle}"/>
-                </StackLayout>
-
-                <StackLayout Spacing="5">
-                    <Entry Placeholder="Mot de passe"
-                           Style="{StaticResource UnderlineEntryStyle}"
-                           IsPassword="True"/>
-                </StackLayout>
-
-                <StackLayout Spacing="5">
-                    <Entry Placeholder="Code foyer ?"
-                           Style="{StaticResource UnderlineEntryStyle}"/>
-                </StackLayout>
-            </StackLayout>
-
-            <StackLayout Grid.Row="2" Spacing="10" VerticalOptions="End" HorizontalOptions="Center">
-                <Button Text="Suivant"
-                        FontSize="20"
-                        BackgroundColor="White"
-                        TextColor="#58BF7F"
-                        FontAttributes="Bold"
-                        CornerRadius="50"
-                        HeightRequest="50"
-                        WidthRequest="300"/>
-                <Button Text="Retour"
-                        FontSize="20"
-                        BackgroundColor="Black"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="50"
-                        HeightRequest="50"
-                        WidthRequest="300"/>
-            </StackLayout>
-
+        <!-- En-tête vert avec le titre -->
+        <Grid Padding="20">
+            <Label Text="PerimApp"
+                   FontSize="40"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
         </Grid>
-    </ContentPage.Content>
+
+        <!-- Sous-titre -->
+        <Label Text="Se connecter"
+               FontSize="24"
+               FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center"
+               Margin="0,20,0,10"/>
+
+        <!-- Champs de connexion -->
+        <VerticalStackLayout Padding="20, 70, 20, 20" Spacing="25">
+
+            <!-- Email -->
+            <Grid>
+                <Entry Placeholder="Adresse mail"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       BackgroundColor="Transparent"
+                       HeightRequest="40"
+                       FontSize="20"/>
+                <BoxView HeightRequest="1"
+                         BackgroundColor="White"
+                         VerticalOptions="End"/>
+            </Grid>
+
+            <!-- Mot de passe -->
+            <Grid>
+                <Entry Placeholder="Mot de passe"
+                       IsPassword="True"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       BackgroundColor="Transparent"
+                       HeightRequest="40"
+                       FontSize="20"/>
+                <BoxView HeightRequest="1"
+                         BackgroundColor="White"
+                         VerticalOptions="End"/>
+            </Grid>
+
+            <!-- Code foyer -->
+            <Grid>
+                <Entry Placeholder="Code foyer ?"
+                       TextColor="White"
+                       PlaceholderColor="White"
+                       BackgroundColor="Transparent"
+                       HeightRequest="40"
+                       FontSize="20"/>
+                <BoxView HeightRequest="1"
+                         BackgroundColor="White"
+                         VerticalOptions="End"/>
+            </Grid>
+        </VerticalStackLayout>
+
+        <!-- Boutons -->
+        <VerticalStackLayout Padding="20,40,20,40" Spacing="15">
+            <Button Text="Suivant"
+                    BackgroundColor="White"
+                    TextColor="#58BF7F"
+                    FontAttributes="Bold"
+                    FontSize="18"
+                    CornerRadius="50"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    WidthRequest="250"/>
+
+            <Button Text="Retour"
+                    BackgroundColor="Black"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="18"
+                    CornerRadius="50"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    WidthRequest="250"/>
+        </VerticalStackLayout>
+
+    </VerticalStackLayout>
 </ContentPage>
