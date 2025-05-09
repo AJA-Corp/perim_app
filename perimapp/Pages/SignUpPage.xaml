@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.SignUpPage"
              BackgroundColor="White">
 
         <VerticalStackLayout Spacing="20">
-
             <!-- Titre plein écran sur fond vert -->
             <Grid BackgroundColor="#58BF7F" Padding="20,20,20,20">
                 <Label Text="PerimApp"
@@ -17,5 +17,11 @@
             </Grid>
 
             <!-- Sous-titre -->
+            <Label Text="Inscription"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="Black"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,40"/>
         </VerticalStackLayout>
 </ContentPage>
