@@ -23,5 +23,68 @@
                    TextColor="Black"
                    HorizontalOptions="Center"
                    Margin="0,20,0,40"/>
+
+            <!-- Entrées personnalisées -->
+            <VerticalStackLayout Padding="20" Spacing="25">
+
+                <!-- Email -->
+                <Grid>
+                    <Entry Placeholder="Email"
+                           TextColor="Black"
+                           PlaceholderColor="Gray"
+                           BackgroundColor="Transparent"
+                           HeightRequest="40"
+                           FontSize="20"
+                           x:Name="EmailEntry"/>
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="Black"
+                             VerticalOptions="End"/>
+                </Grid>
+
+                <!-- Mot de passe -->
+                <Grid>
+                    <Entry Placeholder="Mot de passe"
+                           IsPassword="True"
+                           TextColor="Black"
+                           PlaceholderColor="Gray"
+                           BackgroundColor="Transparent"
+                           HeightRequest="40"
+                           FontSize="20"
+                           x:Name="PasswordEntry"/>
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="Black"
+                             VerticalOptions="End"/>
+                </Grid>
+
+                <!-- Confirmer mot de passe -->
+                <Grid>
+                    <Entry Placeholder="Confirmer mot de passe"
+                           IsPassword="True"
+                           TextColor="Black"
+                           PlaceholderColor="Gray"
+                           BackgroundColor="Transparent"
+                           HeightRequest="40"
+                           FontSize="20"
+                           x:Name="ConfirmPasswordEntry"/>
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="Black"
+                             VerticalOptions="End"/>
+                </Grid>
+
+                <!-- Code foyer -->
+                <Grid>
+                    <Entry Placeholder="Code foyer ?"
+                           TextColor="Black"
+                           PlaceholderColor="Gray"
+                           BackgroundColor="Transparent"
+                           HeightRequest="40"
+                           FontSize="20"
+                           x:Name="CodeFoyerEntry"/>
+                    <BoxView HeightRequest="1"
+                             BackgroundColor="Black"
+                             VerticalOptions="End"/>
+                </Grid>
+            </VerticalStackLayout>
+
         </VerticalStackLayout>
 </ContentPage>
