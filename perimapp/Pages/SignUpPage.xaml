@@ -86,5 +86,27 @@
                 </Grid>
             </VerticalStackLayout>
 
+            <!-- Boutons -->
+            <VerticalStackLayout Padding="20,20,20,40" Spacing="15">
+                <Button Text="Suivant"
+                        BackgroundColor="#58BF7F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        CornerRadius="50"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"
+                        WidthRequest="250"/>
+
+                <Button Text="Retour"
+                        BackgroundColor="Black"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        CornerRadius="50"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"
+                        WidthRequest="250"/>
+            </VerticalStackLayout>
         </VerticalStackLayout>
 </ContentPage>
