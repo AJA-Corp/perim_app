@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentView
+    x:Class="perimapp.Headers.SharedHeader"
+    x:Name="This"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    
+    <Grid BackgroundColor="#58BF7F" Padding="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Button
+            x:Name="BackButton"
+            Margin="0,0,20,0"
+            WidthRequest="60"
+            ImageSource="arrow_back.png"
+            BackgroundColor="White"
+            HorizontalOptions="Start"
+            VerticalOptions="Center"
+            Clicked="OnBackButtonClicked" />
+
+        <Label
+            Text="{Binding HeaderText, Source={x:Reference This}}"
+            Margin="0,0,20,0"
+            FontSize="32"
+            FontAttributes="Bold"
+            TextColor="White"
+            HorizontalOptions="End"
+            VerticalOptions="Center"
+            Grid.Column="1" />
+    </Grid>
+</ContentView>
