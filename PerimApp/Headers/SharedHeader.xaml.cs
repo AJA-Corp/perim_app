@@ -1,9 +1,10 @@
+// SharedHeader.xaml.cs
 using Microsoft.Maui.Controls;
 using System;
 
 namespace perimapp.Headers
 {
-    public partial class SharedHeader : ContentView
+    public partial class SharedHeader : ContentView // Toujours ContentView !
     {
         public static readonly BindableProperty HeaderTextProperty =
             BindableProperty.Create(nameof(HeaderText), typeof(string), typeof(SharedHeader), string.Empty, BindingMode.OneWay, null, OnHeaderTextPropertyChanged);
@@ -14,6 +15,9 @@ namespace perimapp.Headers
             set => SetValue(HeaderTextProperty, value);
         }
 
+        // SUPPRIMEZ CETTE LIGNE SI ELLE EST PRÉSENTE :
+        // public event EventHandler BackButtonClicked; 
+
         public SharedHeader()
         {
             InitializeComponent ();
@@ -21,19 +25,22 @@ namespace perimapp.Headers
 
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
-            if (Navigation != null)
+            // C'est la ligne clé pour la navigation avec Shell
+            if (Shell.Current != null)
             {
-                await Navigation.PopAsync();
+                await Shell.Current.GoToAsync("..");
+                Console.WriteLine("WORKING");
             }
             else
             {
-                Console.WriteLine("Navigation is null in SharedHeader.");
+                // Ce cas est très peu probable si votre application utilise Shell
+                Console.WriteLine("Shell.Current is null. Cannot go back.");
             }
         }
 
         private static void OnHeaderTextPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            // Vous pouvez ajouter une logique ici si nécessaire lorsque le HeaderText change
+            // Votre logique si nécessaire
         }
     }
 }
