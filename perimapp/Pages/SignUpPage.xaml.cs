@@ -12,4 +12,18 @@ public partial class SignUpPage : ContentPage
     {
         InitializeComponent();
     }
+    
+    private async void OnNextSignUpClicked(object sender, EventArgs e)
+    {
+            
+        await Shell.Current.GoToAsync(nameof(MainPage));
+            
+    }
+
+    private async void OnBackSignUpClicked(object sender, EventArgs e)
+    {
+
+        await Shell.Current.GoToAsync(nameof(StartingPage));
+
+    }
 }

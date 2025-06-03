@@ -89,6 +89,7 @@
             <!-- Boutons -->
             <VerticalStackLayout Padding="20,20,20,40" Spacing="15">
                 <Button Text="Suivant"
+                        Clicked="OnNextSignUpClicked"
                         BackgroundColor="#58BF7F"
                         TextColor="White"
                         FontAttributes="Bold"
@@ -99,6 +100,7 @@
                         WidthRequest="250"/>
 
                 <Button Text="Retour"
+                        Clicked="OnBackSignUpClicked"
                         BackgroundColor="Black"
                         TextColor="White"
                         FontAttributes="Bold"
