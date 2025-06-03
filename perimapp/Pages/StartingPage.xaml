@@ -22,7 +22,8 @@
                    HeightRequest="300"/>
 
             <Button Text="Se connecter"
-                    Clicked="OnLogInClicked"  FontSize="20"
+                    Clicked="OnLogInClicked"  
+                    FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"
                     FontAttributes="Bold"
@@ -34,7 +35,8 @@
                     Margin="0,10"/>
 
             <Button Text="Créer un compte"
-                    Clicked="OnSignUpClicked"  FontSize="20"
+                    Clicked="OnSignUpClicked"  
+                    FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"
                     FontAttributes="Bold"
