@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace perimapp.Pages;
 
-public partial class NoticationPage : ContentPage
+public partial class NotificationPage : ContentPage
 {
-    public NoticationPage()
+    public NotificationPage()
     {
         InitializeComponent();
     }

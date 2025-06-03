@@ -10,7 +10,7 @@
 
     <ShellContent
         Title="Home"
-        ContentTemplate="{DataTemplate local:LoadingPage}"
+        ContentTemplate="{DataTemplate local:StartingPage}"
         Route="LoadingPage" />
 
 </Shell>
