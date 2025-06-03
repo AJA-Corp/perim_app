@@ -4,7 +4,6 @@
              BackgroundColor="#58BF7F">
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="20">
-            <!-- Label en haut -->
             <Label Text="Perim'APP"
                    FontSize="50"
                    FontAttributes="Bold"
@@ -15,7 +14,6 @@
                    Grid.Row="0"
                    Margin="0,40,0,10"/>
 
-            <!-- Image au centre -->
             <Image Source="perimapp.png"
                    Aspect="AspectFit"
                    HorizontalOptions="Center"
@@ -23,9 +21,8 @@
                    Grid.Row="1"
                    HeightRequest="300"/>
 
-            <!-- Premier bouton -->
             <Button Text="Se connecter"
-                    FontSize="20"
+                    Clicked="OnLogInClicked"  FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"
                     FontAttributes="Bold"
@@ -36,9 +33,8 @@
                     Grid.Row="2"
                     Margin="0,10"/>
 
-            <!-- Deuxième bouton -->
             <Button Text="Créer un compte"
-                    FontSize="20"
+                    Clicked="OnSignUpClicked"  FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"
                     FontAttributes="Bold"
