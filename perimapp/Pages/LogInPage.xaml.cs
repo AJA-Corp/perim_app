@@ -12,4 +12,18 @@ public partial class LogInPage : ContentPage
     {
         InitializeComponent();
     }
+    
+    private async void OnNextLogInClicked(object sender, EventArgs e)
+    {
+            
+        await Shell.Current.GoToAsync(nameof(MainPage));
+            
+    }
+
+    private async void OnBackLogInClicked(object sender, EventArgs e)
+    {
+
+        await Shell.Current.GoToAsync(nameof(StartingPage));
+
+    }
 }
