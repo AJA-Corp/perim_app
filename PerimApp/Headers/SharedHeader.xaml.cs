@@ -1,10 +1,11 @@
 // SharedHeader.xaml.cs
 using Microsoft.Maui.Controls;
 using System;
+using perimapp.Pages; // Indispensable pour référencer vos pages
 
 namespace perimapp.Headers
 {
-    public partial class SharedHeader : ContentView // Toujours ContentView !
+    public partial class SharedHeader : ContentView
     {
         public static readonly BindableProperty HeaderTextProperty =
             BindableProperty.Create(nameof(HeaderText), typeof(string), typeof(SharedHeader), string.Empty, BindingMode.OneWay, null, OnHeaderTextPropertyChanged);
@@ -15,26 +16,43 @@ namespace perimapp.Headers
             set => SetValue(HeaderTextProperty, value);
         }
 
-        // SUPPRIMEZ CETTE LIGNE SI ELLE EST PRÉSENTE :
-        // public event EventHandler BackButtonClicked; 
-
         public SharedHeader()
         {
             InitializeComponent ();
         }
 
+        // Fonction back button
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
-            // C'est la ligne clé pour la navigation avec Shell
-            if (Shell.Current != null)
+            if (Shell.Current == null)
             {
-                await Shell.Current.GoToAsync("..");
-                Console.WriteLine("WORKING");
+                Console.WriteLine("SharedHeader [ERREUR] : Shell.Current est null. Impossible de naviguer.");
+                return;
             }
-            else
+
+            try
             {
-                // Ce cas est très peu probable si votre application utilise Shell
-                Console.WriteLine("Shell.Current is null. Cannot go back.");
+                var currentPage = Shell.Current.CurrentPage;
+
+                // Case ModifiyProductPage
+                if (currentPage is ModifyProductPage)
+                {
+                    await Shell.Current.GoToAsync(nameof(DetailsPage), true);
+                    Console.WriteLine("SharedHeader [SUCCÈS] : Navigation de ModifyProductPage vers DetailsPage.");
+                }
+                // Majority Case to MainPage 
+                else
+                {
+                    await Shell.Current.GoToAsync(nameof(MainPage), true);
+                    Console.WriteLine("SharedHeader [SUCCÈS] : Navigation vers MainPage.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Cela devrait maintenant être beaucoup moins fréquent avec la correction ci-dessus.
+                Console.WriteLine($"SharedHeader [ERREUR] : Erreur critique lors de la navigation : {ex.Message}");
+                Console.WriteLine($"SharedHeader [DÉTAILS] : Type d'exception : {ex.GetType().Name}");
+                Console.WriteLine($"SharedHeader [DÉTAILS] : Pile d'appels : {ex.StackTrace}");
             }
         }
 

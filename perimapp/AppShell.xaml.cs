@@ -1,5 +1,5 @@
 ﻿// AppShell.xaml.cs
-using perimapp.Pages; // Assurez-vous d'importer le namespace où se trouvent vos pages
+using perimapp.Pages;
 
 namespace perimapp;
 
