@@ -1,23 +1,53 @@
-﻿namespace perimapp.Pages;
+﻿// MainPage.xaml.cs
+using System.Collections.ObjectModel;
+using System.Text.Json;
+using Microsoft.Maui.Controls;
+using System;
+using System.IO;
+using perimapp.Models; // Assurez-vous que ce using est correct pour votre dossier Models
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
-public partial class MainPage : ContentPage
+namespace perimapp.Pages
 {
-    int count = 0;
-
-    public MainPage()
+    public partial class MainPage : ContentPage
     {
-        InitializeComponent();
-    }
+        // La collection doit maintenant être de type ProductMainPage
+        public ObservableCollection<ProductMainPage> Products { get; set; }
 
-    private void OnCounterClicked(object sender, EventArgs e)
-    {
-        count++;
+        public MainPage()
+        {
+            InitializeComponent();
+            Products = new ObservableCollection<ProductMainPage>();
+            BindingContext = this;
 
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
-        else
-            CounterBtn.Text = $"Clicked {count} times";
+            _ = LoadProductsAsync(); 
+        }
 
-        SemanticScreenReader.Announce(CounterBtn.Text);
+        private async Task LoadProductsAsync()
+        {
+            try
+            {
+                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("response.json");
+                using StreamReader reader = new StreamReader(fileStream);
+                string jsonContent = await reader.ReadToEndAsync();
+
+                // Désérialise en une liste de ProductMainPage
+                List<ProductMainPage>? loadedProducts = JsonSerializer.Deserialize<List<ProductMainPage>>(jsonContent);
+
+                if (loadedProducts != null)
+                {
+                    foreach (var product in loadedProducts)
+                    {
+                        Products.Add(product);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible de charger les données des produits. " + ex.Message, "OK");
+            }
+        }
     }
 }
