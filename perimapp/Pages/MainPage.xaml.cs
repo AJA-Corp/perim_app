@@ -23,6 +23,20 @@ namespace perimapp.Pages
 
             _ = LoadProductsAsync(); 
         }
+        
+        private async void OnProfileIconClicked(object sender, EventArgs e)
+        {
+            
+            await Shell.Current.GoToAsync(nameof(ProfilePage));
+            
+        }
+
+        private async void OnAddProductClicked(object sender, EventArgs e)
+        {
+
+            await Shell.Current.GoToAsync(nameof(AddProductPage));
+
+        }
 
         private async Task LoadProductsAsync()
         {
