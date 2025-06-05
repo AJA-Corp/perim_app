@@ -7,6 +7,7 @@ using System.IO;
 using perimapp.Models; // Assurez-vous que ce using est correct pour votre dossier Models
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace perimapp.Pages
 {
@@ -45,13 +46,14 @@ namespace perimapp.Pages
                 using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("response.json");
                 using StreamReader reader = new StreamReader(fileStream);
                 string jsonContent = await reader.ReadToEndAsync();
-
-                // Désérialise en une liste de ProductMainPage
+                
                 List<ProductMainPage>? loadedProducts = JsonSerializer.Deserialize<List<ProductMainPage>>(jsonContent);
 
                 if (loadedProducts != null)
                 {
-                    foreach (var product in loadedProducts)
+                    var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
+                    
+                    foreach (var product in sortedProducts)
                     {
                         Products.Add(product);
                     }
