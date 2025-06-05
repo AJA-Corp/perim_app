@@ -4,10 +4,89 @@
              xmlns:headers="clr-namespace:perimapp.Headers"
              x:Class="perimapp.Pages.ProfilePage"
              BackgroundColor="#FFF">
-    
-        <VerticalStackLayout>
-            <headers:SharedHeader HeaderText="Perim'App"/>
 
-        </VerticalStackLayout>
-    
+    <ContentPage.Resources>
+        <Style x:Key="CardTitleStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterBold"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="TextColor" Value="DarkSlateGray"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="Margin" Value="0,5,0,0"/> 
+        </Style>
+
+        <Style x:Key="CardContentStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterMedium"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="HorizontalOptions" Value="Center"/> 
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+
+        <Style x:Key="CardMiniContentStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterMedium"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+        </Style>
+        
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+        <headers:SharedHeader Grid.Row="0" HeaderText="Profil"/> 
+
+        <ScrollView Grid.Row="1" VerticalOptions="CenterAndExpand">
+            <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="StartAndExpand">
+
+                <Frame WidthRequest="150" HeightRequest="150"
+                       CornerRadius="75"   BorderColor="Transparent" HasShadow="False"   BackgroundColor="Black" HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="0,15,0,0">
+                    <Image Source="profile_placeholder.png"
+                           Aspect="AspectFill"/>
+                </Frame>
+
+                <Label x:Name="NameLabel"
+                       Text="{Binding UserName}"
+                       Style="{StaticResource CardTitleStyle}"/>
+
+                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                    <Label Text="Quantité de produits enregistrés :" 
+                           Style="{StaticResource CardContentStyle}"/>
+                    <Label Text="{Binding RegisteredProductsCount}" 
+                           Style="{StaticResource CardMiniContentStyle}"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                    <Label Text="Produits perdus :" 
+                           Style="{StaticResource CardContentStyle}"/>
+                    <Label Text="{Binding LostProductsCount}" 
+                           Style="{StaticResource CardMiniContentStyle}"/>
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                    <Label Text="Code foyer :" Style="{StaticResource CardContentStyle}"/>
+                    <Label x:Name="FoyerCodeLabel"
+                           Text="{Binding FamilyCode}"
+                           Style="{StaticResource CardMiniContentStyle}"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              HeightRequest="80"
+              BackgroundColor="#58BF7F"
+              HorizontalOptions="FillAndExpand"
+              VerticalOptions="End">
+            <Button Text="Activer les notifications"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    CornerRadius="30"
+                    FontSize="24"
+                    Padding="0,5"
+                    Margin="30,10"   HorizontalOptions="FillAndExpand"
+                    VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
 </ContentPage>

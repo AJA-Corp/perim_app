@@ -19,6 +19,7 @@ namespace perimapp.Headers
         public SharedHeader()
         {
             InitializeComponent ();
+            BindingContext = this;
         }
 
         // Fonction back button

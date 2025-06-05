@@ -1,4 +1,6 @@
-﻿namespace perimapp;
+﻿using perimapp.Data;
+
+namespace perimapp;
 
 public partial class App : Application
 {
