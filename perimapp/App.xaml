@@ -10,15 +10,37 @@
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
         
-        <!-- How to add styles-->
-        <!-- Style for LogInPage inputs -->
-        <!-- <Style TargetType="Entry" x:Key="UnderlineEntryStyle">
-            <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="TextColor" Value="White"/>
-            <Setter Property="PlaceholderColor" Value="White"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="HeightRequest" Value="40"/>
-        </Style> -->
+            <Style TargetType="Label">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="Editor">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="Picker">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="SearchBar">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="DatePicker">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
+
+            <Style TargetType="TimePicker">
+                <Setter Property="FontFamily" Value="InterMedium" />
+            </Style>
 
         </ResourceDictionary>
     </Application.Resources>

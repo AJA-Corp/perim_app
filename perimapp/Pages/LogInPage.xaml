@@ -33,7 +33,7 @@
                        TextColor="White"
                        PlaceholderColor="White"
                        BackgroundColor="Transparent"
-                       HeightRequest="40"
+                       HeightRequest="50"
                        FontSize="20"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
@@ -47,7 +47,7 @@
                        TextColor="White"
                        PlaceholderColor="White"
                        BackgroundColor="Transparent"
-                       HeightRequest="40"
+                       HeightRequest="50"
                        FontSize="20"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
@@ -60,7 +60,7 @@
                        TextColor="White"
                        PlaceholderColor="White"
                        BackgroundColor="Transparent"
-                       HeightRequest="40"
+                       HeightRequest="50"
                        FontSize="20"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
