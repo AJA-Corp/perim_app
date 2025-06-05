@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="perimapp.Popups.NotificationFormPopup"
+               Size="300, 500"
+               BackgroundColor="White"
+               Padding="20">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="10">
+
+            <!-- Rouge -->
+            <HorizontalStackLayout>
+                <Label Text="Rouge (jours):" BackgroundColor="Red" TextColor="White" Padding="5"/>
+                <Entry x:Name="RedEntry" Keyboard="Numeric" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <!-- Orange -->
+            <HorizontalStackLayout>
+                <Label Text="Orange (jours):" BackgroundColor="Orange" TextColor="Black" Padding="5"/>
+                <Entry x:Name="OrangeEntry" Keyboard="Numeric" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <!-- Jaune -->
+            <HorizontalStackLayout>
+                <Label Text="Jaune (jours):" BackgroundColor="Yellow" TextColor="Black" Padding="5"/>
+                <Entry x:Name="YellowEntry" Keyboard="Numeric" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <!-- Vert -->
+            <HorizontalStackLayout>
+                <Label Text="Vert (jours):" BackgroundColor="Green" TextColor="White" Padding="5"/>
+                <Entry x:Name="GreenEntry" Keyboard="Numeric" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <!-- Bleu -->
+            <HorizontalStackLayout>
+                <Label Text="Bleu (jours):" BackgroundColor="Blue" TextColor="White" Padding="5"/>
+                <Entry x:Name="BlueEntry" Keyboard="Numeric" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+            <Button Text="Valider"
+                    BackgroundColor="Black"
+                    TextColor="White"
+                    Clicked="OnValidateClicked"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</toolkit:Popup>

@@ -4,10 +4,61 @@
              xmlns:headers="clr-namespace:perimapp.Headers"
              x:Class="perimapp.Pages.ProfilePage"
              BackgroundColor="#FFF">
-    
-        <VerticalStackLayout>
-            <headers:SharedHeader HeaderText="Perim'App"/>
 
-        </VerticalStackLayout>
-    
+    <VerticalStackLayout Padding="20" Spacing="15">
+        
+        <!-- En-tête partagé -->
+        <headers:SharedHeader HeaderText="Perim'App"/>
+
+        <!-- Encadré pour la photo -->
+        <Frame WidthRequest="150" HeightRequest="150"
+               CornerRadius="75"
+               BorderColor="Gray"
+               HorizontalOptions="Center"
+               VerticalOptions="Center">
+            <Image Source="profile_placeholder.png"
+                   Aspect="AspectFill"/>
+        </Frame>
+
+        <!-- Label Nom -->
+        <Label Text="Nom :"
+               FontAttributes="Bold"
+               FontSize="18"/>
+
+        <!-- Label Quantité de produits enregistrés -->
+        <Label Text="Quantité de produits enregistrés :"
+               FontAttributes="Bold"
+               FontSize="18"/>
+
+        <!-- Label Produits perdus -->
+        <Label Text="Produits perdus :"
+               FontAttributes="Bold"
+               FontSize="18"/>
+
+        <!-- Label Code foyer -->
+        <Label Text="Code foyer :"
+               FontAttributes="Bold"
+               FontSize="18"/>
+
+        <!-- Label qui affichera le code foyer -->
+        <Label x:Name="FoyerCodeLabel"
+               Text="XYZ-123"
+               FontSize="18"
+               TextColor="DarkSlateGray"/>
+
+        <!-- Encadré vert avec bouton -->
+        <Frame BackgroundColor="Green"
+               CornerRadius="10"
+               Padding="10"
+               HasShadow="False"
+               HorizontalOptions="FillAndExpand">
+
+            <Button Text="Activer les notifications"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    FontAttributes="Bold"
+                    Clicked="OnActivateNotificationsClicked"/>
+        </Frame>
+
+    </VerticalStackLayout>
 </ContentPage>
