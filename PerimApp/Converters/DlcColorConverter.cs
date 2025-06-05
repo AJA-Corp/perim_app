@@ -16,11 +16,15 @@ namespace perimapp.Converters
                 if (daysRemaining <= 0)
                     return Colors.DarkRed;
                 if (daysRemaining <= 2)
-                    return Colors.Red;
+                    return Color.FromArgb("#F94144");
+                if (daysRemaining <= 3)
+                    return Color.FromArgb("#F8961E");
+                if (daysRemaining <= 5)
+                    return Color.FromArgb("#F9C74F");
                 if (daysRemaining <= 7)
-                    return Colors.Orange;
+                    return Color.FromArgb("#8CD6BF");
                 
-                return Colors.Green;
+                return Color.FromArgb("#30C2FF");
             }
             return Colors.Gray;
         }

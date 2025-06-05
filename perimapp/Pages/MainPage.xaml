@@ -75,10 +75,10 @@
                                 <!-- Image Product -->
                                 <Image Grid.Column="0"
                                        Source="{Binding url_image}"
-                                       WidthRequest="90"
-                                       HeightRequest="90"
+                                       WidthRequest="80"
+                                       HeightRequest="80"
                                        Aspect="AspectFill"
-                                       Margin="5,0,0,0"
+                                       Margin="10,0,0,0"
                                        VerticalOptions="Center"/>
 
                                 <!-- Text Product -->
