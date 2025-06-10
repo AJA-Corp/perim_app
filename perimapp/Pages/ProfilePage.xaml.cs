@@ -1,14 +1,16 @@
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
 using System.Text.Json;
+using perimapp.PopUp;  // Pour NotificationPopUp
 using perimapp.Models; // Pour UserProfile
 using perimapp.Data;   // Pour AppData
 using System.Linq;     // Pour les méthodes .Any() et .First()
-using System;          // Pour Console.WriteLine et Exception
+using System;          // Pour Console.WriteLine() et Exception
 using System.IO;       // Pour Stream et StreamReader
 using System.Threading.Tasks; // Pour Task
 using System.ComponentModel; // NOUVEAU : Ajouté pour INotifyPropertyChanged
-using System.Runtime.CompilerServices; // NOUVEAU : Ajouté pour [CallerMemberName]
+using System.Runtime.CompilerServices;
+using CommunityToolkit.Maui.Views; // NOUVEAU : Ajouté pour [CallerMemberName]
 
 namespace perimapp.Pages
 {
@@ -176,6 +178,12 @@ namespace perimapp.Pages
             LostProductsCount = 0;
             // Met à jour RegisteredProductsCount avec la valeur actuelle d'AppData même en cas d'erreur
             RegisteredProductsCount = AppData.CurrentProducts.Count;
+        }
+
+        private void OnActivateNotificationsClicked(object sender, EventArgs e)
+        {
+            var popup = new NotificationPopUp();
+            this.ShowPopup(popup);
         }
     }
 }

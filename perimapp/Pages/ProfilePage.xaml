@@ -94,8 +94,10 @@
                     CornerRadius="30"
                     FontSize="24"
                     Padding="0,5"
-                    Margin="30,10"   HorizontalOptions="FillAndExpand"
-                    VerticalOptions="Center" />
+                    Margin="30,10"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="Center"
+                    Clicked="OnActivateNotificationsClicked"/>
         </Grid>
 
     </Grid>
