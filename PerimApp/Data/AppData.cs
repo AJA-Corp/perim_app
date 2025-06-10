@@ -7,6 +7,6 @@ namespace perimapp.Data
     {
         // Cette collection observable stockera les produits qui sont chargés par la MainPage.
         // C'est elle qui sera utilisée par ProfilePage pour obtenir le compte des produits enregistrés.
-        public static ObservableCollection<ProductMainPage> CurrentProducts { get; set; } = new ObservableCollection<ProductMainPage>();
+        public static ObservableCollection<ProductInfos> CurrentProducts { get; set; } = new ObservableCollection<ProductInfos>();
     }
 }

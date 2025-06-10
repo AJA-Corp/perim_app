@@ -1,5 +1,6 @@
 ﻿// AppShell.xaml.cs
 using perimapp.Pages;
+using perimapp.PopUp;
 
 namespace perimapp;
 
@@ -16,7 +17,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(LogInPage), typeof(LogInPage));
         Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         Routing.RegisterRoute(nameof(ModifyProductPage), typeof(ModifyProductPage)); 
-        Routing.RegisterRoute(nameof(NotificationPage), typeof(NotificationPage)); 
+        Routing.RegisterRoute(nameof(NotificationPopUp), typeof(NotificationPopUp)); 
         Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage)); 
         Routing.RegisterRoute(nameof(SignUpPage), typeof(SignUpPage));
         Routing.RegisterRoute(nameof(StartingPage), typeof(StartingPage));

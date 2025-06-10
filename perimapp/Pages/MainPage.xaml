@@ -54,9 +54,12 @@
                         Padding="0, -10, 0, 0" />
             </Grid>
             <!-- Cards Product -->
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Products}">
+            <CollectionView Grid.Row="1" 
+                            ItemsSource="{Binding Products}"
+                            SelectionMode="Single"
+                            SelectionChanged="OnProductSelectionChanged">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="localModels:ProductMainPage"> 
+                    <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
                                 Stroke="LightGray"
                                 StrokeThickness="0.1"
@@ -73,13 +76,22 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Image Product -->
-                                <Image Grid.Column="0"
-                                       Source="{Binding url_image}"
-                                       WidthRequest="80"
-                                       HeightRequest="80"
-                                       Aspect="AspectFill"
-                                       Margin="10,0,0,0"
-                                       VerticalOptions="Center"/>
+                                <Border Grid.Column="0"
+                                        WidthRequest="80"
+                                        HeightRequest="80"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Margin="10,0,0,0"
+                                        Padding="0"                
+                                        Background="Transparent"   
+                                        StrokeShape="{RoundRectangle CornerRadius='3'}"  
+                                        Stroke="Transparent"       
+                                        StrokeThickness="0">
+                                    <Image Source="{Binding url_image}"
+                                           Aspect="AspectFill"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
 
                                 <!-- Text Product -->
                                 <VerticalStackLayout Grid.Column="1"
@@ -92,7 +104,7 @@
                                            LineBreakMode="TailTruncation"  MaxLines="2"
                                            TextColor="Black"/>
                                     <!-- Quantity Product -->
-                                    <Label Text="{Binding product_quantity}"
+                                    <Label Text="{Binding product_quantity, StringFormat='Quantité: {0}'}"
                                            FontSize="14"
                                            TextColor="Gray"/>
                                     <!-- DLC Product -->
@@ -106,13 +118,15 @@
                                         BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
                                         HorizontalOptions="End"     
                                         VerticalOptions="Fill"    
-                                        WidthRequest="60"  
+                                        WidthRequest="62"  
                                         Padding="0"                 
                                         Margin="0,0,0,0"           
                                         StrokeShape="RoundRectangle 50,0,50,0"
-                                        StrokeThickness="0"> <Label Text="{Binding DaysRemainingText}"
+                                        StrokeThickness="0"> <Label Text="{Binding DaysRemainingTextMainPage}"
                                                                     TextColor="White"
-                                                                    VerticalOptions="Center" HorizontalOptions="Center" FontSize="20"
+                                                                    VerticalOptions="Center" 
+                                                                    HorizontalOptions="Center" 
+                                                                    FontSize="24"
                                                                     FontAttributes="Bold"/>
                                 </Border>
                             </Grid>
