@@ -3,23 +3,22 @@ using System.Text.Json;
 using Microsoft.Maui.Controls;
 using System;
 using System.IO;
-using perimapp.Models; // Assurez-vous que ce using est correct pour votre dossier Models
+using perimapp.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
-using perimapp.Data; // Ajouté pour accéder à AppData
+using perimapp.Data;
 
 namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        // La collection est de type ProductMainPage, liée à la CollectionView
-        public ObservableCollection<ProductMainPage> Products { get; set; }
+        public ObservableCollection<ProductInfos> Products { get; set; }
 
         public MainPage()
         {
             InitializeComponent();
-            Products = new ObservableCollection<ProductMainPage>();
+            Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
 
             _ = LoadProductsAsync();
@@ -35,34 +34,48 @@ namespace perimapp.Pages
             await Shell.Current.GoToAsync(nameof(AddProductPage));
         }
 
+        private async void OnProductSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.CurrentSelection != null && e.CurrentSelection.Any())
+            {
+                var selectedProduct = e.CurrentSelection.FirstOrDefault() as ProductInfos;
+
+                if (selectedProduct != null)
+                {
+                    // Désélectionne l'élément pour permettre de cliquer à nouveau sur le même
+                    ((CollectionView)sender).SelectedItem = null;
+
+                    // MODIFIÉ : Passer ProductUniqueId pour la navigation
+                    await Shell.Current.GoToAsync($"{nameof(DetailsPage)}?productUniqueId={selectedProduct.ProductUniqueId}");
+                }
+            }
+        }
+
         private async Task LoadProductsAsync()
         {
             try
             {
-                // Chargement du fichier responseMainPage.json depuis les ressources de l'application
-                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("responseMainPage.json");
+                // Chargement du fichier responseProductInfos.json depuis les ressources de l'application
+                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("responseProductInfos.json");
                 using StreamReader reader = new StreamReader(fileStream);
                 string jsonContent = await reader.ReadToEndAsync();
                 
                 // Désérialisation du JSON en une liste de ProductMainPage
-                List<ProductMainPage>? loadedProducts = JsonSerializer.Deserialize<List<ProductMainPage>>(jsonContent);
+                List<ProductInfos>? loadedProducts = JsonSerializer.Deserialize<List<ProductInfos>>(jsonContent);
 
                 if (loadedProducts != null)
                 {
-                    // Tri des produits par DaysRemaining comme vous le faites
+                    // Tri des produits par DaysRemaining
                     var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
                     
-                    // Ajout des produits à la collection locale de MainPage (pour l'affichage)
-                    Products.Clear(); // S'assurer que la collection est vide avant de la remplir
+                    Products.Clear();
                     foreach (var product in sortedProducts)
                     {
                         Products.Add(product);
                     }
 
-                    // *** NOUVEAU : Met à jour la collection partagée dans AppData ***
-                    // Cela garantit que AppData.CurrentProducts reflète fidèlement
-                    // les produits actuellement affichés dans MainPage.
-                    AppData.CurrentProducts.Clear(); // Effacer d'abord si elle contient des données précédentes
+                    // Met à jour la collection partagée dans AppData
+                    AppData.CurrentProducts.Clear();
                     foreach (var product in Products)
                     {
                         AppData.CurrentProducts.Add(product);

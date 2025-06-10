@@ -38,7 +38,11 @@
             <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="StartAndExpand">
 
                 <Frame WidthRequest="150" HeightRequest="150"
-                       CornerRadius="75"   BorderColor="Transparent" HasShadow="False"   BackgroundColor="Black" HorizontalOptions="Center"
+                       CornerRadius="75"   
+                       BorderColor="Transparent" 
+                       HasShadow="False"   
+                       BackgroundColor="Black" 
+                       HorizontalOptions="Center"
                        VerticalOptions="Center"
                        Margin="0,15,0,0">
                     <Image Source="profile_placeholder.png"
@@ -49,21 +53,27 @@
                        Text="{Binding UserName}"
                        Style="{StaticResource CardTitleStyle}"/>
 
-                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                <VerticalStackLayout Spacing="5" 
+                                     Padding="0,10" 
+                                     HorizontalOptions="FillAndExpand">
                     <Label Text="Quantité de produits enregistrés :" 
                            Style="{StaticResource CardContentStyle}"/>
                     <Label Text="{Binding RegisteredProductsCount}" 
                            Style="{StaticResource CardMiniContentStyle}"/>
                 </VerticalStackLayout>
 
-                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                <VerticalStackLayout Spacing="5" 
+                                     Padding="0,10" 
+                                     HorizontalOptions="FillAndExpand">
                     <Label Text="Produits perdus :" 
                            Style="{StaticResource CardContentStyle}"/>
                     <Label Text="{Binding LostProductsCount}" 
                            Style="{StaticResource CardMiniContentStyle}"/>
                 </VerticalStackLayout>
 
-                <VerticalStackLayout Spacing="5" Padding="0,10" HorizontalOptions="FillAndExpand">
+                <VerticalStackLayout Spacing="5" 
+                                     Padding="0,10" 
+                                     HorizontalOptions="FillAndExpand">
                     <Label Text="Code foyer :" Style="{StaticResource CardContentStyle}"/>
                     <Label x:Name="FoyerCodeLabel"
                            Text="{Binding FamilyCode}"

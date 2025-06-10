@@ -3,56 +3,63 @@
     "url_image": "https://images.openfoodfacts.org/images/products/541/012/680/6090/front_fr.49.400.jpg",
     "product_name": "Biscoff",
     "product_quantity": "1",
-    "product_dlc": "2025-06-12T00:00:00",
+    "product_dlc": "2025-06-19T00:00:00",
     "product_category": "Snacks, Snacks sucrés, Biscuits et gâteaux, Biscuits, Spéculoos",
-    "product_barcode": "5410126806090"
+    "product_barcode": "5410126806090",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/327/869/236/3254/front_fr.30.400.jpg",
     "product_name": "Yaourt au lait entier pasteurisé sucré aromatisé saveur vanille",
     "product_quantity": "4",
-    "product_dlc": "2025-06-07T00:00:00",
+    "product_dlc": "2025-06-10T00:00:00",
     "product_category": "Produits laitiers, Produits fermentés, Produits laitiers fermentés, Yaourts, Yaourts aromatisés",
-    "product_barcode": "3278692363254"
+    "product_barcode": "3278692363254",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/761/303/693/8143/front_fr.120.400.jpg",
     "product_name": "Chocolat noir à moins de 70% de cacao, à croquer, tablette",
     "product_quantity": "1",
-    "product_dlc": "2025-06-10T00:00:00",
+    "product_dlc": "2025-06-17T00:00:00",
     "product_category": "Snacks, Desserts, Snacks sucrés, Cacao et dérivés, Chocolats, Chocolats noirs",
-    "product_barcode": "7613036938143"
+    "product_barcode": "7613036938143",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/376/036/136/1468/front_en.3.400.jpg",
     "product_name": "Lait demi-écrémé, UHT",
     "product_quantity": "1",
-    "product_dlc": "2025-06-05T00:00:00",
-    "product_category": "1",
-    "product_barcode": "3760361361468"
+    "product_dlc": "2025-06-11T00:00:00",
+    "product_category": "milk",
+    "product_barcode": "3760361361468",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/327/322/111/5922/front_en.3.400.jpg",
     "product_name": "Skyr Alternative Raspberry",
     "product_quantity": "1",
-    "product_dlc": "2025-06-08T00:00:00",
+    "product_dlc": "2025-06-13T00:00:00",
     "product_category": "vegan yoghurt",
-    "product_barcode": "3273221115922"
+    "product_barcode": "3273221115922",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/880/234/011/2168/front_fr.4.400.jpg",
     "product_name": "Chum Churum - Peach",
     "product_quantity": "1",
-    "product_dlc": "2025-06-09T00:00:00",
+    "product_dlc": "2025-06-15T00:00:00",
     "product_category": "alcool",
-    "product_barcode": "8802340112168"
+    "product_barcode": "8802340112168",
+    "added_at": "2025-06-04T00:00:00"
   },
   {
     "url_image": "https://images.openfoodfacts.org/images/products/324/541/409/8756/front_fr.41.400.jpg",
     "product_name": "Fromage blanc nature, 3% MG environ",
     "product_quantity": "1",
-    "product_dlc": "2025-06-11T00:00:00",
+    "product_dlc": "2025-06-16T00:00:00",
     "product_category": "Produits laitiers, Produits fermentés, Desserts, Produits laitiers fermentés, Fromages, Desserts lactés, Desserts lactés fermentés, Desserts lactés fermentés nature, Fromages blancs, Fromages à la crème, Fromages blancs natures",
-    "product_barcode": "3245414098756"
+    "product_barcode": "3245414098756",
+    "added_at": "2025-06-04T00:00:00"
   }
 ]

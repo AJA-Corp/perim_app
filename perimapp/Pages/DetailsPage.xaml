@@ -1,13 +1,124 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.DetailsPage"
-             xmlns:headers="clr-namespace:perimapp.Headers">
-    <ContentPage.Content>
-        <VerticalStackLayout>
-            <headers:SharedHeader Label.Text="Perim'App" />
+             xmlns:localModels="clr-namespace:perimapp.Models"
+             xmlns:localConverters="clr-namespace:perimapp.Converters"  
+             xmlns:headers="clr-namespace:perimapp.Headers" 
+             BackgroundColor="White">
 
-        </VerticalStackLayout>
+    <ContentPage.Resources>
+        <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
+    </ContentPage.Resources>
+
+    
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, *, Auto">
+            <headers:SharedHeader Grid.Row="0" HeaderText="Perim'APP">
+            </headers:SharedHeader>
+
+            <ScrollView Grid.Row="1" 
+                        Padding="10" 
+                        HorizontalOptions="FillAndExpand"   VerticalOptions="FillAndExpand">
+                 <VerticalStackLayout Spacing="10"
+                                      HorizontalOptions="FillAndExpand"> <Border WidthRequest="150"
+                            HeightRequest="150"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Margin="0,20,0,10"
+                            Padding="0"                
+                            Background="Transparent"   
+                            StrokeShape="{RoundRectangle CornerRadius='3'}"  
+                            Stroke="Transparent"       
+                            StrokeThickness="0">
+                               <Image Source="{Binding url_image}" 
+                                      Aspect="AspectFill"     
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center"/>
+                    </Border>
+
+                    <Label Text="{Binding product_name}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" Margin="0,0,0,10"/>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0"
+                               Text="{Binding added_at, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
+                               FontSize="15"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                        <Label Grid.Column="1"
+                               Text="{Binding product_dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
+                               FontSize="15"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </Grid>
+
+                    <Label Text="{Binding product_quantity, StringFormat='Quantité: {0}'}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,10"/>
+                    
+                    <Frame BackgroundColor="LightGray"
+                           Padding="15"
+                           Margin="0,10,0,10"
+                           CornerRadius="0"
+                           BorderColor="Transparent"
+                           HasShadow="False"
+                           HorizontalOptions="FillAndExpand">
+                        <Label Text="{Binding product_category, StringFormat='Catégories : {0}'}"
+                               FontSize="15"
+                               TextColor="Black"
+                               HorizontalOptions="FillAndExpand"   
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="TailTruncation"
+                               MaxLines="4"/>    
+                    </Frame>
+
+                    <Button Text="Modifier"
+                            Clicked="OnModifyButtonClicked"
+                            BackgroundColor="White" 
+                            TextColor="Black"
+                            BorderColor="Transparent"
+                            CornerRadius="5"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            WidthRequest="200"
+                            HeightRequest="50"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Margin="0,0,0,0"/>
+
+                    <ContentView VerticalOptions="FillAndExpand" /> 
+                 </VerticalStackLayout>
+            </ScrollView>
+
+            <Border Grid.Row="2"
+                    BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
+                    StrokeShape="{RoundRectangle CornerRadius='25,25,0,0'}"
+                    HeightRequest="50"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="End"
+                    Padding="0,0"
+                    Margin="-3,0,-3,0"
+                    Stroke="Transparent"       
+                    StrokeThickness="0">
+                <Label
+                    Text="{Binding DaysRemainingTextDetailsPage}"
+                    TextColor="White"
+                    FontSize="20"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    VerticalTextAlignment="Center"/>
+            </Border>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

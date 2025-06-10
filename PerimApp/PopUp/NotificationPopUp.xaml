@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="perimapp.PopUp.NotificationPopUp"
+    Color="Transparent">
+    
+    <toolkit:Popup.Content>
+        <Border BackgroundColor="WhiteSmoke"
+                Stroke="LightGray"
+                StrokeThickness="1"
+                StrokeShape="{RoundRectangle CornerRadius='20'}"
+                WidthRequest="325"
+                Padding="20"
+                HorizontalOptions="FillAndExpand" VerticalOptions="Center">
+            
+            <ScrollView x:Name="MainScroll" VerticalOptions="Start">
+                <VerticalStackLayout HorizontalOptions="Center" Padding="0" Spacing="10" BackgroundColor="Transparent">
+                    <Label 
+                        Text="Soyez alerté avant la date de péremption"
+                        TextColor="Black"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,0,0,10" /> <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F94144" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F94144" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="1 jour avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="OneDayEntry"
+                            OnColor="#F94144"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F94144" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F94144" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="2 jours avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="TwoDaysEntry"
+                            OnColor="#F94144"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F8961E" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F8961E" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="3 jours avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="ThreeDaysEntry"
+                            OnColor="#F8961E"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F8961E" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F8991E" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="4 jours avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="FourDaysEntry"
+                            OnColor="#F8961E"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F9C74F" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F9C74F" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="5 jours avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="FiveDaysEntry"
+                            OnColor="#F9C74F"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#F9C74F" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F9C74F" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="6 jours avant péremption" 
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="SixDaysEntry"
+                            OnColor="#F9C74F"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <Border Stroke="#8CD6BF" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#8CD6BF" WidthRequest="210" VerticalOptions="Center">
+                            <Label 
+                                Text="7 jours avant péremption"
+                                TextColor="Black"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                Padding="5" />
+                        </Border>
+                        <Switch 
+                            x:Name="SevenDaysEntry"
+                            OnColor="#8CD6BF"
+                            ThumbColor="Black"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Button Text="Valider"
+                            BackgroundColor="Black"
+                            TextColor="White"
+                            Margin="0, 10, 0, 0"
+                            FontSize="18"
+                            CornerRadius="10"
+                            HorizontalOptions="FillAndExpand" 
+                            Clicked="OnValidateClicked"/>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+    </toolkit:Popup.Content>
+</toolkit:Popup>
