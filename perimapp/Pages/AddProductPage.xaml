@@ -11,7 +11,7 @@
             <headers:SharedHeader Grid.Row="0" HeaderText="Ajout Produit">
             </headers:SharedHeader>
             
-            <ScrollView Grid.Row="1" 
+            <ContentView Grid.Row="1" 
                         Padding="10" HorizontalOptions="FillAndExpand"   VerticalOptions="FillAndExpand">
                    
                    <VerticalStackLayout Spacing="10" HorizontalOptions="FillAndExpand">
@@ -104,7 +104,7 @@
                             
                               <Border Grid.Column="0"
                                     WidthRequest="50"
-                                    HeightRequest="25"
+                                    HeightRequest="30"
                                     Stroke="Black"
                                     StrokeThickness="1"
                                     StrokeShape="{RoundRectangle CornerRadius='5'}"
@@ -117,7 +117,7 @@
                                           TextColor="Black"
                                           BackgroundColor="Transparent"
                                           CornerRadius="5"
-                                          Padding="0"
+                                          Padding="0, -6, 0, 0"
                                           VerticalOptions="FillAndExpand"
                                           HorizontalOptions="FillAndExpand"
                                           Clicked="OnDecrementQuantityClicked"/>
@@ -125,7 +125,7 @@
                             
                               <Border Grid.Column="1"
                                     WidthRequest="50" HeightRequest="50"
-                                    Stroke="LightGray"
+                                    Stroke="Black"
                                     StrokeThickness="1"
                                     StrokeShape="{RoundRectangle CornerRadius='5'}"
                                     BackgroundColor="White"
@@ -137,19 +137,18 @@
                                          TextColor="Black"
                                          Keyboard="Numeric"
                                          HorizontalTextAlignment="Center"
-                                         VerticalTextAlignment="Center"
+                                         VerticalTextAlignment="Justify"
                                          Placeholder="1"
                                          ClearButtonVisibility="Never"
                                          MaxLength="3" 
                                          Margin="0"
-                                         Focused="QuantityEntry_Focused"
                                          Unfocused="QuantityEntry_Unfocused"/>
                               </Border>
 
                               <Border Grid.Column="2"
                                      WidthRequest="50"
-                                     HeightRequest="25"
-                                     Stroke="LightGray"
+                                     HeightRequest="30"
+                                     Stroke="Black"
                                      StrokeThickness="1"
                                      StrokeShape="{RoundRectangle CornerRadius='5'}"
                                      BackgroundColor="White"
@@ -161,7 +160,7 @@
                                              TextColor="Black"
                                              BackgroundColor="Transparent"
                                              CornerRadius="5"
-                                             Padding="0, -13, 0, 0"
+                                             Padding="0, -6, 0, 0"
                                              VerticalOptions="FillAndExpand"
                                              HorizontalOptions="FillAndExpand"
                                              Clicked="OnIncrementQuantityClicked" />
@@ -170,7 +169,7 @@
 
                     <ContentView VerticalOptions="FillAndExpand" /> 
                  </VerticalStackLayout>
-            </ScrollView>
+            </ContentView>
                <Grid Grid.Row="2"
                      HeightRequest="65"
                      BackgroundColor="#58BF7F"
