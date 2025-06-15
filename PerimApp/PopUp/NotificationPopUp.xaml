@@ -24,7 +24,9 @@
                         FontAttributes="Bold"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
-                        Margin="0,0,0,10" /> <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        Margin="0,0,0,10" />
+                    
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
                         <Border Stroke="#F94144" StrokeThickness="1" StrokeShape="RoundRectangle 8" BackgroundColor="#F94144" WidthRequest="210" VerticalOptions="Center">
                             <Label 
                                 Text="1 jour avant péremption" 
@@ -34,7 +36,8 @@
                                 VerticalOptions="Center"
                                 Padding="5" />
                         </Border>
-                        <Switch 
+                        <Switch
+                            IsToggled="True"
                             x:Name="OneDayEntry"
                             OnColor="#F94144"
                             ThumbColor="Black"

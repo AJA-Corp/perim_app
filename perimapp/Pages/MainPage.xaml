@@ -51,7 +51,7 @@
                         CornerRadius="5" 
                         VerticalOptions="Center"
                         HorizontalOptions="Center"
-                        Padding="0, -10, 0, 0" />
+                        Padding="0, -13, 0, 0" />
             </Grid>
             <!-- Cards Product -->
             <CollectionView Grid.Row="1" 

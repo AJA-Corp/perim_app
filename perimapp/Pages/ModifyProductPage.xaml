@@ -6,7 +6,7 @@
              xmlns:headers="clr-namespace:perimapp.Headers">
     <ContentPage.Content>
         <VerticalStackLayout>
-            <headers:SharedHeader Label.Text="Perim'App" />
+            <headers:SharedHeader HeaderText="Perim'APP" />
 
         </VerticalStackLayout>
     </ContentPage.Content>
