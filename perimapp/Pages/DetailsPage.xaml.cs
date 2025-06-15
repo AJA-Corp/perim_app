@@ -113,17 +113,9 @@ namespace perimapp.Pages
             }
         }
 
-        private async void OnBackButtonClicked(object sender, EventArgs e)
+        private async void OnModifyButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("..");
-        }
-
-        private void OnModifyButtonClicked(object sender, EventArgs e)
-        {
-            if (ProductDetail != null)
-            {
-                DisplayAlert("Modifier", $"Modifier le produit : {ProductDetail.product_name}", "OK");
-            }
+            await Shell.Current.GoToAsync(nameof(ModifyProductPage));
         }
     }
 }
