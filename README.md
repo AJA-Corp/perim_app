@@ -1,6 +1,5 @@
-
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=58BF7F,1E7F4C&height=180&section=header&text=Perim'APP&fontSize=40&fontColor=ffffff" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=58BF7F&height=180&section=header&text=Perim'APP&fontSize=40&fontColor=ffffff" />
 </p>
 
 <p align="center">
@@ -74,9 +73,9 @@ git clone https://github.com/AJA-Corp/perim_app.git
 
 > _Ajoutez vos captures ici pour illustrer l’interface_
 
-| Écran d’accueil | Ajout de produit | Alertes de péremption |
-|-----------------|------------------|------------------------|
-| ![home](docs/screens/home.png) | ![add](docs/screens/add.png) | ![alerts](docs/screens/alerts.png) |
+| Logo | Écran d’accueil | Ajout de produit | Alertes de péremption |
+|------|-----------------|------------------|------------------------|
+| ![logo](docs/screens/logo.png) | ![home](docs/screens/home.png) | ![add](docs/screens/add.png) | ![alerts](docs/screens/alerts.png) |
 
 ---
 
@@ -120,5 +119,5 @@ Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus
 ---
 
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=1E7F4C,58BF7F&height=100&section=footer" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=58BF7F&height=100&section=footer" />
 </p>
