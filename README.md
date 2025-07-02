@@ -71,8 +71,6 @@ git clone https://github.com/AJA-Corp/perim_app.git
 
 ## 🖼️ Captures d’écran
 
-> _Ajoutez vos captures ici pour illustrer l’interface_
-
 | Logo | Écran d’accueil | Ajout de produit | Alertes de péremption |
 |------|-----------------|------------------|------------------------|
 | ![logo](docs/screens/logo.png) | ![home](docs/screens/home.png) | ![add](docs/screens/add.png) | ![alerts](docs/screens/alerts.png) |
