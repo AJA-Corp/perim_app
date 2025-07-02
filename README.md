@@ -48,14 +48,13 @@
 - 📦 Ajout rapide de produits avec nom, date de péremption, catégorie
 - 🕒 Notifications automatiques pour les produits à consommer bientôt
 - 🔍 Filtrage par date, type, catégorie
-- 📊 Statistiques d’utilisation (à venir)
-- 🌙 Mode clair/sombre (bientôt)
+- 👨‍👩‍👧‍👦 Mode famille, pour accéder aux aliments du foyer
 
 ---
 
 ## 🚀 Installation
 
-> Prérequis : .NET 8 SDK + Visual Studio 2022 (avec MAUI) ou JetBrains Rider
+> Prérequis : .NET 9 SDK + Visual Studio 2022 (avec MAUI) ou JetBrains Rider
 
 ```bash
 # Clonez le projet
