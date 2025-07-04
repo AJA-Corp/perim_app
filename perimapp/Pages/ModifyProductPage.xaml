@@ -1,13 +1,103 @@
-<?xml version="1.0" encoding="utf-8"?>
-
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.ModifyProductPage"
-             xmlns:headers="clr-namespace:perimapp.Headers">
-    <ContentPage.Content>
-        <VerticalStackLayout>
-            <headers:SharedHeader HeaderText="Perim'APP" />
+             xmlns:localModels="clr-namespace:perimapp.Models"
+             xmlns:localConverters="clr-namespace:perimapp.Converters"  
+             xmlns:headers="clr-namespace:perimapp.Headers" 
+             xmlns:pages="clr-namespace:perimapp.Pages"
+             BackgroundColor="White">
 
-        </VerticalStackLayout>
+    <ContentPage.Resources>
+        <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, *, Auto">
+            <headers:SharedHeader Grid.Row="0" HeaderText="Modifier"
+                                  ProductUniqueId="{Binding ProductUniqueId, 
+                                  Source={RelativeSource 
+                                  AncestorType={x:Type pages:DetailsPage}}}">
+            </headers:SharedHeader>
+
+            <ScrollView Grid.Row="1" 
+                        Padding="10" 
+                        HorizontalOptions="FillAndExpand"   VerticalOptions="FillAndExpand">
+                 <VerticalStackLayout Spacing="10"
+                                      HorizontalOptions="FillAndExpand">
+                    <Border WidthRequest="150"
+                            HeightRequest="150"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Margin="0,20,0,10"
+                            Padding="0"                
+                            Background="Transparent"   
+                            StrokeShape="{RoundRectangle CornerRadius='3'}"  
+                            Stroke="Transparent"       
+                            StrokeThickness="0">
+                               <Image Source="{Binding url_image}" 
+                                      Aspect="AspectFill"     
+                                      HorizontalOptions="Center"
+                                      VerticalOptions="Center"/>
+                    </Border>
+
+                    <Entry Text="{Binding product_name, StringFormat='{0} : ...'}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" Margin="0,0,0,10"/>
+                    
+                    <Entry Text="{Binding product_dlc, StringFormat='DLC: {0:dd/MM/yyyy} : ...'}"
+                           FontSize="15"
+                           TextColor="Gray"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+
+                    <Entry Text="{Binding product_quantity, StringFormat='Quantité: {0} : ...'}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,10"/>
+                    
+                    <Frame BackgroundColor="LightGray"
+                           Padding="15"
+                           Margin="0,10,0,10"
+                           CornerRadius="0"
+                           BorderColor="Transparent"
+                           HasShadow="False"
+                           HorizontalOptions="FillAndExpand">
+                        <Label Text="{Binding product_category, StringFormat='Catégories : {0}'}"
+                               FontSize="15"
+                               TextColor="Black"
+                               HorizontalOptions="FillAndExpand"   
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="TailTruncation"
+                               MaxLines="4"/>    
+                    </Frame>
+
+                    <ContentView VerticalOptions="FillAndExpand" /> 
+                 </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid Grid.Row="2"
+                  HeightRequest="65"
+                  BackgroundColor="#58BF7F"
+                  HorizontalOptions="FillAndExpand"
+                  VerticalOptions="End">
+                <Button Text="Enregistrer"
+                        BackgroundColor="White"
+                        TextColor="Black"
+                        FontAttributes="Bold"
+                        CornerRadius="30"
+                        FontSize="20"
+                        Padding="0,5"
+                        Margin="0,10"
+                        WidthRequest="300"
+                        HorizontalOptions="FillAndExpand"
+                        VerticalOptions="Center"/>
+            </Grid>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

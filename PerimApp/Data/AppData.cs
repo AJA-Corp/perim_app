@@ -1,5 +1,6 @@
+/*
 using System.Collections.ObjectModel;
-using perimapp.Models; 
+using perimapp.Models;
 
 namespace perimapp.Data
 {
@@ -8,5 +9,16 @@ namespace perimapp.Data
         // Cette collection observable stockera les produits qui sont chargés par la MainPage.
         // C'est elle qui sera utilisée par ProfilePage pour obtenir le compte des produits enregistrés.
         public static ObservableCollection<ProductInfos> CurrentProducts { get; set; } = new ObservableCollection<ProductInfos>();
+    }
+}
+*/
+
+namespace perimapp.Data
+{
+    public static class AppData
+    {
+        public static int CurrentUserId { get; set; } = 1; // Par défaut ou après login
+
+        public static List<ProductInfos> CurrentProducts { get; set; } = new();
     }
 }
