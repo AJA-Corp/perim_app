@@ -123,27 +123,27 @@
                                           Clicked="OnDecrementQuantityClicked"/>
                               </Border>
                             
-                              <Border Grid.Column="1"
+                            <Border Grid.Column="1"
                                     WidthRequest="50" HeightRequest="50"
                                     Stroke="Black"
                                     StrokeThickness="1"
                                     StrokeShape="{RoundRectangle CornerRadius='5'}"
-                                    BackgroundColor="White"
+                                    BackgroundColor="White" Padding="0, 5, 0, 0"
                                     VerticalOptions="Center"
                                     HorizontalOptions="Center">
-                                    <Entry x:Name="QuantityEntry"
-                                         Text="1"
-                                         FontSize="25"
-                                         TextColor="Black"
-                                         Keyboard="Numeric"
-                                         HorizontalTextAlignment="Center"
-                                         VerticalTextAlignment="Justify"
-                                         Placeholder="1"
-                                         ClearButtonVisibility="Never"
-                                         MaxLength="3" 
-                                         Margin="0"
-                                         Unfocused="QuantityEntry_Unfocused"/>
-                              </Border>
+                                <Entry x:Name="QuantityEntry"
+                                       Text="1"
+                                       FontSize="25"
+                                       TextColor="Black"
+                                       BackgroundColor="White" Keyboard="Numeric"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Justify"
+                                       Placeholder="1"
+                                       ClearButtonVisibility="Never"
+                                       MaxLength="3" 
+                                       Margin="0"
+                                       Unfocused="QuantityEntry_Unfocused"/>
+                            </Border>
 
                               <Border Grid.Column="2"
                                      WidthRequest="50"
