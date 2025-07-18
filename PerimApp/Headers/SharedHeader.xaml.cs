@@ -16,13 +16,22 @@ namespace perimapp.Headers
             set => SetValue(HeaderTextProperty, value);
         }
 
+        // NOUVELLE PROPRIÉTÉ BINDABLE POUR L'ID DU PRODUIT
+        public static readonly BindableProperty ProductUniqueIdProperty =
+            BindableProperty.Create(nameof(ProductUniqueId), typeof(string), typeof(SharedHeader), string.Empty);
+
+        public string ProductUniqueId
+        {
+            get => (string)GetValue(ProductUniqueIdProperty);
+            set => SetValue(ProductUniqueIdProperty, value);
+        }
+
         public SharedHeader()
         {
             InitializeComponent ();
-            BindingContext = this;
+            BindingContext = this; // Le BindingContext de ContentView doit être lui-même pour les BindableProperties internes.
         }
 
-        // Fonction back button
         private async void OnBackButtonClicked(object sender, EventArgs e)
         {
             if (Shell.Current == null)
@@ -35,13 +44,25 @@ namespace perimapp.Headers
             {
                 var currentPage = Shell.Current.CurrentPage;
 
-                // Case ModifiyProductPage
+                // Case ModifyProductPage
                 if (currentPage is ModifyProductPage)
                 {
-                    await Shell.Current.GoToAsync(nameof(DetailsPage), true);
-                    Console.WriteLine("SharedHeader [SUCCÈS] : Navigation de ModifyProductPage vers DetailsPage.");
+                    // Vérifiez si ProductUniqueId est défini avant de naviguer
+                    if (!string.IsNullOrEmpty(ProductUniqueId))
+                    {
+                        // Construisez l'itinéraire de retour avec l'ID du produit
+                        string route = $"{nameof(DetailsPage)}?ProductUniqueId={ProductUniqueId}";
+                        await Shell.Current.GoToAsync(route, true); // Le 'true' signifie animation
+                        Console.WriteLine($"SharedHeader [SUCCÈS] : Navigation de ModifyProductPage vers DetailsPage avec ID: {ProductUniqueId}.");
+                    }
+                    else
+                    {
+                        // Si l'ID n'est pas disponible, retournez à la page principale ou affichez une erreur
+                        await Shell.Current.GoToAsync(nameof(MainPage), true);
+                        Console.WriteLine("SharedHeader [INFO] : ProductUniqueId non trouvé, navigation vers MainPage.");
+                    }
                 }
-                // Majority Case to MainPage 
+                // Majority Case to MainPage
                 else
                 {
                     await Shell.Current.GoToAsync(nameof(MainPage), true);
@@ -50,7 +71,6 @@ namespace perimapp.Headers
             }
             catch (Exception ex)
             {
-                // Cela devrait maintenant être beaucoup moins fréquent avec la correction ci-dessus.
                 Console.WriteLine($"SharedHeader [ERREUR] : Erreur critique lors de la navigation : {ex.Message}");
                 Console.WriteLine($"SharedHeader [DÉTAILS] : Type d'exception : {ex.GetType().Name}");
                 Console.WriteLine($"SharedHeader [DÉTAILS] : Pile d'appels : {ex.StackTrace}");

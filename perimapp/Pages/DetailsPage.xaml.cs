@@ -4,6 +4,7 @@ using perimapp.Data;
 using System.Linq;
 using System.Diagnostics; // Pour Debug.WriteLine
 using System.Threading.Tasks; // Pour Task.Delay
+using perimapp.Pages; // Assurez-vous d'avoir ceci pour nameof(ModifyProductPage)
 
 namespace perimapp.Pages
 {
@@ -20,21 +21,25 @@ namespace perimapp.Pages
             {
                 _productDetail = value;
                 OnPropertyChanged();
-                BindingContext = _productDetail;
+                BindingContext = _productDetail; // Met à jour le BindingContext lorsque ProductDetail est défini
             }
         }
 
         public DetailsPage()
         {
             InitializeComponent();
+            // N'appelez pas ProductDetail = null; ici, car ProductUniqueId n'est pas encore set.
+            // Laissez OnAppearing gérer la récupération initiale.
         }
 
-        protected override async void OnAppearing() // Changement en async void
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            if (!string.IsNullOrEmpty(ProductUniqueId))
+            // S'assure que le ProductUniqueId est bien défini AVANT de tenter de charger le produit
+            if (!string.IsNullOrEmpty(ProductUniqueId) && ProductDetail?.ProductUniqueId != ProductUniqueId)
             {
+                // Vérifie si le produit n'a pas déjà été chargé ou si l'ID a changé
                 ProductDetail = AppData.CurrentProducts.FirstOrDefault(p => p.ProductUniqueId == ProductUniqueId);
 
                 if (ProductDetail == null)
@@ -48,14 +53,13 @@ namespace perimapp.Pages
                     Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.product_name}");
                     Debug.WriteLine($"DetailsPage: URL de l'image (du modèle) : {ProductDetail.url_image}");
 
-                    // Testez si l'URL est réellement accessible sur Internet
+                    // Testez si l'URL est réellement accessible sur Internet (votre code existant)
                     if (!string.IsNullOrEmpty(ProductDetail.url_image))
                     {
                         try
                         {
                             using (var client = new HttpClient())
                             {
-                                // Ajouter un timeout pour éviter de bloquer indéfiniment
                                 client.Timeout = TimeSpan.FromSeconds(10);
                                 var response = await client.GetAsync(ProductDetail.url_image);
                                 if (response.IsSuccessStatusCode)
@@ -65,15 +69,12 @@ namespace perimapp.Pages
                                 else
                                 {
                                     Debug.WriteLine($"DetailsPage: L'URL de l'image N'EST PAS accessible. Statut: {response.StatusCode}");
-                                    // Afficher l'erreur à l'utilisateur si c'est critique
-                                    // await DisplayAlert("Erreur Image", $"L'image du produit n'a pas pu être chargée. Statut: {response.StatusCode}", "OK");
                                 }
                             }
                         }
                         catch (Exception ex)
                         {
                             Debug.WriteLine($"DetailsPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}");
-                            // await DisplayAlert("Erreur Image", $"Une erreur est survenue lors du chargement de l'image: {ex.Message}", "OK");
                         }
                     }
                     else
@@ -82,20 +83,20 @@ namespace perimapp.Pages
                     }
                 }
             }
-            else
+            else if (string.IsNullOrEmpty(ProductUniqueId))
             {
                 Debug.WriteLine("DetailsPage: Aucun ProductUniqueId fourni dans les paramètres de la requête.");
                 await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
             }
+            // Si ProductDetail.ProductUniqueId == ProductUniqueId, cela signifie que le produit est déjà chargé.
+            // Cela évite de recharger inutilement si la page réapparaît sans changement d'ID.
         }
 
-        // Nouveau gestionnaire d'événements pour le TapGestureRecognizer sur l'image
         private async void OnImageTapped(object sender, TappedEventArgs e)
         {
             if (ProductDetail != null && !string.IsNullOrEmpty(ProductDetail.url_image))
             {
-                // Tente d'ouvrir l'URL de l'image dans le navigateur par défaut
                 try
                 {
                     await Launcher.OpenAsync(new Uri(ProductDetail.url_image));
@@ -113,9 +114,21 @@ namespace perimapp.Pages
             }
         }
 
+        // MODIFICATION ICI : Passez le ProductUniqueId à ModifyProductPage
         private async void OnModifyButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync(nameof(ModifyProductPage));
+            if (ProductDetail != null && !string.IsNullOrEmpty(ProductDetail.ProductUniqueId))
+            {
+                // Construit la chaîne de requête avec l'ID
+                string route = $"{nameof(ModifyProductPage)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
+                Debug.WriteLine($"DetailsPage: Navigating to {route}");
+                await Shell.Current.GoToAsync(route);
+            }
+            else
+            {
+                // Gérer le cas où le ProductDetail n'est pas disponible (normalement, cela ne devrait pas arriver si OnAppearing fonctionne bien)
+                await DisplayAlert("Erreur", "Impossible de modifier le produit. ID manquant.", "OK");
+            }
         }
     }
 }

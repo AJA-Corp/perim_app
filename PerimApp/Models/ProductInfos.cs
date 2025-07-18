@@ -1,4 +1,5 @@
 // Models/ProductMainPage.cs
+/*
 using System;
 using System.Text.Json.Serialization; // Ajouté pour JsonPropertyName et JsonIgnore
 
@@ -62,5 +63,26 @@ namespace perimapp.Models
         // Ceci remplace la nécessité d'un champ "id" explicite dans votre JSON
         [JsonIgnore] // Ne pas inclure lors de la sérialisation/désérialisation du JSON
         public string ProductUniqueId => product_barcode ?? Guid.NewGuid().ToString(); // Utilise le code-barres comme ID unique. Si null, génère un GUID.
+    }
+}
+*/
+
+using System;
+
+namespace perimapp.Models
+{
+    public class ProductInfos
+    {
+        public int Id { get; set; }
+        public long Barcode { get; set; }
+        public string Name { get; set; }
+        public string UrlImage { get; set; }
+        public string Category { get; set; }
+        public string Conservation { get; set; }
+
+        public DateTime Dlc { get; set; }
+        public int DaysRemaining => (Dlc - DateTime.Today).Days;
+
+        public int Quantity { get; set; }
     }
 }
