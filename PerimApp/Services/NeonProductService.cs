@@ -22,7 +22,7 @@ namespace perimapp.Services
                 string query = @"
                     SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, pd.conservation,
                            pu.dlc, pu.quantity
-                    FROM product_users pu
+                    FROM products_users pu
                     JOIN products_data pd ON pu.barcode = pd.barcode
                     WHERE pu.user_id = @userId;
                 ";
@@ -57,6 +57,34 @@ namespace perimapp.Services
             }
 
             return products;
+        }
+        
+        public async Task<bool> UpdateUserProductAsync(ProductInfos product)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+                    UPDATE product_users
+                    SET dlc = @dlc, quantity = @quantity
+                    WHERE id = @id;
+                ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("dlc", product.Dlc);
+                cmd.Parameters.AddWithValue("quantity", product.Quantity);
+                cmd.Parameters.AddWithValue("id", product.Id);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour : {ex.Message}");
+                return false;
+            }
         }
     }
 }
