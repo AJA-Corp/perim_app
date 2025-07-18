@@ -9,7 +9,7 @@
 
 <p align="center">
   <!-- Badges -->
-  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20Windows%20%7C%20iOS-blue?style=flat-square" />
+  <img src="https://img.shields.io/badge/platforms-Android%20%7C%20iOS-blue?style=flat-square" />
   <img src="https://img.shields.io/badge/.NET-MAUI-58BF7F?style=flat-square&logo=dotnet&logoColor=white" />
   <img src="https://img.shields.io/badge/status-en%20développement-orange?style=flat-square" />
   <img src="https://img.shields.io/github/languages/top/AJA-Corp/perim_app?style=flat-square" />
@@ -79,7 +79,7 @@ git clone https://github.com/AJA-Corp/perim_app.git
 ## 🛠️ Technologies utilisées
 
 - [✅ .NET MAUI](https://learn.microsoft.com/dotnet/maui/) – développement multiplateforme
-- [📦 SQLite](https://www.sqlite.org/index.html) – stockage local
+- [📦 PostgreSQL](https://www.postgresql.org/) – stockage local
 - [🔔 Notifications locales MAUI](https://learn.microsoft.com/dotnet/maui/platform-integration/appmodel/notifications)
 - [📱 MVVM Community Toolkit](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/) – architecture claire
 - [🖌️ XAML] – interface utilisateur
