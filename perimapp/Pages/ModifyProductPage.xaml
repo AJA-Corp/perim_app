@@ -67,7 +67,7 @@
                                     TextColor="Gray"
                                     HorizontalOptions="Center"
                                     HorizontalTextAlignment="Center"
-                                    Keyboard="Numeric" MaxLength="10" Completed="ProductDlcEntry_Completed"/> 
+                                    Keyboard="Numeric" MaxLength="10"/> 
                          </HorizontalStackLayout>
                      </Grid>
 
@@ -93,8 +93,7 @@
                                       CornerRadius="5"
                                       Padding="0, -6, 0, 0"
                                       VerticalOptions="FillAndExpand"
-                                      HorizontalOptions="FillAndExpand"
-                                      Clicked="OnDecrementQuantityClicked"/>
+                                      HorizontalOptions="FillAndExpand"/>
                           </Border>
                          
                           <Border Grid.Column="1"
@@ -114,8 +113,7 @@
                                   Placeholder="1"
                                   ClearButtonVisibility="Never"
                                   MaxLength="3" 
-                                  Margin="0"
-                                  Unfocused="QuantityEntry_Unfocused"/> 
+                                  Margin="0"/> 
                           </Border>
 
                           <Border Grid.Column="2"
@@ -134,8 +132,7 @@
                                           CornerRadius="5"
                                           Padding="0, -6, 0, 0"
                                           VerticalOptions="FillAndExpand"
-                                          HorizontalOptions="FillAndExpand"
-                                          Clicked="OnIncrementQuantityClicked" /> 
+                                          HorizontalOptions="FillAndExpand" /> 
                           </Border>
                         </Grid>
                     
