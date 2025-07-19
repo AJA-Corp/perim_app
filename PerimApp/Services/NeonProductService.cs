@@ -8,7 +8,8 @@ namespace perimapp.Services
 {
     public class NeonProductService
     {
-        private const string ConnectionString = "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
+        private const string ConnectionString =
+            "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
 
         public async Task<List<ProductInfos>> GetUserProductsAsync(int userId)
         {
@@ -19,10 +20,11 @@ namespace perimapp.Services
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
 
-                string query = @"
-                    SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, pd.conservation,
+                string query =
+                    @"
+                    SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
                            pu.dlc, pu.quantity
-                    FROM product_users pu
+                    FROM products_users pu
                     JOIN products_data pd ON pu.barcode = pd.barcode
                     WHERE pu.user_id = @userId;
                 ";
@@ -43,12 +45,12 @@ namespace perimapp.Services
                         Category = reader.GetString(4),
                         Conservation = reader.GetString(5),
                         Dlc = reader.GetDateTime(6),
-                        Quantity = reader.GetInt32(7)
+                        Quantity = reader.GetInt32(7),
                     };
 
                     products.Add(product);
                 }
-                
+
                 await conn.CloseAsync();
             }
             catch (Exception ex)
@@ -57,6 +59,35 @@ namespace perimapp.Services
             }
 
             return products;
+        }
+
+        public async Task<bool> UpdateUserProductAsync(ProductInfos product)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+                    UPDATE products_users
+                    SET dlc = @dlc, quantity = @quantity
+                    WHERE id = @id;
+                ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("dlc", product.Dlc);
+                cmd.Parameters.AddWithValue("quantity", product.Quantity);
+                cmd.Parameters.AddWithValue("id", product.Id);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la mise à jour : {ex.Message}");
+                return false;
+            }
         }
     }
 }
