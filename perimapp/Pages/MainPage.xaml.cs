@@ -1,29 +1,30 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json;
-using Microsoft.Maui.Controls;
-using System;
-using System.IO;
-using perimapp.Models;
-using System.Threading.Tasks;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
 using perimapp.Data;
+using perimapp.Models;
+using perimapp.Services; // <-- Pour NeonProductService
 
 namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
     {
-        public ObservableCollection<ProductInfos> Products { get; set; }
+        public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
+
+        private readonly NeonProductService _productService = new NeonProductService();
 
         public MainPage()
         {
             InitializeComponent();
-            Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
 
             _ = LoadProductsAsync();
         }
-        
+
         private async void OnProfileIconClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(ProfilePage));
@@ -42,11 +43,12 @@ namespace perimapp.Pages
 
                 if (selectedProduct != null)
                 {
-                    // Désélectionne l'élément pour permettre de cliquer à nouveau sur le même
                     ((CollectionView)sender).SelectedItem = null;
 
-                    // MODIFIÉ : Passer ProductUniqueId pour la navigation
-                    await Shell.Current.GoToAsync($"{nameof(DetailsPage)}?productUniqueId={selectedProduct.ProductUniqueId}");
+                    // Utilise Id pour la navigation (car ProductUniqueId n'existe pas)
+                    await Shell.Current.GoToAsync(
+                        $"{nameof(DetailsPage)}?productId={selectedProduct.Id}"
+                    );
                 }
             }
         }
@@ -55,38 +57,58 @@ namespace perimapp.Pages
         {
             try
             {
-                // Chargement du fichier responseProductInfos.json depuis les ressources de l'application
-                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("responseProductInfos.json");
-                using StreamReader reader = new StreamReader(fileStream);
-                string jsonContent = await reader.ReadToEndAsync();
-                
-                // Désérialisation du JSON en une liste de ProductMainPage
-                List<ProductInfos>? loadedProducts = JsonSerializer.Deserialize<List<ProductInfos>>(jsonContent);
+                // Tente de charger depuis la BDD Neon
+                List<ProductInfos> loadedProducts = await _productService.GetUserProductsAsync(
+                    AppData.CurrentUserId
+                );
+
+                if (loadedProducts == null || loadedProducts.Count == 0)
+                {
+                    // Fallback sur JSON local si aucun produit chargé ou erreur
+                    loadedProducts = await LoadProductsFromJsonAsync();
+                }
 
                 if (loadedProducts != null)
                 {
-                    // Tri des produits par DaysRemaining
                     var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
-                    
+
                     Products.Clear();
                     foreach (var product in sortedProducts)
                     {
                         Products.Add(product);
                     }
-
-                    // Met à jour la collection partagée dans AppData
-                    AppData.CurrentProducts.Clear();
-                    foreach (var product in Products)
-                    {
-                        AppData.CurrentProducts.Add(product);
-                    }
-                    Console.WriteLine($"MainPage a chargé {Products.Count} produits et mis à jour AppData.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors du chargement des produits (MainPage) : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible de charger les données des produits. " + ex.Message, "OK");
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlert(
+                    "Erreur",
+                    "Impossible de charger les produits. " + ex.Message,
+                    "OK"
+                );
+            }
+        }
+
+        private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
+        {
+            try
+            {
+                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync(
+                    "responseProductInfos.json"
+                );
+                using StreamReader reader = new StreamReader(fileStream);
+                string jsonContent = await reader.ReadToEndAsync();
+
+                var products = System.Text.Json.JsonSerializer.Deserialize<List<ProductInfos>>(
+                    jsonContent
+                );
+                return products;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement JSON local : {ex.Message}");
+                return new List<ProductInfos>();
             }
         }
     }
