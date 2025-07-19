@@ -82,7 +82,38 @@ namespace perimapp.Models
 
         public DateTime Dlc { get; set; }
         public int DaysRemaining => (Dlc - DateTime.Today).Days;
-
         public int Quantity { get; set; }
+
+        public string DaysRemainingTextMainPage
+        {
+            get
+            {
+                int days = DaysRemaining;
+                if (days < 0)
+                    return "Exp.";
+                if (days == 0)
+                    return "Auj.";
+                if (days == 1)
+                    return "1j"; // Modifié de "1 jour" à "1j" pour correspondre au format "Xj"
+                return $"{days}j";
+            }
+        }
+
+        public string DaysRemainingTextDetailsPage
+        {
+            get
+            {
+                int days = DaysRemaining;
+                if (days < 0)
+                    return "Expiré";
+                if (days == 0)
+                    return "Aujourd'hui";
+                if (days == 1)
+                    return "1 jour"; // Modifié de "1 jour" à "1j" pour correspondre au format "Xj"
+                return $"{days} jours";
+            }
+        }
+
+        public string ProductUniqueId { get; set; } = Guid.NewGuid().ToString();
     }
 }
