@@ -11,21 +11,14 @@ namespace perimapp.Pages
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class DetailsPage : ContentPage
     {
-        private int _productId;
-        public string ProductIdString
+        private string _productUniqueId;
+        public string ProductUniqueId
         {
-            get => _productId.ToString();
+            get => _productUniqueId.ToString();
             set
             {
-                if (int.TryParse(value, out var id))
-                {
-                    _productId = id;
-                    LoadProductDetail();
-                }
-                else
-                {
-                    Debug.WriteLine($"DetailsPage: productId invalide : {value}");
-                }
+                _productUniqueId = value;
+                LoadProductDetail();
             }
         }
 
@@ -48,10 +41,12 @@ namespace perimapp.Pages
             // Laissez OnAppearing gérer la récupération initiale.
         }
 
-        private void LoadProductDetail()
+        private async void LoadProductDetail()
         {
             // Recherche dans la liste chargée
-            ProductDetail = AppData.CurrentProducts.FirstOrDefault(p => p.Id == _productId);
+            ProductDetail = AppData.CurrentProducts.FirstOrDefault(p =>
+                p.ProductUniqueId == _productUniqueId
+            );
 
             // S'assure que le ProductUniqueId est bien défini AVANT de tenter de charger le produit
             if (
@@ -71,7 +66,8 @@ namespace perimapp.Pages
                     );
                     await DisplayAlert("Erreur", "Produit non trouvé.", "OK");
                     await Shell.Current.GoToAsync("..");
-                });
+                }
+                ;
             }
             else
             {
@@ -124,11 +120,9 @@ namespace perimapp.Pages
                                 }
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception innerEx)
                         {
-                            Debug.WriteLine(
-                                $"DetailsPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}"
-                            );
+                            Debug.WriteLine($"DetailsPage: Erreur : {innerEx.Message}");
                         }
                     }
                     else
@@ -144,6 +138,7 @@ namespace perimapp.Pages
                 );
                 await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
+            }
         }
 
         private async void OnImageTapped(object sender, TappedEventArgs e)
