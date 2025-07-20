@@ -12,24 +12,26 @@ using perimapp.Services;
 
 namespace perimapp.Pages
 {
-    [QueryProperty(nameof(ProductIdString), "productId")]
+    [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class ModifyProductPage : ContentPage, INotifyPropertyChanged
     {
-        private int _productId;
-        public string ProductIdString
+        private string _productUniqueId;
+        public string ProductUniqueId
         {
-            get => _productId.ToString();
+            get => _productUniqueId;
             set
             {
+                /*
                 if (int.TryParse(value, out int id))
                 {
                     _productId = id;
-                    LoadProductForModification();
                 }
                 else
                 {
                     Debug.WriteLine($"ModifyProductPage: productId invalide : {value}");
                 }
+                */
+                _productUniqueId = value;
             }
         }
 
@@ -41,29 +43,44 @@ namespace perimapp.Pages
             {
                 _currentProduct = value;
                 OnPropertyChanged();
-                BindingContext = _currentProduct;
+                // BindingContext = _currentProduct;
             }
         }
 
         public ModifyProductPage()
         {
             InitializeComponent();
+            BindingContext = this;
         }
 
-        private async void LoadProductForModification()
+        protected override void OnAppearing()
         {
-            CurrentProduct = AppData.CurrentProducts.FirstOrDefault(p => p.Id == _productId);
+            base.OnAppearing();
+            LoadProductForModification();
+        }
+
+        private void LoadProductForModification()
+        {
+            CurrentProduct = AppData.CurrentProducts.FirstOrDefault(p =>
+                p.ProductUniqueId == _productUniqueId
+            );
 
             if (CurrentProduct == null)
             {
-                Debug.WriteLine($"ModifyProductPage: Produit non trouvé avec Id = {_productId}");
+                Debug.WriteLine(
+                    $"ModifyProductPage: Produit non trouvé avec Id = {_productUniqueId}"
+                );
+                /*
                 await DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
                 await Shell.Current.GoToAsync("..");
+                */
             }
             else
             {
                 Debug.WriteLine($"ModifyProductPage: Produit chargé : {CurrentProduct.Name}");
+                /*
                 await CheckImageUrlAsync(CurrentProduct.UrlImage);
+                */
             }
         }
 
