@@ -79,7 +79,7 @@ namespace perimapp.Models
         public string UrlImage { get; set; }
         public string Category { get; set; }
         public string Conservation { get; set; }
-
+        public DateTime AddedAt { get; set; }
         public DateTime Dlc { get; set; }
         public int DaysRemaining => (Dlc - DateTime.Today).Days;
         public int Quantity { get; set; }

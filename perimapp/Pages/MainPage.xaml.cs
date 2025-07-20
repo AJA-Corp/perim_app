@@ -47,7 +47,7 @@ namespace perimapp.Pages
 
                     // Utilise Id pour la navigation (car ProductUniqueId n'existe pas)
                     await Shell.Current.GoToAsync(
-                        $"{nameof(DetailsPage)}?productId={selectedProduct.Id}"
+                        $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
                     );
                 }
             }

@@ -22,7 +22,8 @@
 
             <ScrollView Grid.Row="1" 
                         Padding="10" 
-                        HorizontalOptions="FillAndExpand"   VerticalOptions="FillAndExpand">
+                        HorizontalOptions="FillAndExpand"   
+                        VerticalOptions="FillAndExpand">
                  <VerticalStackLayout Spacing="10"
                                       HorizontalOptions="FillAndExpand">
                      <Border WidthRequest="150"
@@ -35,14 +36,14 @@
                             StrokeShape="{RoundRectangle CornerRadius='3'}"  
                             Stroke="Transparent"       
                             StrokeThickness="0">
-                               <Image Source="{Binding url_image}" 
+                               <Image Source="{Binding CurrentProduct.UrlImage}" 
                                       Aspect="AspectFill"     
                                       HorizontalOptions="Center"
                                       VerticalOptions="Center"/>
                      </Border>
 
                      <Entry x:Name="ProductNameEntry"
-                            Text="{Binding product_name}" FontSize="20"
+                            Text="{Binding CurrentProduct.Name}" FontSize="20"
                             FontAttributes="Bold"
                             TextColor="Black"
                             HorizontalOptions="Center"
@@ -51,7 +52,7 @@
                      <Grid ColumnDefinitions="*,*">
                          
                          <Label Grid.Column="0"
-                                Text="{Binding added_at, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
+                                Text="{Binding CurrentProduct.AddedAt, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
                                 FontSize="15"
                                 TextColor="Gray"
                                 HorizontalOptions="Center"
@@ -63,11 +64,11 @@
                                     TextColor="Gray"
                                     VerticalOptions="Center"/>
                              <Entry x:Name="ProductDlcEntry"
-                                    Text="{Binding product_dlc, StringFormat='{0:dd/MM/yyyy}'}" FontSize="15"
+                                    Text="{Binding CurrentProduct.Dlc, StringFormat='{0:dd/MM/yyyy}'}" FontSize="15"
                                     TextColor="Gray"
                                     HorizontalOptions="Center"
                                     HorizontalTextAlignment="Center"
-                                    Keyboard="Numeric" MaxLength="10" Completed="ProductDlcEntry_Completed"/> 
+                                    Keyboard="Numeric" MaxLength="10"/> 
                          </HorizontalStackLayout>
                      </Grid>
 
@@ -93,8 +94,7 @@
                                       CornerRadius="5"
                                       Padding="0, -6, 0, 0"
                                       VerticalOptions="FillAndExpand"
-                                      HorizontalOptions="FillAndExpand"
-                                      Clicked="OnDecrementQuantityClicked"/>
+                                      HorizontalOptions="FillAndExpand"/>
                           </Border>
                          
                           <Border Grid.Column="1"
@@ -106,7 +106,7 @@
                                   VerticalOptions="Center"
                                   HorizontalOptions="Center">
                           <Entry x:Name="QuantityEntry"
-                                  Text="{Binding product_quantity}" FontSize="25"
+                                  Text="{Binding CurrentProduct.Quantity}" FontSize="25"
                                   TextColor="Black"
                                   BackgroundColor="White" Keyboard="Numeric"
                                   HorizontalTextAlignment="Center"
@@ -114,8 +114,7 @@
                                   Placeholder="1"
                                   ClearButtonVisibility="Never"
                                   MaxLength="3" 
-                                  Margin="0"
-                                  Unfocused="QuantityEntry_Unfocused"/> 
+                                  Margin="0"/> 
                           </Border>
 
                           <Border Grid.Column="2"
@@ -134,8 +133,7 @@
                                           CornerRadius="5"
                                           Padding="0, -6, 0, 0"
                                           VerticalOptions="FillAndExpand"
-                                          HorizontalOptions="FillAndExpand"
-                                          Clicked="OnIncrementQuantityClicked" /> 
+                                          HorizontalOptions="FillAndExpand" /> 
                           </Border>
                         </Grid>
                     
@@ -146,7 +144,7 @@
                            BorderColor="Transparent"
                            HasShadow="False"
                            HorizontalOptions="FillAndExpand">
-                        <Label Text="{Binding product_category, StringFormat='Catégories : {0}'}"
+                        <Label Text="{Binding CurrentProduct.Category, StringFormat='Catégories : {0}'}"
                                FontSize="15"
                                TextColor="Black"
                                HorizontalOptions="FillAndExpand"   
