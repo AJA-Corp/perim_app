@@ -11,15 +11,16 @@ namespace perimapp.Pages
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class DetailsPage : ContentPage
     {
-        private int _productId;
-        public string ProductIdString
+        private string _productUniqueId;
+
+        public string ProductUniqueId
         {
-            get => _productId.ToString();
+            get => _productUniqueId;
             set
             {
                 if (int.TryParse(value, out var id))
                 {
-                    _productId = id;
+                    _productUniqueId = value;
                     LoadProductDetail();
                 }
                 else
@@ -30,6 +31,7 @@ namespace perimapp.Pages
         }
 
         private ProductInfos? _productDetail;
+
         public ProductInfos? ProductDetail
         {
             get => _productDetail;
@@ -48,10 +50,12 @@ namespace perimapp.Pages
             // Laissez OnAppearing gérer la récupération initiale.
         }
 
-        private void LoadProductDetail()
+        private async void LoadProductDetail()
         {
             // Recherche dans la liste chargée
-            ProductDetail = AppData.CurrentProducts.FirstOrDefault(p => p.Id == _productId);
+            ProductDetail = AppData.CurrentProducts.FirstOrDefault(p =>
+                p.ProductUniqueId == _productUniqueId
+            );
 
             // S'assure que le ProductUniqueId est bien défini AVANT de tenter de charger le produit
             if (
@@ -71,7 +75,8 @@ namespace perimapp.Pages
                     );
                     await DisplayAlert("Erreur", "Produit non trouvé.", "OK");
                     await Shell.Current.GoToAsync("..");
-                });
+                }
+                ;
             }
             else
             {
@@ -94,7 +99,7 @@ namespace perimapp.Pages
                             : $"DetailsPage: L'URL de l'image n'est pas accessible. Statut: {response.StatusCode}"
                     );
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.Name}");
                     Debug.WriteLine(
@@ -144,55 +149,56 @@ namespace perimapp.Pages
                 );
                 await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
-        }
+            }
 
-        private async void OnImageTapped(object sender, TappedEventArgs e)
-        {
-            if (ProductDetail != null && !string.IsNullOrEmpty(ProductDetail.UrlImage))
+            async void OnImageTapped(object sender, TappedEventArgs e)
             {
-                try
+                if (ProductDetail != null && !string.IsNullOrEmpty(ProductDetail.UrlImage))
                 {
-                    await Launcher.OpenAsync(new Uri(ProductDetail.UrlImage));
-                    Debug.WriteLine(
-                        $"DetailsPage: Tentative d'ouverture de l'URL de l'image dans le navigateur : {ProductDetail.UrlImage}"
-                    );
+                    try
+                    {
+                        await Launcher.OpenAsync(new Uri(ProductDetail.UrlImage));
+                        Debug.WriteLine(
+                            $"DetailsPage: Tentative d'ouverture de l'URL de l'image dans le navigateur : {ProductDetail.UrlImage}"
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(
+                            $"DetailsPage: Erreur lors de l'ouverture de l'URL de l'image : {ex.Message}"
+                        );
+                        await DisplayAlert(
+                            "Erreur",
+                            "Impossible d'ouvrir l'image dans le navigateur.",
+                            "OK"
+                        );
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Debug.WriteLine(
-                        $"DetailsPage: Erreur lors de l'ouverture de l'URL de l'image : {ex.Message}"
-                    );
+                    await DisplayAlert("Info", "Pas d'image à afficher ou URL manquante.", "OK");
+                }
+            }
+
+            async void OnModifyButtonClicked(object sender, EventArgs e)
+            {
+                if (ProductDetail != null)
+                {
+                    // Construit la chaîne de requête avec l'ID
+                    string route =
+                        $"{nameof(ModifyProductPage)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
+                    Debug.WriteLine($"DetailsPage: Navigating to {route}");
+                    await Shell.Current.GoToAsync(route);
+                }
+                else
+                {
+                    // Gérer le cas où le ProductDetail n'est pas disponible (normalement, cela ne devrait pas arriver si OnAppearing fonctionne bien)
                     await DisplayAlert(
                         "Erreur",
-                        "Impossible d'ouvrir l'image dans le navigateur.",
+                        "Impossible de modifier le produit. ID manquant.",
                         "OK"
                     );
                 }
-            }
-            else
-            {
-                await DisplayAlert("Info", "Pas d'image à afficher ou URL manquante.", "OK");
-            }
-        }
-
-        private async void OnModifyButtonClicked(object sender, EventArgs e)
-        {
-            if (ProductDetail != null)
-            {
-                // Construit la chaîne de requête avec l'ID
-                string route =
-                    $"{nameof(ModifyProductPage)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
-                Debug.WriteLine($"DetailsPage: Navigating to {route}");
-                await Shell.Current.GoToAsync(route);
-            }
-            else
-            {
-                // Gérer le cas où le ProductDetail n'est pas disponible (normalement, cela ne devrait pas arriver si OnAppearing fonctionne bien)
-                await DisplayAlert(
-                    "Erreur",
-                    "Impossible de modifier le produit. ID manquant.",
-                    "OK"
-                );
             }
         }
     }

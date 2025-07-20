@@ -83,7 +83,6 @@
                     </Frame>
 
                     <Button Text="Modifier"
-                            Clicked="OnModifyButtonClicked"
                             BackgroundColor="White" 
                             TextColor="Black"
                             BorderColor="Transparent"
