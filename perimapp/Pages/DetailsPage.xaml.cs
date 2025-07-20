@@ -11,7 +11,23 @@ namespace perimapp.Pages
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class DetailsPage : ContentPage
     {
-        public string? ProductUniqueId { get; set; }
+        private int _productId;
+        public string ProductIdString
+        {
+            get => _productId.ToString();
+            set
+            {
+                if (int.TryParse(value, out var id))
+                {
+                    _productId = id;
+                    LoadProductDetail();
+                }
+                else
+                {
+                    Debug.WriteLine($"DetailsPage: productId invalide : {value}");
+                }
+            }
+        }
 
         private ProductInfos? _productDetail;
         public ProductInfos? ProductDetail
@@ -21,7 +37,6 @@ namespace perimapp.Pages
             {
                 _productDetail = value;
                 OnPropertyChanged();
-                // BindingContext = _productDetail; // Met à jour le BindingContext lorsque ProductDetail est défini
             }
         }
 
@@ -33,9 +48,10 @@ namespace perimapp.Pages
             // Laissez OnAppearing gérer la récupération initiale.
         }
 
-        protected override async void OnAppearing()
+        private void LoadProductDetail()
         {
-            base.OnAppearing();
+            // Recherche dans la liste chargée
+            ProductDetail = AppData.CurrentProducts.FirstOrDefault(p => p.Id == _productId);
 
             // S'assure que le ProductUniqueId est bien défini AVANT de tenter de charger le produit
             if (
@@ -55,8 +71,30 @@ namespace perimapp.Pages
                     );
                     await DisplayAlert("Erreur", "Produit non trouvé.", "OK");
                     await Shell.Current.GoToAsync("..");
+                });
+            }
+            else
+            {
+                Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.Name}");
+                CheckImageUrlAsync(ProductDetail.UrlImage);
+            }
+        }
+
+        private async void CheckImageUrlAsync(string url)
+        {
+            if (!string.IsNullOrEmpty(url))
+            {
+                try
+                {
+                    using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+                    var response = await client.GetAsync(url);
+                    Debug.WriteLine(
+                        response.IsSuccessStatusCode
+                            ? $"DetailsPage: L'URL de l'image est accessible."
+                            : $"DetailsPage: L'URL de l'image n'est pas accessible. Statut: {response.StatusCode}"
+                    );
                 }
-                else
+                catch (Exception ex)
                 {
                     Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.Name}");
                     Debug.WriteLine(
@@ -99,16 +137,13 @@ namespace perimapp.Pages
                     }
                 }
             }
-            else if (string.IsNullOrEmpty(ProductUniqueId))
+            else
             {
                 Debug.WriteLine(
                     "DetailsPage: Aucun ProductUniqueId fourni dans les paramètres de la requête."
                 );
                 await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
-            }
-            // Si ProductDetail.ProductUniqueId == ProductUniqueId, cela signifie que le produit est déjà chargé.
-            // Cela évite de recharger inutilement si la page réapparaît sans changement d'ID.
         }
 
         private async void OnImageTapped(object sender, TappedEventArgs e)
@@ -140,10 +175,9 @@ namespace perimapp.Pages
             }
         }
 
-        // MODIFICATION ICI : Passez le ProductUniqueId à ModifyProductPage
         private async void OnModifyButtonClicked(object sender, EventArgs e)
         {
-            if (ProductDetail != null && !string.IsNullOrEmpty(ProductDetail.ProductUniqueId))
+            if (ProductDetail != null)
             {
                 // Construit la chaîne de requête avec l'ID
                 string route =
