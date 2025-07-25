@@ -6,7 +6,7 @@ namespace perimapp.Data
     public static class AppData
     {
         // Id de l'utilisateur connecté
-        public static int CurrentUserId { get; set; } = 2;
+        public static int CurrentUserId { get; set; } = -1;
 
         // Liste observable des produits (pour binding UI)
         public static ObservableCollection<ProductInfos> CurrentProducts { get; set; } = new();

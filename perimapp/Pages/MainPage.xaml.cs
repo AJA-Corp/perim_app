@@ -20,6 +20,7 @@ namespace perimapp.Pages
         public MainPage()
         {
             InitializeComponent();
+            NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
             _ = LoadProductsAsync();
