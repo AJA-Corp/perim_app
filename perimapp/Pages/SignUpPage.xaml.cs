@@ -19,13 +19,13 @@ namespace perimapp.Pages
             string email = EmailEntry.Text?.Trim() ?? "";
             string password = PasswordEntry.Text ?? "";
             string confirmPassword = ConfirmPasswordEntry.Text ?? "";
-            string homeCode = CodeFoyerEntry.Text?.Trim() ?? "";
+
+            int homeCode = GenerateRandomHomeCode();
 
             if (
                 string.IsNullOrWhiteSpace(email)
                 || string.IsNullOrWhiteSpace(password)
                 || string.IsNullOrWhiteSpace(confirmPassword)
-                || string.IsNullOrWhiteSpace(homeCode)
             )
             {
                 await DisplayAlert("Erreur", "Tous les champs doivent être remplis.", "OK");
@@ -42,7 +42,7 @@ namespace perimapp.Pages
             {
                 Email = email,
                 Password = password,
-                HomeCode = Convert.ToInt32(homeCode),
+                HomeCode = homeCode,
             };
 
             int userId = await _userService.RegisterUserAsync(newUser);
@@ -50,6 +50,7 @@ namespace perimapp.Pages
             if (userId > 0)
             {
                 AppData.CurrentUserId = userId;
+                Preferences.Default.Set("UserId", userId);
                 await DisplayAlert("Succès", "Inscription réussie !", "OK");
                 await Shell.Current.GoToAsync(nameof(MainPage));
             }
@@ -70,6 +71,17 @@ namespace perimapp.Pages
         private async void OnBackSignUpClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(StartingPage));
+        }
+
+        private async void HomeCodeButton(object? sender, EventArgs e)
+        {
+            await Shell.Current.GoToAsync(nameof(LogInPage));
+        }
+
+        private int GenerateRandomHomeCode()
+        {
+            Random random = new();
+            return random.Next(100000, 1000000); // 6 chiffres
         }
     }
 }
