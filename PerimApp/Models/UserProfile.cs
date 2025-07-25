@@ -14,12 +14,12 @@ namespace perimapp.Models
         public string Email { get; set; }
 
         [JsonPropertyName("password")]
-        public string Password { get; set; } 
+        public string Password { get; set; }
 
         [JsonPropertyName("home_code")]
-        public string HomeCode { get; set; }
+        public int HomeCode { get; set; }
 
         [JsonPropertyName("lost_products")]
-        public string LostProducts { get; set; } 
+        public string LostProducts { get; set; }
     }
 }

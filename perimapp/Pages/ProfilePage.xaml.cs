@@ -1,16 +1,16 @@
-using Microsoft.Maui.Controls;
+using System; // Pour Console.WriteLine() et Exception
 using System.Collections.ObjectModel;
-using System.Text.Json;
-using perimapp.PopUp;  // Pour NotificationPopUp
-using perimapp.Models; // Pour UserProfile
-using perimapp.Data;   // Pour AppData
-using System.Linq;     // Pour les méthodes .Any() et .First()
-using System;          // Pour Console.WriteLine() et Exception
-using System.IO;       // Pour Stream et StreamReader
-using System.Threading.Tasks; // Pour Task
 using System.ComponentModel; // NOUVEAU : Ajouté pour INotifyPropertyChanged
+using System.IO; // Pour Stream et StreamReader
+using System.Linq; // Pour les méthodes .Any() et .First()
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Threading.Tasks; // Pour Task
 using CommunityToolkit.Maui.Views; // NOUVEAU : Ajouté pour [CallerMemberName]
+using Microsoft.Maui.Controls;
+using perimapp.Data; // Pour AppData
+using perimapp.Models; // Pour UserProfile
+using perimapp.PopUp; // Pour NotificationPopUp
 
 namespace perimapp.Pages
 {
@@ -114,7 +114,9 @@ namespace perimapp.Pages
             try
             {
                 // Lecture du fichier responseProfilePage.json depuis les ressources de l'application
-                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync("responseProfilePage.json");
+                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync(
+                    "responseProfilePage.json"
+                );
                 using StreamReader reader = new StreamReader(fileStream);
                 jsonContent = await reader.ReadToEndAsync(); // Lit tout le contenu du fichier
 
@@ -126,7 +128,7 @@ namespace perimapp.Pages
                     var user = userProfiles.First(); // Prenez le premier profil du tableau
                     // Assignez les valeurs aux propriétés, ce qui déclenchera OnPropertyChanged
                     UserName = $"{user.FirstName} {user.LastName}";
-                    FamilyCode = user.HomeCode;
+                    FamilyCode = user.HomeCode.ToString();
 
                     // Convertir la chaîne "lost_products" en entier
                     if (int.TryParse(user.LostProducts, out int lostCount))
@@ -137,29 +139,39 @@ namespace perimapp.Pages
                     {
                         LostProductsCount = 0;
                     }
-                    Console.WriteLine($"ProfilePage: Profil utilisateur chargé depuis fichier - Nom: {UserName}, Foyer: {FamilyCode}, Produits perdus: {LostProductsCount}");
+                    Console.WriteLine(
+                        $"ProfilePage: Profil utilisateur chargé depuis fichier - Nom: {UserName}, Foyer: {FamilyCode}, Produits perdus: {LostProductsCount}"
+                    );
                 }
                 else
                 {
                     // Si le JSON est vide ou n'a pas de profil, utilisez des valeurs par défaut
                     SetDefaultProfileValues();
-                    Console.WriteLine("ProfilePage: Fichier JSON de profil vide ou invalide, valeurs par défaut appliquées.");
+                    Console.WriteLine(
+                        "ProfilePage: Fichier JSON de profil vide ou invalide, valeurs par défaut appliquées."
+                    );
                 }
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine("ProfilePage [ERREUR] : Fichier 'responseProfilePage.json' introuvable dans les ressources brutes. Vérifiez son emplacement.");
+                Console.WriteLine(
+                    "ProfilePage [ERREUR] : Fichier 'responseProfilePage.json' introuvable dans les ressources brutes. Vérifiez son emplacement."
+                );
                 SetDefaultProfileValues();
             }
             catch (JsonException ex)
             {
-                Console.WriteLine($"ProfilePage [ERREUR JSON] : Erreur lors de la désérialisation du JSON du profil. Vérifiez la structure du JSON. Message : {ex.Message}");
+                Console.WriteLine(
+                    $"ProfilePage [ERREUR JSON] : Erreur lors de la désérialisation du JSON du profil. Vérifiez la structure du JSON. Message : {ex.Message}"
+                );
                 Console.WriteLine($"Contenu JSON tenté de désérialiser : {jsonContent}");
                 SetDefaultProfileValues();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ProfilePage [ERREUR] : Une erreur inattendue est survenue lors du chargement du profil : {ex.Message}");
+                Console.WriteLine(
+                    $"ProfilePage [ERREUR] : Une erreur inattendue est survenue lors du chargement du profil : {ex.Message}"
+                );
                 SetDefaultProfileValues();
             }
             finally
@@ -167,7 +179,9 @@ namespace perimapp.Pages
                 // NOUVEAU : Assurez-vous de mettre à jour RegisteredProductsCount après les opérations asynchrones.
                 // Cela est important car MainPage pourrait charger ses produits après le constructeur de ProfilePage.
                 RegisteredProductsCount = AppData.CurrentProducts.Count;
-                Console.WriteLine($"ProfilePage: Nombre de produits enregistrés mis à jour après chargement du profil : {RegisteredProductsCount}");
+                Console.WriteLine(
+                    $"ProfilePage: Nombre de produits enregistrés mis à jour après chargement du profil : {RegisteredProductsCount}"
+                );
             }
         }
 
