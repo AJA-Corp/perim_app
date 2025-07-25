@@ -1,29 +1,37 @@
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks; // Pour Task
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
+using perimapp.Services;
 
 namespace perimapp.Pages
 {
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class ModifyProductPage : ContentPage, INotifyPropertyChanged
     {
-        private string? _productUniqueId;
-        public string? ProductUniqueId
+        private string _productUniqueId;
+        public string ProductUniqueId
         {
             get => _productUniqueId;
             set
             {
-                if (_productUniqueId != value)
+                /*
+                if (int.TryParse(value, out int id))
                 {
-                    _productUniqueId = value;
-                    OnPropertyChanged();
-                    LoadProductForModification(_productUniqueId);
+                    _productId = id;
                 }
+                else
+                {
+                    Debug.WriteLine($"ModifyProductPage: productId invalide : {value}");
+                }
+                */
+                _productUniqueId = value;
             }
         }
 
@@ -72,9 +80,10 @@ namespace perimapp.Pages
         public ModifyProductPage()
         {
             InitializeComponent();
+            BindingContext = this;
         }
 
-        private async void LoadProductForModification(string? uniqueId)
+        protected override void OnAppearing()
         {
             if (!string.IsNullOrEmpty(uniqueId))
             {
@@ -282,7 +291,7 @@ namespace perimapp.Pages
             Debug.WriteLine($"Incremented quantity to: {_currentQuantity}");
         }
 
-        private void OnDecrementQuantityClicked(object sender, EventArgs e)
+        private async void OnSaveButtonClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnDecrementQuantityClicked called.");
             if (CurrentProduct == null)
@@ -305,17 +314,11 @@ namespace perimapp.Pages
             }
         }
 
-        // --- Implémentation de INotifyPropertyChanged ---
-        public event PropertyChangedEventHandler PropertyChanged;
+            // Appel au service
+            var service = new NeonProductService();
+            bool success = await service.UpdateUserProductAsync(CurrentProduct);
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        private async void OnSaveButtonClicked(object sender, EventArgs e)
-        {
-            if (CurrentProduct != null)
+            if (success)
             {
                 // Effectuer une dernière synchronisation et validation avant la sauvegarde finale
                 // UpdateCurrentQuantityFromEntry(); // Pas strictement nécessaire si QuantityEntry_Unfocused est toujours appelé avant la sauvegarde
@@ -334,8 +337,7 @@ namespace perimapp.Pages
 
                 if (string.IsNullOrWhiteSpace(CurrentProduct.product_name))
                 {
-                    await DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
-                    return;
+                    AppData.CurrentProducts[index] = CurrentProduct;
                 }
 
                 // La validation de la quantité est déjà gérée dans QuantityEntry_Unfocused et UpdateCurrentQuantityFromEntry
@@ -361,8 +363,14 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert("Erreur", "Aucun produit à sauvegarder.", "OK");
+                await DisplayAlert("Erreur", "La mise à jour a échoué.", "OK");
             }
         }
+
+        // Implémentation INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

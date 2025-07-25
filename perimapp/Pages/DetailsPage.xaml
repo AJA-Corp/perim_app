@@ -31,13 +31,13 @@
                             StrokeShape="{RoundRectangle CornerRadius='3'}"  
                             Stroke="Transparent"       
                             StrokeThickness="0">
-                               <Image Source="{Binding url_image}" 
+                               <Image Source="{Binding ProductDetail.UrlImage}" 
                                       Aspect="AspectFill"     
                                       HorizontalOptions="Center"
                                       VerticalOptions="Center"/>
                     </Border>
 
-                    <Label Text="{Binding product_name}"
+                    <Label Text="{Binding ProductDetail.Name}"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="Black"
@@ -46,20 +46,20 @@
 
                     <Grid ColumnDefinitions="*,*">
                         <Label Grid.Column="0"
-                               Text="{Binding added_at, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
+                               Text="{Binding ProductDetail.AddedAt, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
                                FontSize="15"
                                TextColor="Gray"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"/>
                         <Label Grid.Column="1"
-                               Text="{Binding product_dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
+                               Text="{Binding ProductDetail.Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
                                FontSize="15"
                                TextColor="Gray"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"/>
                     </Grid>
 
-                    <Label Text="{Binding product_quantity, StringFormat='Quantité: {0}'}"
+                    <Label Text="{Binding ProductDetail.Quantity, StringFormat='Quantité: {0}'}"
                            FontSize="18"
                            FontAttributes="Bold"
                            TextColor="Black"
@@ -73,7 +73,7 @@
                            BorderColor="Transparent"
                            HasShadow="False"
                            HorizontalOptions="FillAndExpand">
-                        <Label Text="{Binding product_category, StringFormat='Catégories : {0}'}"
+                        <Label Text="{Binding ProductDetail.Category, StringFormat='Catégories : {0}'}"
                                FontSize="15"
                                TextColor="Black"
                                HorizontalOptions="FillAndExpand"   
@@ -101,7 +101,7 @@
             </ScrollView>
 
             <Border Grid.Row="2"
-                    BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
+                    BackgroundColor="{Binding ProductDetail.DaysRemaining, Converter={StaticResource dlcColorConverter}}"
                     StrokeShape="{RoundRectangle CornerRadius='25,25,0,0'}"
                     HeightRequest="50"
                     HorizontalOptions="FillAndExpand"
@@ -111,7 +111,7 @@
                     Stroke="Transparent"       
                     StrokeThickness="0">
                 <Label
-                    Text="{Binding DaysRemainingTextDetailsPage}"
+                    Text="{Binding ProductDetail.DaysRemainingTextDetailsPage}"
                     TextColor="White"
                     FontSize="20"
                     FontAttributes="Bold"

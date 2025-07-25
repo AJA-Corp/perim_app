@@ -87,7 +87,7 @@
                                         StrokeShape="{RoundRectangle CornerRadius='3'}"  
                                         Stroke="Transparent"       
                                         StrokeThickness="0">
-                                    <Image Source="{Binding url_image}"
+                                    <Image Source="{Binding UrlImage}"
                                            Aspect="AspectFill"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
@@ -98,17 +98,17 @@
                                                      VerticalOptions="Center"
                                                      Padding="10,0">
                                     <!-- Name Product -->
-                                    <Label Text="{Binding product_name}"
+                                    <Label Text="{Binding Name}"
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"  MaxLines="2"
                                            TextColor="Black"/>
                                     <!-- Quantity Product -->
-                                    <Label Text="{Binding product_quantity, StringFormat='Quantité: {0}'}"
+                                    <Label Text="{Binding Quantity, StringFormat='Quantité: {0}'}"
                                            FontSize="14"
                                            TextColor="Gray"/>
                                     <!-- DLC Product -->
-                                    <Label Text="{Binding product_dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
+                                    <Label Text="{Binding Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
                                            FontSize="12"
                                            TextColor="DarkGray"/>
                                 </VerticalStackLayout>
