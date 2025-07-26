@@ -22,11 +22,23 @@
                    FontAttributes="Bold"
                    TextColor="Black"
                    HorizontalOptions="Center"
-                   Margin="0,20,0,40"/>
+                   Margin="0,20,0,20"/>
+
+                
+                <!-- Code foyer -->
+                <Grid>
+                    <Button Text="Avez-vous un code foyer ?"
+                            Clicked="HomeCodeButton"
+                            TextColor="Gray"
+                            BackgroundColor="Transparent"
+                            HeightRequest="50"
+                            FontSize="17"
+                            HorizontalOptions="Center"
+                            x:Name="CodeFoyerButton" />
+                </Grid>
 
             <!-- Entrées personnalisées -->
             <VerticalStackLayout Padding="20" Spacing="25">
-
                 <!-- Email -->
                 <Grid>
                     <Entry Placeholder="Email"
@@ -66,20 +78,6 @@
                            HeightRequest="50"
                            FontSize="20"
                            x:Name="ConfirmPasswordEntry"/>
-                    <BoxView HeightRequest="1"
-                             BackgroundColor="Black"
-                             VerticalOptions="End"/>
-                </Grid>
-
-                <!-- Code foyer -->
-                <Grid>
-                    <Entry Placeholder="Code foyer ?"
-                           TextColor="Black"
-                           PlaceholderColor="Gray"
-                           BackgroundColor="Transparent"
-                           HeightRequest="50"
-                           FontSize="20"
-                           x:Name="CodeFoyerEntry"/>
                     <BoxView HeightRequest="1"
                              BackgroundColor="Black"
                              VerticalOptions="End"/>
