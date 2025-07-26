@@ -10,7 +10,7 @@
              BackgroundColor="White">
 
     <ContentPage.Resources>
-        <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
+        <localConverters:DlcColorConverter x:Key="dlcColorConverter"/>
     </ContentPage.Resources>
 
     <ContentPage.Content>
@@ -57,7 +57,7 @@
                                 TextColor="Gray"
                                 VerticalOptions="Center"/>
                          <Entry x:Name="ProductDlcEntry"
-                                Text="{Binding product_dlc}" FontSize="15"
+                                Text="{Binding CurrentProduct.Dlc}" FontSize="15"
                                 TextColor="Black" HorizontalOptions="Center"
                                 HorizontalTextAlignment="Center"
                                 Keyboard="Numeric"
@@ -105,7 +105,7 @@
                                    VerticalOptions="Center"
                                    HorizontalOptions="Center">
                                    <Entry x:Name="QuantityEntry"
-                                          Text="{Binding product_quantity}"  FontSize="25"
+                                          Text="{Binding CurrentProduct.Quantity}"  FontSize="25"
                                           TextColor="Black"
                                           VerticalOptions="Center"
                                           HorizontalOptions="Center"
@@ -161,17 +161,18 @@
                   BackgroundColor="#58BF7F"
                   HorizontalOptions="FillAndExpand"
                   VerticalOptions="End">
-                <Button Text="Enregistrer"
-                        BackgroundColor="White"
-                        TextColor="Black"
-                        FontAttributes="Bold"
-                        CornerRadius="30"
-                        FontSize="20"
-                        Padding="0,5"
-                        Margin="0,10"
-                        WidthRequest="300"
-                        HorizontalOptions="FillAndExpand"
-                        VerticalOptions="Center"/>
+                  <Button Text="Enregistrer"
+                          BackgroundColor="White"
+                          TextColor="Black"
+                          FontAttributes="Bold"
+                          CornerRadius="30"
+                          FontSize="20"
+                          Padding="0,5"
+                          Margin="0,10"
+                          WidthRequest="300"
+                          HorizontalOptions="FillAndExpand"
+                          VerticalOptions="Center"
+                          Clicked="OnSaveButtonClicked"/>
             </Grid>
         </Grid>
     </ContentPage.Content>

@@ -1,45 +1,36 @@
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services;
+using perimapp.Data; // Pour AppData
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Linq;
+using System.Diagnostics; // Pour Debug.WriteLine
+using System; // Pour TimeSpan, DateTime, Math.Max
+using System.Net.Http; // Pour HttpClient
 
 namespace perimapp.Pages
 {
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class ModifyProductPage : ContentPage, INotifyPropertyChanged
     {
-        private string _productUniqueId;
-        public string ProductUniqueId
+        // Propriété bindable pour récupérer l'ID unique du produit passé en paramètre
+        private string? _productUniqueId;
+        public string? ProductUniqueId
         {
             get => _productUniqueId;
             set
             {
-                /*
-                if (int.TryParse(value, out int id))
+                if (_productUniqueId != value)
                 {
-                    _productId = id;
+                    _productUniqueId = value;
+                    OnPropertyChanged(); // Notifie le changement pour les bindings (ex: header)
+                    LoadProductForModification(_productUniqueId); // Charge les détails du produit
                 }
-                else
-                {
-                    Debug.WriteLine($"ModifyProductPage: productId invalide : {value}");
-                }
-                */
-                _productUniqueId = value;
             }
         }
 
         private ProductInfos? _currentProduct;
-
-        // Nouveau : Champ privé pour stocker la quantité numérique
-        private int _currentQuantity;
-
+        // Propriété bindable qui représente le produit en cours de modification
         public ProductInfos? CurrentProduct
         {
             get => _currentProduct;
@@ -48,181 +39,138 @@ namespace perimapp.Pages
                 if (_currentProduct != value)
                 {
                     _currentProduct = value;
-                    OnPropertyChanged();
-                    BindingContext = _currentProduct;
+                    OnPropertyChanged(); // Notifie les changements pour l'UI
 
+                    // Initialiser _currentQuantity et l'affichage des Entries lors du chargement du produit
                     if (_currentProduct != null)
                     {
-                        // Initialiser le texte de la DLC Entry lors du chargement
-                        ProductDlcEntry.Text = _currentProduct.product_dlc.ToString("dd/MM/yyyy");
-
-                        // Initialiser _currentQuantity à partir du produit chargé
-                        if (int.TryParse(_currentProduct.product_quantity, out int parsedQuantity))
-                        {
-                            _currentQuantity = Math.Max(1, parsedQuantity); // Assurez-vous que la quantité est au moins 1
-                        }
-                        else
-                        {
-                            _currentQuantity = 1; // Valeur par défaut si la conversion échoue
-                        }
-
-                        // Mettre à jour l'Entry de la quantité pour refléter la valeur initiale (ou corrigée)
-                        // Cela mettra également à jour CurrentProduct.product_quantity via le binding
-                        if (QuantityEntry != null) // Vérification pour s'assurer que l'Entry est initialisée
+                        // Initialiser la quantité numérique à partir du modèle (qui est un int)
+                        _currentQuantity = Math.Max(1, _currentProduct.Quantity); // UTILISE .Quantity
+                        
+                        // Mettre à jour le texte de l'Entry de quantité
+                        if (QuantityEntry != null)
                         {
                             QuantityEntry.Text = _currentQuantity.ToString();
+                            Debug.WriteLine($"ModifyProductPage: Initial quantity set to {_currentQuantity}");
+                        }
+
+                        // Mettre à jour le texte de l'Entry DLC avec le formatage
+                        if (ProductDlcEntry != null)
+                        {
+                            ProductDlcEntry.Text = _currentProduct.Dlc.ToString("dd/MM/yyyy"); // UTILISE .Dlc
+                            Debug.WriteLine($"ModifyProductPage: Initial DLC set to {_currentProduct.Dlc:dd/MM/yyyy}");
                         }
                     }
                 }
             }
         }
+        
+        // Champ privé pour stocker la quantité numérique, synchronisé avec CurrentProduct.Quantity
+        private int _currentQuantity;
 
         public ModifyProductPage()
         {
             InitializeComponent();
-            BindingContext = this;
+            BindingContext = this; 
         }
 
-        protected override void OnAppearing()
+        // Méthode pour charger les détails du produit en fonction de l'ID unique
+        private async void LoadProductForModification(string? uniqueId)
         {
             if (!string.IsNullOrEmpty(uniqueId))
             {
-                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p =>
-                    p.ProductUniqueId == uniqueId
-                );
+                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p => p.ProductUniqueId == uniqueId);
 
                 if (product != null)
                 {
-                    CurrentProduct = product;
-                    Debug.WriteLine(
-                        $"ModifyProductPage: Produit à modifier chargé : {CurrentProduct.product_name}"
-                    );
+                    CurrentProduct = product; 
+                    Debug.WriteLine($"ModifyProductPage: Produit à modifier chargé : {CurrentProduct.Name}");
 
-                    if (!string.IsNullOrEmpty(CurrentProduct.url_image))
-                    {
-                        try
-                        {
-                            using (var client = new HttpClient())
-                            {
-                                client.Timeout = TimeSpan.FromSeconds(10);
-                                var response = await client.GetAsync(CurrentProduct.url_image);
-                                if (response.IsSuccessStatusCode)
-                                {
-                                    Debug.WriteLine(
-                                        $"ModifyProductPage: L'URL de l'image est accessible ! Statut: {response.StatusCode}"
-                                    );
-                                }
-                                else
-                                {
-                                    Debug.WriteLine(
-                                        $"ModifyProductPage: L'URL de l'image N'EST PAS accessible. Statut: {response.StatusCode}"
-                                    );
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine(
-                                $"ModifyProductPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}"
-                            );
-                        }
-                    }
-                    else
-                    {
-                        Debug.WriteLine("ModifyProductPage: url_image est nulle ou vide.");
-                    }
+                    CheckImageUrlAsync(CurrentProduct.UrlImage);
                 }
                 else
                 {
-                    Debug.WriteLine(
-                        "ModifyProductPage: Produit non trouvé avec ProductUniqueId : " + uniqueId
-                    );
+                    Debug.WriteLine("ModifyProductPage: Produit non trouvé avec ProductUniqueId : " + uniqueId);
                     await DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
-                    await Shell.Current.GoToAsync("..");
+                    await Shell.Current.GoToAsync(".."); 
                 }
             }
             else
             {
-                Debug.WriteLine(
-                    "ModifyProductPage: Aucun ProductUniqueId fourni pour la modification."
-                );
-                await DisplayAlert(
-                    "Erreur",
-                    "Impossible de modifier. Aucun ID de produit fourni.",
-                    "OK"
-                );
+                Debug.WriteLine("ModifyProductPage: Aucun ProductUniqueId fourni pour la modification.");
+                await DisplayAlert("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
             }
         }
 
-        // ------------------------------------------------------------------------------------------------------------------
-        // NOUVELLE MÉTHODE POUR SYNCHRONISER _currentQuantity AVEC LE CONTENU DE L'ENTRY
-        private void UpdateCurrentQuantityFromEntry()
+        // Vérifie si l'URL de l'image est accessible
+        private async void CheckImageUrlAsync(string? url)
         {
-            if (QuantityEntry == null)
-                return; // Sécurité
-
-            // Tente de parser le texte de l'Entry dans _currentQuantity
-            if (int.TryParse(QuantityEntry.Text, out int parsedValue))
+            if (!string.IsNullOrEmpty(url))
             {
-                _currentQuantity = Math.Max(1, parsedValue); // S'assure que la valeur est au moins 1
+                try
+                {
+                    using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+                    var response = await client.GetAsync(url);
+                    Debug.WriteLine(
+                        response.IsSuccessStatusCode
+                            ? $"ModifyProductPage: L'URL de l'image est accessible. Statut: {response.StatusCode}"
+                            : $"ModifyProductPage: L'URL de l'image n'est pas accessible. Statut: {response.StatusCode}"
+                    );
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"ModifyProductPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}");
+                }
             }
             else
             {
-                // Si la saisie n'est pas un nombre valide, on force _currentQuantity à 1
-                // et on met à jour l'Entry pour refléter cette correction.
-                _currentQuantity = 1;
-                QuantityEntry.Text = _currentQuantity.ToString();
-                Debug.WriteLine(
-                    "UpdateCurrentQuantityFromEntry: Saisie invalide détectée, quantité réinitialisée à 1."
-                );
+                Debug.WriteLine("ModifyProductPage: url_image est nulle ou vide.");
             }
         }
 
         // ------------------------------------------------------------------------------------------------------------------
-        // GESTIONNAIRES SPÉCIFIQUES AUX COMPORTEMENTS DEMANDÉS
+        // LOGIQUE SPÉCIFIQUE AUX CHAMPS DE MODIFICATION
 
-        // Pour Product Name Entry: Pas de gestionnaire spécifique pour le texte qui ne doit pas disparaître.
-        // Le binding Text="{Binding product_name}" est suffisant.
+        // Synchronise la valeur de _currentQuantity avec le texte de l'Entry
+        private void UpdateCurrentQuantityFromEntry()
+        {
+            if (QuantityEntry == null) return;
 
-        /// <summary>
-        /// Gère l'événement Completed pour ProductDlcEntry (quand l'utilisateur valide la saisie ou quitte le champ).
-        /// Valide le format de la date.
-        /// </summary>
+            if (int.TryParse(QuantityEntry.Text, out int parsedValue))
+            {
+                _currentQuantity = Math.Max(1, parsedValue);
+            }
+            else
+            {
+                _currentQuantity = 1; 
+                QuantityEntry.Text = _currentQuantity.ToString();
+                Debug.WriteLine("UpdateCurrentQuantityFromEntry: Saisie invalide détectée, quantité réinitialisée à 1.");
+            }
+        }
+
+        // Gère la validation de la DLC lors de la complétion de la saisie
         private async void ProductDlcEntry_Completed(object sender, EventArgs e)
         {
-            if (CurrentProduct == null)
-                return;
+            if (CurrentProduct == null) return;
 
             Entry entry = (Entry)sender;
             string newDateText = entry.Text;
 
-            if (
-                DateTime.TryParseExact(
-                    newDateText,
-                    "dd/MM/yyyy",
-                    null,
-                    System.Globalization.DateTimeStyles.None,
-                    out DateTime parsedDate
-                )
-            )
+            if (DateTime.TryParseExact(newDateText, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
             {
-                CurrentProduct.product_dlc = parsedDate; // Met à jour le modèle
+                CurrentProduct.Dlc = parsedDate; // UTILISE .Dlc
+                Debug.WriteLine($"ProductDlcEntry_Completed: DLC mise à jour à {parsedDate:dd/MM/yyyy}");
             }
             else
             {
-                await DisplayAlert(
-                    "Erreur de format",
-                    "Veuillez entrer la date au format JJ/MM/AAAA. (Ex: 01/01/2025)",
-                    "OK"
-                );
-                entry.Text = CurrentProduct.product_dlc.ToString("dd/MM/yyyy");
+                await DisplayAlert("Erreur de format", "Veuillez entrer la date au format JJ/MM/AAAA. (Ex: 01/01/2025)", "OK");
+                entry.Text = CurrentProduct.Dlc.ToString("dd/MM/yyyy"); // UTILISE .Dlc
+                Debug.WriteLine($"ProductDlcEntry_Completed: Format de date invalide. Restauré à {CurrentProduct.Dlc:dd/MM/yyyy}");
             }
         }
 
-        /// <summary>
-        /// Gère l'événement Focused pour QuantityEntry pour positionner le curseur à la fin.
-        /// </summary>
+        // Place le curseur à la fin du texte lorsque l'Entry de quantité est focus
         private void QuantityEntry_Focused(object sender, FocusEventArgs e)
         {
             if (sender is Entry entry)
@@ -231,146 +179,115 @@ namespace perimapp.Pages
             }
         }
 
-        /// <summary>
-        /// Gère l'événement Unfocused pour QuantityEntry (pour la validation).
-        /// </summary>
+        // Gère la validation de la quantité lorsque l'Entry perd le focus
         private async void QuantityEntry_Unfocused(object sender, FocusEventArgs e)
         {
             Debug.WriteLine("QuantityEntry_Unfocused called.");
-            if (CurrentProduct == null)
-                return;
+            if (CurrentProduct == null) return;
 
             Entry entry = (Entry)sender;
             string newQuantityText = entry.Text;
 
             if (int.TryParse(newQuantityText, out int quantity) && quantity >= 1)
             {
-                _currentQuantity = quantity; // Mettre à jour _currentQuantity basé sur le texte de l'Entry
-                CurrentProduct.product_quantity = _currentQuantity.ToString(); // Assurer que le modèle est en sync
-                Debug.WriteLine(
-                    $"QuantityEntry_Unfocused: Quantité valide définie à {_currentQuantity}"
-                );
+                _currentQuantity = quantity; 
+                CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
+                Debug.WriteLine($"QuantityEntry_Unfocused: Quantité valide définie à {_currentQuantity}");
             }
             else
             {
-                await DisplayAlert(
-                    "Saisie invalide",
-                    "Veuillez entrer une quantité numérique valide (minimum 1).",
-                    "OK"
-                );
-                // Restaurer la dernière valeur valide connue de _currentQuantity
+                await DisplayAlert("Saisie invalide", "Veuillez entrer une quantité numérique valide (minimum 1).", "OK");
                 entry.Text = _currentQuantity.ToString();
-                CurrentProduct.product_quantity = _currentQuantity.ToString(); // Assurer que le modèle est également restauré
-                Debug.WriteLine(
-                    $"QuantityEntry_Unfocused: Quantité invalide. Restaurée à {_currentQuantity}"
-                );
+                CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
+                Debug.WriteLine($"QuantityEntry_Unfocused: Quantité invalide. Restaurée à {_currentQuantity}");
             }
         }
 
-        // --- GESTIONNAIRES DES BOUTONS D'INC/DEC DE QUANTITÉ (basés sur votre exemple AddProductPage) ---
+        // Incrémente la quantité, avec une limite à 99
         private void OnIncrementQuantityClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnIncrementQuantityClicked called.");
-            if (CurrentProduct == null)
-                return;
+            if (CurrentProduct == null) return;
 
-            // Assurez-vous que _currentQuantity est synchronisé avec le texte actuel de l'Entry
             UpdateCurrentQuantityFromEntry();
 
-            // AJOUTÉ : Vérifie si la quantité est déjà à 99
             if (_currentQuantity >= 99)
             {
-                Debug.WriteLine(
-                    "OnIncrementQuantityClicked: Quantity is already 99. Not incrementing further."
-                );
-                return; // Ne fait rien si la quantité est déjà à 99
+                Debug.WriteLine("OnIncrementQuantityClicked: Quantity is already 99. Not incrementing further.");
+                return;
             }
 
             _currentQuantity++;
-            QuantityEntry.Text = _currentQuantity.ToString(); // Met à jour l'UI et le modèle via binding
+            QuantityEntry.Text = _currentQuantity.ToString();
+            CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
             Debug.WriteLine($"Incremented quantity to: {_currentQuantity}");
         }
 
-        private async void OnSaveButtonClicked(object sender, EventArgs e)
+        // Décrémente la quantité, avec une limite à 1
+        private void OnDecrementQuantityClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnDecrementQuantityClicked called.");
-            if (CurrentProduct == null)
-                return;
+            if (CurrentProduct == null) return;
 
-            // Assurez-vous que _currentQuantity est synchronisé avec le texte actuel de l'Entry
             UpdateCurrentQuantityFromEntry();
 
-            if (_currentQuantity > 1) // Ne pas descendre en dessous de 1
+            if (_currentQuantity > 1)
             {
                 _currentQuantity--;
-                QuantityEntry.Text = _currentQuantity.ToString(); // Met à jour l'UI et le modèle via binding
+                QuantityEntry.Text = _currentQuantity.ToString();
+                CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
                 Debug.WriteLine($"Decremented quantity to: {_currentQuantity}");
             }
             else
             {
-                Debug.WriteLine(
-                    "OnDecrementQuantityClicked: Quantity is already 1. Not decrementing."
-                );
+                Debug.WriteLine("OnDecrementQuantityClicked: Quantity is already 1. Not decrementing.");
             }
         }
 
-            // Appel au service
-            var service = new NeonProductService();
-            bool success = await service.UpdateUserProductAsync(CurrentProduct);
-
-            if (success)
+        // Gère le clic sur le bouton "Enregistrer"
+        private async void OnSaveButtonClicked(object sender, EventArgs e)
+        {
+            if (CurrentProduct != null)
             {
-                // Effectuer une dernière synchronisation et validation avant la sauvegarde finale
-                // UpdateCurrentQuantityFromEntry(); // Pas strictement nécessaire si QuantityEntry_Unfocused est toujours appelé avant la sauvegarde
-                // mais peut être une bonne sécurité si l'utilisateur ne quitte pas le champ.
-                // Ou mieux, on utilise la logique de validation de QuantityEntry_Unfocused
-                // Pour s'assurer que CurrentProduct.product_quantity est à jour
-
-                // On s'assure que le champ de quantité est bien validé et synchronisé
-                // Ceci re-déclenchera la validation et la synchro si le champ est toujours focus.
-                if (QuantityEntry.IsFocused)
+                if (QuantityEntry.IsFocused) 
                 {
-                    // Forcer la perte de focus pour déclencher Unfocused (si nécessaire)
-                    // Ou appeler directement la logique de validation
-                    QuantityEntry_Unfocused(QuantityEntry, null);
+                    QuantityEntry_Unfocused(QuantityEntry, null); 
                 }
-
-                if (string.IsNullOrWhiteSpace(CurrentProduct.product_name))
+                
+                if (string.IsNullOrWhiteSpace(CurrentProduct.Name))
                 {
-                    AppData.CurrentProducts[index] = CurrentProduct;
-                }
-
-                // La validation de la quantité est déjà gérée dans QuantityEntry_Unfocused et UpdateCurrentQuantityFromEntry
-                // On peut juste vérifier la valeur finale dans le modèle
-                if (!int.TryParse(CurrentProduct.product_quantity, out int qty) || qty < 1)
-                {
-                    await DisplayAlert(
-                        "Erreur",
-                        "La quantité doit être un nombre valide et supérieur ou égal à 1.",
-                        "OK"
-                    );
+                    await DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
                     return;
                 }
 
-                Debug.WriteLine(
-                    $"Produit {CurrentProduct.product_name} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : "
-                );
-                Debug.WriteLine($"  Quantité: {CurrentProduct.product_quantity}");
-                Debug.WriteLine($"  DLC: {CurrentProduct.product_dlc:dd/MM/yyyy}");
+                // Vérifie la quantité directement sur le modèle
+                if (CurrentProduct.Quantity < 1) // UTILISE .Quantity
+                {
+                    await DisplayAlert("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
+                    return;
+                }
+                
+                Debug.WriteLine($"Produit {CurrentProduct.Name} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : ");
+                Debug.WriteLine($"  Quantité: {CurrentProduct.Quantity}"); // UTILISE .Quantity
+                Debug.WriteLine($"  DLC: {CurrentProduct.Dlc:dd/MM/yyyy}"); // UTILISE .Dlc
+                Debug.WriteLine($"  Catégorie: {CurrentProduct.Category}");
+                Debug.WriteLine($"  URL Image: {CurrentProduct.UrlImage}");
 
                 await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
                 await Shell.Current.GoToAsync("..");
             }
             else
             {
-                await DisplayAlert("Erreur", "La mise à jour a échoué.", "OK");
+                await DisplayAlert("Erreur", "Aucun produit à sauvegarder.", "OK");
             }
         }
 
-        // Implémentation INotifyPropertyChanged
-        public event PropertyChangedEventHandler PropertyChanged;
+        // --- Implémentation de INotifyPropertyChanged ---
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = "") =>
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
