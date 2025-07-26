@@ -11,6 +11,7 @@ namespace perimapp.Pages
         public StartingPage()
         {
             InitializeComponent();
+            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         private async void OnLogInClicked(object sender, EventArgs e)
