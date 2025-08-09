@@ -2,28 +2,37 @@
 using perimapp.Data;
 using perimapp.Pages;
 
-namespace perimapp;
-
-public partial class App : Application
+namespace perimapp
 {
-    public App()
+    public partial class App : Application
     {
-        InitializeComponent();
-    }
-
-    protected override Window CreateWindow(IActivationState? activationState)
-    {
-        int savedUserId = Preferences.Default.Get("UserId", -1);
-        Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}");
-
-        if (savedUserId > 0)
+        public App()
         {
-            AppData.CurrentUserId = savedUserId;
-            return new Window(new NavigationPage(new MainPage())); // Utilisateur déjà connecté
+            InitializeComponent();
+            MainPage = new AppShell(); // On démarre avec AppShell
         }
-        else
+
+        protected override void OnStart()
         {
-            return new Window(new NavigationPage(new StartingPage())); // Connexion nécessaire
+            base.OnStart();
+
+            int savedUserId = Preferences.Default.Get("UserId", -1);
+            Console.WriteLine(
+                $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
+            );
+
+            if (savedUserId > 0)
+            {
+                // Utilisateur déjà connecté
+                AppData.CurrentUserId = savedUserId;
+                // Rediriger vers la page principale
+                Shell.Current.GoToAsync($"//{nameof(MainPage)}");
+            }
+            else
+            {
+                // Rediriger vers la page de démarrage
+                Shell.Current.GoToAsync($"//{nameof(StartingPage)}");
+            }
         }
     }
 }
