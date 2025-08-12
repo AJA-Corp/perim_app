@@ -20,6 +20,10 @@ namespace perimapp.Pages
         public MainPage()
         {
             InitializeComponent();
+            int savedUserId = Preferences.Default.Get("UserId", -1);
+            Console.WriteLine(
+                $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
+            );
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 

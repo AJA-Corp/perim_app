@@ -35,10 +35,12 @@ public partial class LogInPage : ContentPage
             AppData.CurrentUserId = userId;
             Preferences.Default.Set("UserId", userId);
             await DisplayAlert("Succès", "Connexion réussie !", "OK");
+            Console.WriteLine($"[DEBUG] Navigation vers route : {nameof(MainPage)}");
             await Shell.Current.GoToAsync(nameof(MainPage));
         }
         else
         {
+            Console.WriteLine("[DEBUG]: Email ou mot de passe incorrect");
             await DisplayAlert("Erreur", "Email ou mot de passe incorrect.", "OK");
         }
     }

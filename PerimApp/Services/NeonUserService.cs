@@ -126,7 +126,7 @@ namespace perimapp.Services
                     bool isPasswordValid = PasswordHasher.VerifyPassword(hashedPassword, password);
                     return isPasswordValid ? userId : -1;
                 }
-
+                Console.WriteLine("[DEBUG]: Email non trouvé ou mot de passe incorrect");
                 return -1; // Email non trouvé
             }
             catch (Exception ex)
