@@ -180,12 +180,36 @@ public partial class AddProductPage : ContentPage // ou Popup
 
             if (product == null)
             {
-                await DisplayAlert("Erreur", "Produit introuvable.", "OK");
+                bool reponse = await DisplayAlert(
+                    "Erreur",
+                    "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
+                    "Oui",
+                    "Non"
+                );
+
+                if (reponse)
+                {
+                    string result = await DisplayPromptAsync(
+                        "Nom du produit",
+                        "Entrez le nom du produit",
+                        "OK",
+                        "Annuler",
+                        "Entrez ici",
+                        maxLength: 255,
+                        keyboard: Keyboard.Text
+                    );
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        BarcodeEntry.Text = string.Empty;
+                        ProductName.Text = result;
+                        ProductImage.Source = null;
+                    }
+                }
                 return;
             }
         }
 
-        // Mise à jour dynamique des infos dans l'UI
         ProductName.Text = product.Name;
         ProductImage.Source = product.UrlImage;
     }
