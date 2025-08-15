@@ -11,14 +11,14 @@
             <Setter Property="FontSize" Value="24"/>
             <Setter Property="TextColor" Value="DarkSlateGray"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
-            <Setter Property="Margin" Value="0,5,0,0"/> 
+            <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
         <Style x:Key="CardContentStyle" TargetType="Label">
             <Setter Property="FontFamily" Value="InterMedium"/>
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="TextColor" Value="Black"/>
-            <Setter Property="HorizontalOptions" Value="Center"/> 
+            <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="Margin" Value="0,5,0,0"/>
         </Style>
 
@@ -28,60 +28,94 @@
             <Setter Property="TextColor" Value="Black"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
         </Style>
-        
+
     </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, *, Auto">
-        <headers:SharedHeader Grid.Row="0" HeaderText="Profil"/> 
 
-        <ScrollView Grid.Row="1" VerticalOptions="CenterAndExpand">
-            <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="StartAndExpand">
+        <headers:SharedHeader Grid.Row="0" HeaderText="Profil"/>
 
-                <Frame WidthRequest="150" HeightRequest="150"
-                       CornerRadius="75"   
-                       BorderColor="Transparent" 
-                       HasShadow="False"   
-                       BackgroundColor="Black" 
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       Margin="0,15,0,0">
-                    <Image Source="profile_placeholder.png"
-                           Aspect="AspectFill"/>
-                </Frame>
+        <Grid Grid.Row="1">
 
-                <Label x:Name="NameLabel"
-                       Text="{Binding UserName}"
-                       Style="{StaticResource CardTitleStyle}"/>
+            <ScrollView VerticalOptions="CenterAndExpand">
+                <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="StartAndExpand">
+                    <Frame WidthRequest="150" HeightRequest="150"
+                           CornerRadius="75"
+                           BorderColor="Transparent"
+                           HasShadow="False"
+                           BackgroundColor="Black"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           Margin="0,15,0,0">
+                        <Image Source="profile_placeholder.png"
+                               Aspect="AspectFill"/>
+                    </Frame>
 
-                <VerticalStackLayout Spacing="5" 
-                                     Padding="0,10" 
-                                     HorizontalOptions="FillAndExpand">
-                    <Label Text="Quantité de produits enregistrés :" 
-                           Style="{StaticResource CardContentStyle}"/>
-                    <Label Text="{Binding RegisteredProductsCount}" 
-                           Style="{StaticResource CardMiniContentStyle}"/>
+                    <Label x:Name="NameLabel"
+                           Text="{Binding UserName}"
+                           Style="{StaticResource CardTitleStyle}"/>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="FillAndExpand">
+                        <Label Text="Quantité de produits enregistrés :"
+                               Style="{StaticResource CardContentStyle}"/>
+                        <Label Text="{Binding RegisteredProductsCount}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="FillAndExpand">
+                        <Label Text="Produits perdus :"
+                               Style="{StaticResource CardContentStyle}"/>
+                        <Label Text="{Binding LostProductsCount}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="FillAndExpand">
+                        <Label Text="Code foyer :" Style="{StaticResource CardContentStyle}"/>
+                        <Label x:Name="FoyerCodeLabel"
+                               Text="{Binding FamilyCode}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
+            </ScrollView>
 
-                <VerticalStackLayout Spacing="5" 
-                                     Padding="0,10" 
-                                     HorizontalOptions="FillAndExpand">
-                    <Label Text="Produits perdus :" 
-                           Style="{StaticResource CardContentStyle}"/>
-                    <Label Text="{Binding LostProductsCount}" 
-                           Style="{StaticResource CardMiniContentStyle}"/>
+            <ImageButton Source="parameter_button.png"
+                         Clicked="OnSettingsClicked"
+                         HeightRequest="20"
+                         WidthRequest="20"
+                         HorizontalOptions="End"
+                         VerticalOptions="Start"
+                         Margin="0, 15, 15, 0"
+                         BackgroundColor="Transparent"/>
+
+            <Frame x:Name="SettingsMenu"
+                   IsVisible="{Binding IsMenuVisible}"
+                   HorizontalOptions="End"
+                   VerticalOptions="Start"
+                   Margin="0, 60, 15, 0"
+                   Padding="0"
+                   CornerRadius="10"
+                   HasShadow="True"
+                   BackgroundColor="White"
+                   BorderColor="LightGray"
+                   WidthRequest="150">
+                <VerticalStackLayout Spacing="0">
+                    <Button Text="Déconnexion"
+                            Clicked="OnLogoutClicked"
+                            TextColor="Black"
+                            BackgroundColor="White"
+                            BorderColor="Transparent"
+                            CornerRadius="10"
+                            FontSize="16"
+                            HorizontalOptions="FillAndExpand"/>
                 </VerticalStackLayout>
-
-                <VerticalStackLayout Spacing="5" 
-                                     Padding="0,10" 
-                                     HorizontalOptions="FillAndExpand">
-                    <Label Text="Code foyer :" Style="{StaticResource CardContentStyle}"/>
-                    <Label x:Name="FoyerCodeLabel"
-                           Text="{Binding FamilyCode}"
-                           Style="{StaticResource CardMiniContentStyle}"/>
-                </VerticalStackLayout>
-
-            </VerticalStackLayout>
-        </ScrollView>
+            </Frame>
+        </Grid>
 
         <Grid Grid.Row="2"
               HeightRequest="80"
@@ -99,6 +133,5 @@
                     VerticalOptions="Center"
                     Clicked="OnActivateNotificationsClicked"/>
         </Grid>
-
     </Grid>
 </ContentPage>

@@ -59,41 +59,63 @@ namespace perimapp.Pages
         }
 
         private async Task LoadProductsAsync()
+{
+    try
+    {
+        // 1. Récupérer l'ID de l'utilisateur de manière sécurisée et asynchrone
+        string userIdString = await SecureStorage.GetAsync("user_id");
+
+        // Si l'ID est manquant ou invalide, on ne peut pas charger les produits de l'utilisateur
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
         {
-            try
+            Console.WriteLine("Erreur : ID utilisateur non valide. Chargement des produits locaux.");
+            
+            // On charge la liste locale par défaut
+            /*var loadedProducts = await LoadProductsFromJsonAsync();
+            
+            if (loadedProducts != null)
             {
-                // Tente de charger depuis la BDD Neon
-                List<ProductInfos> loadedProducts = await _productService.GetUserProductsAsync(
-                    AppData.CurrentUserId
-                );
+                var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
 
-                if (loadedProducts == null || loadedProducts.Count == 0)
+                Products.Clear();
+                foreach (var product in sortedProducts)
                 {
-                    // Fallback sur JSON local si aucun produit chargé ou erreur
-                    loadedProducts = await LoadProductsFromJsonAsync();
+                    Products.Add(product);
                 }
+            }*/
+            return; // On quitte la fonction
+        }
 
-                if (loadedProducts != null)
-                {
-                    var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
+        // 2. Si l'ID est valide, on tente de charger depuis la BDD Neon
+        List<ProductInfos> loadedProducts = await _productService.GetUserProductsAsync(userId);
 
-                    Products.Clear();
-                    foreach (var product in sortedProducts)
-                    {
-                        Products.Add(product);
-                    }
-                }
-            }
-            catch (Exception ex)
+        if (loadedProducts == null || loadedProducts.Count == 0)
+        {
+            // Fallback sur JSON local si aucun produit n'est chargé ou en cas d'erreur
+            loadedProducts = await LoadProductsFromJsonAsync();
+        }
+
+        if (loadedProducts != null)
+        {
+            var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
+
+            Products.Clear();
+            foreach (var product in sortedProducts)
             {
-                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await DisplayAlert(
-                    "Erreur",
-                    "Impossible de charger les produits. " + ex.Message,
-                    "OK"
-                );
+                Products.Add(product);
             }
         }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+        await DisplayAlert(
+            "Erreur",
+            "Impossible de charger les produits. " + ex.Message,
+            "OK"
+        );
+    }
+}
 
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
