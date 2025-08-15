@@ -12,21 +12,25 @@ public partial class LoadingPage : ContentPage
     public LoadingPage()
     {
         InitializeComponent();
-        //_ = LaunchAppAsync(); // Lancer la redirection
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        int savedUserId = Preferences.Default.Get("UserId", -1);
-        Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}");
+        // 1. On récupère l'ID de l'utilisateur depuis le stockage sécurisé
+        // SecureStorage.GetAsync retourne null si la clé n'existe pas
+        string savedUserIdString = await SecureStorage.GetAsync("user_id");
 
-        await Task.Delay(5000); // petit délai pour laisser Shell s'initialiser
+        Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis SecureStorage : {savedUserIdString}");
 
-        if (savedUserId > 0)
+        await Task.Delay(5000); // Délai d'initialisation
+
+        // 2. On vérifie si un ID valide a été récupéré
+        if (!string.IsNullOrEmpty(savedUserIdString))
         {
-            AppData.CurrentUserId = savedUserId;
+            // Pas besoin de stocker l'ID dans AppData.CurrentUserId.
+            // Chaque fonction qui en a besoin le récupèrera via SecureStorage.
             await Shell.Current.GoToAsync(nameof(MainPage));
         }
         else
@@ -34,12 +38,4 @@ public partial class LoadingPage : ContentPage
             await Shell.Current.GoToAsync(nameof(StartingPage));
         }
     }
-
-    /*
-    private async Task LaunchAppAsync()
-    {
-        await Task.Delay(5000); // Attendre 2 secondes (personnalisable)
-        await Navigation.PushAsync(new StartingPage());
-    }
-    */
 }
