@@ -161,4 +161,32 @@ public partial class AddProductPage : ContentPage // ou Popup
             await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
         }
     }
+
+    private async void BarcodeEntry_OnCompleted(object sender, EventArgs e)
+    {
+        if (!long.TryParse(BarcodeEntry.Text, out long barcode))
+        {
+            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            return;
+        }
+
+        var service = new NeonProductService();
+        var product = await service.GetProductDataAsync(barcode);
+
+        if (product == null)
+        {
+            var apiService = new OpenFoodFactsService();
+            product = await apiService.GetProductFromApiAsync(barcode);
+
+            if (product == null)
+            {
+                await DisplayAlert("Erreur", "Produit introuvable.", "OK");
+                return;
+            }
+        }
+
+        // Mise à jour dynamique des infos dans l'UI
+        ProductName.Text = product.Name;
+        ProductImage.Source = product.UrlImage;
+    }
 }

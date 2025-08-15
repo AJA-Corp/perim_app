@@ -62,7 +62,8 @@
                                TextColor="#58BF7F"
                                WidthRequest="250"
                                HorizontalOptions="Center"
-                               HorizontalTextAlignment="Center"/>
+                               HorizontalTextAlignment="Center"
+                               Completed="BarcodeEntry_OnCompleted"/>
 
                         <Label x:Name="ProductName"
                                Text="Nom du produit"
