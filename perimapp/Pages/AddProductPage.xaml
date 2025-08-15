@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.AddProductPage"
              xmlns:headers="clr-namespace:perimapp.Headers"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              BackgroundColor="White">
     
     <ContentPage.Content>
@@ -45,7 +46,8 @@
                                              HorizontalOptions="Center"
                                              VerticalOptions="Center"
                                              IsVisible="{Binding HasNoImage, Mode=OneWay}"/> 
-                                      <Image Source="{Binding }" 
+                                      <Image x:Name="ProductImage"
+                                             Source="{Binding }" 
                                              Aspect="AspectFill"     
                                              HorizontalOptions="Center"
                                              VerticalOptions="Center"
@@ -53,19 +55,17 @@
                                </Grid>
                         </Border>
                         
-                        <Button Text="Code Produit" 
-                                FontSize="20"
-                                BackgroundColor="#58BF7F"
-                                TextColor="White"
-                                CornerRadius="50"
-                                WidthRequest="300"
-                                HeightRequest="40"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                Margin="0,10, 0, 0"
-                                Padding="0, -3, 0, 0"/>
+                        <Entry x:Name="BarcodeEntry"
+                               Placeholder="Entrez le code-barres"
+                               PlaceholderColor="#AAAAAA"
+                               Keyboard="Numeric"
+                               TextColor="#58BF7F"
+                               WidthRequest="250"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
 
-                        <Label Text="Nom du produit"
+                        <Label x:Name="ProductName"
+                               Text="Nom du produit"
                                FontSize="20"
                                TextColor="Black"
                                HorizontalOptions="Center"
@@ -79,17 +79,19 @@
                                HorizontalTextAlignment="Center"
                                Margin="0,5, 0, 0"/>
                         
-                        <Button Text="**/**/****" 
-                                FontSize="20"
-                                BackgroundColor="#58BF7F"
-                                TextColor="White"
-                                CornerRadius="50"
-                                WidthRequest="300"
-                                HeightRequest="40"
-                                HorizontalOptions="Center"
-                                VerticalOptions="Center"
-                                Margin="0,5, 0, 0"
-                                Padding="0, -3, 0, 0"/>
+                        <Border x:Name="DlcBorder"
+                                Stroke="#58BF7F"
+                                StrokeThickness="1"
+                                BackgroundColor="Transparent"
+                                Padding="8,4"
+                                StrokeShape="{RoundRectangle CornerRadius=12}"
+                                HorizontalOptions="Center">
+                               <DatePicker x:Name="DlcPicker"
+                                           Format="dd/MM/yyyy"
+                                           MinimumDate="{x:Static sys:DateTime.Today}"
+                                           TextColor="#58BF7F"
+                                           HorizontalOptions="Center" />
+                        </Border>
 
                         <Label Text="Quantité"
                                FontSize="20"
@@ -185,7 +187,8 @@
                               Margin="0,10"
                               WidthRequest="300"
                               HorizontalOptions="FillAndExpand"
-                              VerticalOptions="Center"/>
+                              VerticalOptions="Center"
+                              Clicked="OnValidateClicked"/>
                </Grid>
         </Grid>
 

@@ -56,10 +56,112 @@ namespace perimapp.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur Neon: {ex.Message}");
+                Console.WriteLine($"[DEBUG] - Erreur Neon: {ex.Message}");
             }
 
             return products;
+        }
+
+        public async Task<ProductInfos?> GetProductDataAsync(long barcode)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            SELECT barcode, name, url_image, category, conservation
+            FROM products_data
+            WHERE barcode = @barcode;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("barcode", barcode);
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new ProductInfos
+                    {
+                        Barcode = reader.GetInt64(0),
+                        Name = reader.GetString(1),
+                        UrlImage = reader.GetString(2),
+                        Category = reader.GetString(3),
+                        Conservation = reader.GetString(4),
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"[DEBUG] - Erreur lors de la récupération du produit : {ex.Message}"
+                );
+            }
+
+            return null;
+        }
+
+        public async Task<bool> AddProductDataAsync(ProductInfos product)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            INSERT INTO products_data (barcode, name, url_image, category, conservation)
+            VALUES (@Barcode, @Name, @UrlImage, @Category, @Conservation);
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("Barcode", product.Barcode);
+                cmd.Parameters.AddWithValue("Name", product.Name ?? "");
+                cmd.Parameters.AddWithValue("UrlImage", product.UrlImage ?? "");
+                cmd.Parameters.AddWithValue("Category", product.Category ?? "");
+                cmd.Parameters.AddWithValue("Conservation", product.Conservation ?? "");
+
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"[DEBUG] - Erreur lors de l'insertion dans products_data : {ex.Message}"
+                );
+                return false;
+            }
+        }
+
+        public async Task<bool> AddUserProductAsync(ProductInfos product, int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            INSERT INTO products_users (user_id, barcode, dlc, quantity, added_at)
+            VALUES (@UserId, @Barcode, @Dlc, @Quantity, @AddedAt);
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("UserId", userId);
+                cmd.Parameters.AddWithValue("Barcode", product.Barcode);
+                cmd.Parameters.AddWithValue("Dlc", product.Dlc);
+                cmd.Parameters.AddWithValue("Quantity", product.Quantity);
+                cmd.Parameters.AddWithValue("AddedAt", product.AddedAt);
+
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"[DEBUG] - Erreur lors de l'ajout du produit utilisateur : {ex.Message}"
+                );
+                return false;
+            }
         }
 
         public async Task<bool> UpdateUserProductAsync(ProductInfos product)
