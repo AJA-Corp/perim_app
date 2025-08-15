@@ -10,11 +10,9 @@ namespace perimapp.Services
             return Argon2.Hash(password);
         }
 
-        /*
         public static bool VerifyPassword(string hashedPassword, string enteredPassword)
         {
             return Argon2.Verify(hashedPassword, enteredPassword);
         }
-        */
     }
 }

@@ -11,20 +11,41 @@ namespace perimapp.Pages
         public StartingPage()
         {
             InitializeComponent();
+            NavigationPage.SetHasNavigationBar(this, false);
         }
 
         private async void OnLogInClicked(object sender, EventArgs e)
         {
-            
-            await Shell.Current.GoToAsync(nameof(LogInPage));
-            
+            try
+            {
+                await Shell.Current.GoToAsync(nameof(LogInPage));
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("[DEBUG] " + error);
+                await DisplayAlert(
+                    "Erreur",
+                    "Une erreur est survenue lors de la navigation.",
+                    "OK"
+                );
+            }
         }
 
         private async void OnSignUpClicked(object sender, EventArgs e)
         {
-
-            await Shell.Current.GoToAsync(nameof(SignUpPage));
-
+            try
+            {
+                await Shell.Current.GoToAsync(nameof(SignUpPage));
+            }
+            catch (Exception error)
+            {
+                Console.WriteLine("[DEBUG] " + error);
+                await DisplayAlert(
+                    "Erreur",
+                    "Une erreur est survenue lors de la navigation.",
+                    "OK"
+                );
+            }
         }
     }
 }
