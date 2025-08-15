@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using perimapp.Data;
+using perimapp.Services;
 
 namespace perimapp.Pages;
 
@@ -19,13 +22,48 @@ public partial class AddProductPage : ContentPage // ou Popup
 
         // ABONNEMENT À L'ÉVÉNEMENT TEXTCHANGED
         QuantityEntry.TextChanged += QuantityEntry_TextChanged;
+
+        // Ajuste la largeur du sélecteur de date au démarrage et quand ça change
+        SizeChanged += (_, __) => AdjustDatePickerWidth();
+        DlcPicker.DateSelected += (_, __) => AdjustDatePickerWidth();
+        // Appel initial
+        AdjustDatePickerWidth();
+    }
+
+    private void AdjustDatePickerWidth()
+    {
+        if (Width <= 0)
+            return;
+
+        string format = string.IsNullOrWhiteSpace(DlcPicker.Format)
+            ? "dd/MM/yyyy"
+            : DlcPicker.Format;
+        string sample = DlcPicker.Date.ToString(format, CultureInfo.CurrentCulture);
+
+        double fontSize = DlcPicker.FontSize > 0 ? DlcPicker.FontSize : 18;
+        var probe = new Label
+        {
+            Text = sample,
+            FontSize = fontSize,
+            FontFamily = DlcPicker.FontFamily,
+        };
+
+        double measured = probe.Measure(double.PositiveInfinity, double.PositiveInfinity).Width;
+
+        double target = measured + 24; // padding interne
+        double max = Math.Min(Width * 0.6, 260);
+        double min = 140;
+        target = Math.Max(min, Math.Min(max, target));
+
+        DlcPicker.WidthRequest = target;
+        DlcBorder.WidthRequest = target + 16;
     }
 
     private void OnIncrementQuantityClicked(object sender, EventArgs e)
     {
         // Avant d'incrémenter, assurez-vous que la valeur de l'Entry est bien prise en compte
         UpdateCurrentQuantityFromEntry();
-        
+
         _currentQuantity++;
         QuantityEntry.Text = _currentQuantity.ToString();
     }
@@ -49,7 +87,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         if (int.TryParse(QuantityEntry.Text, out int parsedQuantity))
         {
             // Assurez-vous que la quantité n'est pas inférieure à 1
-            _currentQuantity = Math.Max(1, parsedQuantity); 
+            _currentQuantity = Math.Max(1, parsedQuantity);
         }
         else
         {
@@ -73,5 +111,106 @@ public partial class AddProductPage : ContentPage // ou Popup
     {
         UpdateCurrentQuantityFromEntry(); // Assure que la validation finale est faite quand l'Entry perd le focus
         QuantityEntry.Text = _currentQuantity.ToString(); // Met à jour l'Entry avec la valeur validée
+    }
+
+    private async void OnValidateClicked(object sender, EventArgs e)
+    {
+        if (!long.TryParse(BarcodeEntry.Text, out long barcode))
+        {
+            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            return;
+        }
+
+        var service = new NeonProductService();
+        var product = await service.GetProductDataAsync(barcode);
+
+        if (product == null)
+        {
+            // pas trouvé en DB → appel API
+            var apiService = new OpenFoodFactsService();
+            var apiProduct = await apiService.GetProductFromApiAsync(barcode);
+
+            if (apiProduct == null)
+            {
+                await DisplayAlert("Erreur", "Produit introuvable dans la base et API.", "OK");
+                return;
+            }
+
+            // Ajout dans products_data
+            await service.AddProductDataAsync(apiProduct);
+            product = apiProduct;
+        }
+
+        // Compléter avec DLC & quantité
+        product.Dlc = DlcPicker.Date;
+        product.Quantity = _currentQuantity;
+        product.AddedAt = DateTime.Now;
+
+        bool ok = await service.AddUserProductAsync(product, AppData.CurrentUserId);
+
+        Console.WriteLine($"[DEBUG] - ok: {ok}");
+
+        if (ok)
+        {
+            AppData.CurrentProducts.Add(product);
+            await DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
+            await Shell.Current.GoToAsync(nameof(MainPage));
+        }
+        else
+        {
+            await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
+        }
+    }
+
+    private async void BarcodeEntry_OnCompleted(object sender, EventArgs e)
+    {
+        if (!long.TryParse(BarcodeEntry.Text, out long barcode))
+        {
+            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            return;
+        }
+
+        var service = new NeonProductService();
+        var product = await service.GetProductDataAsync(barcode);
+
+        if (product == null)
+        {
+            var apiService = new OpenFoodFactsService();
+            product = await apiService.GetProductFromApiAsync(barcode);
+
+            if (product == null)
+            {
+                bool reponse = await DisplayAlert(
+                    "Erreur",
+                    "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
+                    "Oui",
+                    "Non"
+                );
+
+                if (reponse)
+                {
+                    string result = await DisplayPromptAsync(
+                        "Nom du produit",
+                        "Entrez le nom du produit",
+                        "OK",
+                        "Annuler",
+                        "Entrez ici",
+                        maxLength: 255,
+                        keyboard: Keyboard.Text
+                    );
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        BarcodeEntry.Text = string.Empty;
+                        ProductName.Text = result;
+                        ProductImage.Source = null;
+                    }
+                }
+                return;
+            }
+        }
+
+        ProductName.Text = product.Name;
+        ProductImage.Source = product.UrlImage;
     }
 }
