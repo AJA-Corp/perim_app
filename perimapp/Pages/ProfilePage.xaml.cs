@@ -1,87 +1,46 @@
-using System; // Pour Console.WriteLine() et Exception
-using System.Collections.ObjectModel;
-using System.ComponentModel; // NOUVEAU : Ajouté pour INotifyPropertyChanged
-using System.IO; // Pour Stream et StreamReader
-using System.Linq; // Pour les méthodes .Any() et .First()
+using System;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Threading.Tasks; // Pour Task
-using CommunityToolkit.Maui.Views; // NOUVEAU : Ajouté pour [CallerMemberName]
+using System.Threading.Tasks;
+using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls;
-using perimapp.Data; // Pour AppData
-using perimapp.Models; // Pour UserProfile
-using perimapp.PopUp; // Pour NotificationPopUp
+using perimapp.Models;
+using perimapp.PopUp;
+using perimapp.Services;
+using System.Diagnostics;
 
 namespace perimapp.Pages
 {
-    // NOUVEAU : Implémente l'interface INotifyPropertyChanged
     public partial class ProfilePage : ContentPage, INotifyPropertyChanged
     {
-        // Champs privés de "backing" pour stocker les valeurs des propriétés
+        // Propriété pour gérer la visibilité du menu de déconnexion
+        private bool _isMenuVisible = false;
+        public bool IsMenuVisible
+        {
+            get => _isMenuVisible;
+            set
+            {
+                if (_isMenuVisible != value)
+                {
+                    _isMenuVisible = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private string _userName;
         private int _registeredProductsCount;
         private int _lostProductsCount;
         private string _familyCode;
+        
+        private readonly NeonUserService _userService;
 
-        // Propriétés publiques avec notification de changement
-        public string UserName
-        {
-            get => _userName;
-            set
-            {
-                // Seulement mettre à jour et notifier si la valeur a réellement changé
-                if (_userName != value)
-                {
-                    _userName = value;
-                    OnPropertyChanged(); // Notifie l'UI que la propriété a changé
-                }
-            }
-        }
+        public string UserName { get => _userName; set { if (_userName != value) { _userName = value; OnPropertyChanged(); } } }
+        public int RegisteredProductsCount { get => _registeredProductsCount; set { if (_registeredProductsCount != value) { _registeredProductsCount = value; OnPropertyChanged(); } } }
+        public int LostProductsCount { get => _lostProductsCount; set { if (_lostProductsCount != value) { _lostProductsCount = value; OnPropertyChanged(); } } }
+        public string FamilyCode { get => _familyCode; set { if (_familyCode != value) { _familyCode = value; OnPropertyChanged(); } } }
 
-        public int RegisteredProductsCount
-        {
-            get => _registeredProductsCount;
-            set
-            {
-                if (_registeredProductsCount != value)
-                {
-                    _registeredProductsCount = value;
-                    OnPropertyChanged(); // Notifie l'UI
-                }
-            }
-        }
-
-        public int LostProductsCount
-        {
-            get => _lostProductsCount;
-            set
-            {
-                if (_lostProductsCount != value)
-                {
-                    _lostProductsCount = value;
-                    OnPropertyChanged(); // Notifie l'UI
-                }
-            }
-        }
-
-        public string FamilyCode
-        {
-            get => _familyCode;
-            set
-            {
-                if (_familyCode != value)
-                {
-                    _familyCode = value;
-                    OnPropertyChanged(); // Notifie l'UI
-                }
-            }
-        }
-
-        // NOUVEAU : Implémentation de l'événement PropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
-
-        // NOUVEAU : Méthode helper pour déclencher l'événement PropertyChanged
-        // [CallerMemberName] remplit automatiquement le nom de la propriété appelante
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -90,114 +49,97 @@ namespace perimapp.Pages
         public ProfilePage()
         {
             InitializeComponent();
+            _userService = new NeonUserService();
 
-            // Initialiser les propriétés avec des valeurs par défaut pour l'affichage initial
-            // Elles seront mises à jour une fois les données chargées.
             UserName = "Chargement...";
             FamilyCode = "Chargement...";
+            RegisteredProductsCount = 0;
             LostProductsCount = 0;
-            // RegisteredProductsCount peut être initialisé ici ou dans LoadProfileDataAsync/finally
-            // Nous le mettrons à jour à la fin de LoadProfileDataAsync pour être sûr.
-            RegisteredProductsCount = 0; // Valeur temporaire
 
-            // IMPORTANT : Définir le BindingContext AVANT de lancer l'opération asynchrone
-            // Les propriétés initiales seront affichées, puis mises à jour.
             BindingContext = this;
+        }
 
-            // Lancer le chargement des données de profil de manière asynchrone ("fire and forget")
-            _ = LoadProfileDataAsync();
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadProfileDataAsync();
         }
 
         private async Task LoadProfileDataAsync()
         {
-            string jsonContent = string.Empty; // Variable pour stocker le contenu du JSON lu
             try
             {
-                // Lecture du fichier responseProfilePage.json depuis les ressources de l'application
-                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync(
-                    "responseProfilePage.json"
-                );
-                using StreamReader reader = new StreamReader(fileStream);
-                jsonContent = await reader.ReadToEndAsync(); // Lit tout le contenu du fichier
-
-                // Désérialisation du JSON en une liste d'objets UserProfile
-                var userProfiles = JsonSerializer.Deserialize<List<UserProfile>>(jsonContent);
-
-                if (userProfiles != null && userProfiles.Any())
+                // ... (Logique pour récupérer l'ID de l'utilisateur) ...
+                var userIdStr = await SecureStorage.GetAsync("user_id");
+                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 {
-                    var user = userProfiles.First(); // Prenez le premier profil du tableau
-                    // Assignez les valeurs aux propriétés, ce qui déclenchera OnPropertyChanged
-                    UserName = $"{user.FirstName} {user.LastName}";
-                    FamilyCode = user.HomeCode.ToString();
+                    Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé. L'utilisateur est-il connecté ?");
+                    SetDefaultProfileValues("Utilisateur non connecté");
+                    return;
+                }
 
-                    // Convertir la chaîne "lost_products" en entier
-                    if (int.TryParse(user.LostProducts, out int lostCount))
-                    {
-                        LostProductsCount = lostCount;
-                    }
-                    else
-                    {
-                        LostProductsCount = 0;
-                    }
-                    Console.WriteLine(
-                        $"ProfilePage: Profil utilisateur chargé depuis fichier - Nom: {UserName}, Foyer: {FamilyCode}, Produits perdus: {LostProductsCount}"
-                    );
+                // 1. Appel pour obtenir les informations de base du profil
+                var userProfile = await _userService.GetUserProfileAsync(userId);
+        
+                // 2. Appel pour obtenir le nombre de produits enregistrés
+                int productCount = await _userService.GetRegisteredProductsCountAsync(userId);
+
+                if (userProfile != null)
+                {
+                    UserName = $"{userProfile.FirstName} {userProfile.LastName}";
+                    FamilyCode = userProfile.HomeCode.ToString();
+                    RegisteredProductsCount = productCount; // Affectez le résultat du second appel ici
+                    LostProductsCount = 0;
+
+                    Debug.WriteLine($"ProfilePage: Profil de l'utilisateur ID {userId} chargé depuis NeonDB.");
                 }
                 else
                 {
-                    // Si le JSON est vide ou n'a pas de profil, utilisez des valeurs par défaut
-                    SetDefaultProfileValues();
-                    Console.WriteLine(
-                        "ProfilePage: Fichier JSON de profil vide ou invalide, valeurs par défaut appliquées."
-                    );
+                    SetDefaultProfileValues("Profil introuvable");
+                    Debug.WriteLine($"ProfilePage: Profil pour l'utilisateur ID {userId} non trouvé dans la base de données.");
                 }
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine(
-                    "ProfilePage [ERREUR] : Fichier 'responseProfilePage.json' introuvable dans les ressources brutes. Vérifiez son emplacement."
-                );
-                SetDefaultProfileValues();
-            }
-            catch (JsonException ex)
-            {
-                Console.WriteLine(
-                    $"ProfilePage [ERREUR JSON] : Erreur lors de la désérialisation du JSON du profil. Vérifiez la structure du JSON. Message : {ex.Message}"
-                );
-                Console.WriteLine($"Contenu JSON tenté de désérialiser : {jsonContent}");
-                SetDefaultProfileValues();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(
-                    $"ProfilePage [ERREUR] : Une erreur inattendue est survenue lors du chargement du profil : {ex.Message}"
-                );
-                SetDefaultProfileValues();
-            }
-            finally
-            {
-                // NOUVEAU : Assurez-vous de mettre à jour RegisteredProductsCount après les opérations asynchrones.
-                // Cela est important car MainPage pourrait charger ses produits après le constructeur de ProfilePage.
-                RegisteredProductsCount = AppData.CurrentProducts.Count;
-                Console.WriteLine(
-                    $"ProfilePage: Nombre de produits enregistrés mis à jour après chargement du profil : {RegisteredProductsCount}"
-                );
+                Debug.WriteLine($"ProfilePage [ERREUR] : Une erreur inattendue est survenue : {ex.Message}");
+                SetDefaultProfileValues("Erreur de chargement");
             }
         }
 
-        private void SetDefaultProfileValues()
+        private void SetDefaultProfileValues(string defaultName)
         {
-            UserName = "Utilisateur Inconnu";
+            UserName = defaultName;
             FamilyCode = "N/A";
+            RegisteredProductsCount = 0;
             LostProductsCount = 0;
-            // Met à jour RegisteredProductsCount avec la valeur actuelle d'AppData même en cas d'erreur
-            RegisteredProductsCount = AppData.CurrentProducts.Count;
         }
 
         private void OnActivateNotificationsClicked(object sender, EventArgs e)
         {
             var popup = new NotificationPopUp();
             this.ShowPopup(popup);
+        }
+
+        // Gère l'événement du clic sur le bouton des paramètres pour afficher/masquer le menu
+        private void OnSettingsClicked(object sender, EventArgs e)
+        {
+            IsMenuVisible = !IsMenuVisible;
+            Debug.WriteLine($"Menu de paramètres visible : {IsMenuVisible}");
+        }
+
+        // Gère l'événement du clic sur le bouton de déconnexion
+        private async void OnLogoutClicked(object sender, EventArgs e)
+        {
+            // 1. Masquer le menu
+            IsMenuVisible = false;
+
+            // 2. Nettoyer l'état de l'utilisateur (supprimer les informations de session)
+            SecureStorage.Remove("user_id");
+            Debug.WriteLine("Déconnexion de l'utilisateur. Suppression de l'ID utilisateur.");
+
+            // 3. Rediriger l'utilisateur vers la page de connexion
+            // Assurez-vous que la route vers la page de connexion est bien définie dans votre AppShell.xaml
+            await Shell.Current.GoToAsync(nameof(StartingPage));
         }
     }
 }

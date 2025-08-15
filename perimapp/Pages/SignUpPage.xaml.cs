@@ -38,7 +38,7 @@ namespace perimapp.Pages
                 return;
             }
 
-            var newUser = new UserProfile
+            var newUser = new UserProfileDetails
             {
                 Email = email,
                 Password = password,
@@ -49,8 +49,9 @@ namespace perimapp.Pages
 
             if (userId > 0)
             {
-                AppData.CurrentUserId = userId;
-                Preferences.Default.Set("UserId", userId);
+                // On remplace le stockage dans AppData et Preferences par SecureStorage
+                await SecureStorage.SetAsync("user_id", userId.ToString());
+
                 await DisplayAlert("Succès", "Inscription réussie !", "OK");
                 await Shell.Current.GoToAsync(nameof(MainPage));
             }

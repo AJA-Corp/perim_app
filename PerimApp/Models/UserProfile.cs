@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace perimapp.Models
 {
-    public class UserProfile
+    public class UserProfileDetails
     {
         [JsonPropertyName("first_name")]
         public string FirstName { get; set; }
@@ -21,5 +21,9 @@ namespace perimapp.Models
 
         [JsonPropertyName("lost_products")]
         public string LostProducts { get; set; }
+
+        // AJOUT DE CETTE PROPRIÉTÉ
+        [JsonIgnore] // Cet attribut est utile : il indique au sérialiseur JSON d'ignorer ce champ.
+        public int RegisteredProductsCount { get; set; }
     }
 }

@@ -32,8 +32,9 @@ public partial class LogInPage : ContentPage
 
         if (userId > 0)
         {
-            AppData.CurrentUserId = userId;
-            Preferences.Default.Set("UserId", userId);
+            // On remplace le stockage dans AppData et Preferences par SecureStorage
+            await SecureStorage.SetAsync("user_id", userId.ToString());
+
             await DisplayAlert("Succès", "Connexion réussie !", "OK");
             Console.WriteLine($"[DEBUG] Navigation vers route : {nameof(MainPage)}");
             await Shell.Current.GoToAsync(nameof(MainPage));
