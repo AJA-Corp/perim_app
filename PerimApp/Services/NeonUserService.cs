@@ -64,6 +64,43 @@ namespace perimapp.Services
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result) > 0;
         }
+        
+        public async Task<int> AuthenticateByHomeCodeAsync(int homeCode)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                // Requête pour trouver l'ID utilisateur à partir du code foyer
+                string query = @"
+            SELECT id
+            FROM users
+            WHERE home_code = @HomeCode;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("HomeCode", homeCode);
+
+                // ExecuteScalarAsync renvoie la première colonne de la première ligne
+                // du résultat de la requête, ou null si le résultat est vide.
+                object? result = await cmd.ExecuteScalarAsync();
+
+                if (result != null)
+                {
+                    // Le code foyer a été trouvé. On retourne l'ID de l'utilisateur.
+                    return Convert.ToInt32(result);
+                }
+
+                // Le code foyer n'a pas été trouvé.
+                return -1;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERREUR] Erreur lors de l'authentification par code foyer : {ex.Message}");
+                return -1;
+            }
+        }
 
         public async Task<int> AuthenticateUserAsync(string email, string password)
         {
