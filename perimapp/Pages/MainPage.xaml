@@ -4,6 +4,7 @@
              x:Class="perimapp.Pages.MainPage"
              xmlns:localModels="clr-namespace:perimapp.Models"          
              xmlns:localConverters="clr-namespace:perimapp.Converters"  
+             BackgroundColor="#FFF"
              Title="Mes Produits">
 
     <ContentPage.Resources>
@@ -11,15 +12,17 @@
     </ContentPage.Resources>
 
     <ContentPage.Content>
-        <!-- Header -->
-        <Grid RowDefinitions="Auto,*"> <Grid Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="65" Padding="10,0">
+        <Grid RowDefinitions="Auto, Auto, *">
+            
+            <!-- Header -->
+            <Grid Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="65" Padding="10,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Button Profil -->
+                <!-- Bouton Profil -->
                 <Button Grid.Column="0"
                         Clicked="OnProfileIconClicked"
                         BackgroundColor="LightGray"
@@ -30,7 +33,7 @@
                         CornerRadius="40"
                         Margin="2,0,0,0" />
 
-                <!-- Title "Vos Produits" -->
+                <!-- Titre -->
                 <Label Grid.Column="1"
                        Text="Vos Produits"
                        TextColor="White"
@@ -39,7 +42,7 @@
                        VerticalOptions="Center"
                        HorizontalOptions="Center" />
 
-                <!-- Button "Add Product" -->
+                <!-- Bouton AddProduct -->
                 <Button Grid.Column="2"
                         Text="+"
                         Clicked="OnAddProductClicked"
@@ -53,15 +56,42 @@
                         HorizontalOptions="Center"
                         Padding="0, -13, 0, 0" />
             </Grid>
-            <!-- Cards Product -->
-            <CollectionView Grid.Row="1" 
+            
+            <!-- MiniHeader -->
+            <Grid Grid.Row="1" BackgroundColor="White" Padding="0" HeightRequest="30">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Label Grid.Column="0"
+                       Text="{Binding DisplayedProductsCount, StringFormat='Produits enregistrés : {0}'}"
+                       FontSize="14"
+                       TextColor="Gray"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Start" 
+                       Margin="5,0,0,0" />
+
+                <Button Grid.Column="1"
+                        Text="produits suppr... ->"
+                        Clicked="OnLostProductsClicked"
+                        TextColor="Gray"
+                        BackgroundColor="Transparent"
+                        FontSize="14"
+                        VerticalOptions="Center"
+                        Padding="0"
+                        Margin="15,0,5,0" />
+            </Grid>
+            
+            <!-- Product Cards -->
+            <CollectionView Grid.Row="2" 
                             ItemsSource="{Binding Products}"
                             SelectionMode="Single"
                             SelectionChanged="OnProductSelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
-                                Stroke="LightGray"
+                                Stroke="DarkGray"
                                 StrokeThickness="0.1"
                                 BackgroundColor="White">
                             <Border.Shadow>
@@ -75,7 +105,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Image Product -->
+                                <!-- Image -->
                                 <Border Grid.Column="0"
                                         WidthRequest="80"
                                         HeightRequest="80"
@@ -93,27 +123,24 @@
                                            VerticalOptions="Center"/>
                                 </Border>
 
-                                <!-- Text Product -->
+                                <!-- Quantité / DLC -->
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Padding="10,0">
-                                    <!-- Name Product -->
                                     <Label Text="{Binding Name}"
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"  MaxLines="2"
                                            TextColor="Black"/>
-                                    <!-- Quantity Product -->
                                     <Label Text="{Binding Quantity, StringFormat='Quantité: {0}'}"
                                            FontSize="14"
                                            TextColor="Gray"/>
-                                    <!-- DLC Product -->
                                     <Label Text="{Binding Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
                                            FontSize="12"
                                            TextColor="DarkGray"/>
                                 </VerticalStackLayout>
 
-                                <!-- Pastille, Remaining Days Text -->
+                                <!-- Pastille pour DLC / jours restants -->
                                 <Border Grid.Column="2"
                                         BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
                                         HorizontalOptions="End"     
@@ -121,13 +148,14 @@
                                         WidthRequest="62"  
                                         Padding="0"                 
                                         Margin="0,0,0,0"           
-                                        StrokeShape="RoundRectangle 50,0,50,0"
-                                        StrokeThickness="0"> <Label Text="{Binding DaysRemainingTextMainPage}"
-                                                                    TextColor="White"
-                                                                    VerticalOptions="Center" 
-                                                                    HorizontalOptions="Center" 
-                                                                    FontSize="24"
-                                                                    FontAttributes="Bold"/>
+                                        StrokeShape="{RoundRectangle 50,0,50,0}"
+                                        StrokeThickness="0">
+                                    <Label Text="{Binding DaysRemainingTextMainPage}"
+                                           TextColor="White"
+                                           VerticalOptions="Center" 
+                                           HorizontalOptions="Center" 
+                                           FontSize="24"
+                                           FontAttributes="Bold"/>
                                 </Border>
                             </Grid>
                         </Border>
