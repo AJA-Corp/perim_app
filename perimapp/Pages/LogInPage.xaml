@@ -22,7 +22,7 @@
                FontAttributes="Bold"
                TextColor="White"
                HorizontalOptions="Center"
-               Margin="0,20,0,10"/>
+               Margin="0,20,0,0"/>
 
         <!-- Champs de connexion -->
         <VerticalStackLayout Padding="20, 70, 20, 20" Spacing="25">
@@ -55,6 +55,13 @@
                          BackgroundColor="White"
                          VerticalOptions="End"/>
             </Grid>
+            
+            <Label Text="Ou"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0,10,0,0"/>
 
             <!-- Code foyer -->
             <Grid>
