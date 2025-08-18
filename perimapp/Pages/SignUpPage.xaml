@@ -5,9 +5,9 @@
              x:Class="perimapp.Pages.SignUpPage"
              BackgroundColor="White">
 
-        <VerticalStackLayout Spacing="20">
+        <VerticalStackLayout Spacing="20" VerticalOptions="FillAndExpand">
             <!-- Titre plein écran sur fond vert -->
-            <Grid BackgroundColor="#58BF7F" Padding="20,20,20,20">
+            <Grid BackgroundColor="#58BF7F" Padding="20,20,20,20" VerticalOptions="StartAndExpand">
                 <Label Text="PerimApp"
                        FontSize="40"
                        FontAttributes="Bold"
@@ -38,7 +38,7 @@
                 </Grid>
 
             <!-- Entrées personnalisées -->
-            <VerticalStackLayout Padding="20" Spacing="25">
+            <VerticalStackLayout Padding="20" Spacing="25" VerticalOptions="CenterAndExpand">
                 <!-- Email -->
                 <Grid>
                     <Entry Placeholder="Email"
@@ -85,7 +85,7 @@
             </VerticalStackLayout>
 
             <!-- Boutons -->
-            <VerticalStackLayout Padding="20,20,20,40" Spacing="15">
+            <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
                 <Button Text="Suivant"
                         Clicked="OnNextSignUpClicked"
                         BackgroundColor="#58BF7F"
