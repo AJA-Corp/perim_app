@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using perimapp.Data;
 using perimapp.Services;
+using perimapp.Models;
 
 namespace perimapp.Pages;
 
@@ -117,6 +118,7 @@ public partial class AddProductPage : ContentPage // ou Popup
 {
     // Étape 1 : Récupérer l'ID utilisateur de manière sécurisée et asynchrone
     string userIdString = await SecureStorage.GetAsync("user_id");
+
     
     // Étape 2 : Vérifier que l'ID a bien été récupéré et est valide
     if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
@@ -157,6 +159,10 @@ public partial class AddProductPage : ContentPage // ou Popup
 
     // Étape 3 : Utiliser l'ID valide pour ajouter le produit
     bool ok = await service.AddUserProductAsync(product, userId);
+    
+    // Enregistrer dans le SQLITE local
+    var db = new ProductDatabase();
+    await db.SaveProductAsync(product);
 
     Console.WriteLine($"[DEBUG] - ok: {ok}");
 
