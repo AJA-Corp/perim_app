@@ -1,18 +1,21 @@
-using Microsoft.Maui.Controls;
-using perimapp.Models;
-using perimapp.Data; // Pour AppData
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Linq;
-using System.Diagnostics; // Pour Debug.WriteLine
 using System; // Pour TimeSpan, DateTime, Math.Max
+using System.ComponentModel;
+using System.Diagnostics; // Pour Debug.WriteLine
+using System.Linq;
 using System.Net.Http; // Pour HttpClient
+using System.Runtime.CompilerServices;
+using Microsoft.Maui.Controls;
+using perimapp.Data; // Pour AppData
+using perimapp.Models;
+using perimapp.Services;
 
 namespace perimapp.Pages
 {
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
     public partial class ModifyProductPage : ContentPage, INotifyPropertyChanged
     {
+        private readonly NeonProductService _productService;
+
         // Propriété bindable pour récupérer l'ID unique du produit passé en paramètre
         private string? _productUniqueId;
         public string? ProductUniqueId
@@ -30,6 +33,7 @@ namespace perimapp.Pages
         }
 
         private ProductInfos? _currentProduct;
+
         // Propriété bindable qui représente le produit en cours de modification
         public ProductInfos? CurrentProduct
         {
@@ -46,32 +50,37 @@ namespace perimapp.Pages
                     {
                         // Initialiser la quantité numérique à partir du modèle (qui est un int)
                         _currentQuantity = Math.Max(1, _currentProduct.Quantity); // UTILISE .Quantity
-                        
+
                         // Mettre à jour le texte de l'Entry de quantité
                         if (QuantityEntry != null)
                         {
                             QuantityEntry.Text = _currentQuantity.ToString();
-                            Debug.WriteLine($"ModifyProductPage: Initial quantity set to {_currentQuantity}");
+                            Debug.WriteLine(
+                                $"ModifyProductPage: Initial quantity set to {_currentQuantity}"
+                            );
                         }
 
                         // Mettre à jour le texte de l'Entry DLC avec le formatage
                         if (ProductDlcEntry != null)
                         {
                             ProductDlcEntry.Text = _currentProduct.Dlc.ToString("dd/MM/yyyy"); // UTILISE .Dlc
-                            Debug.WriteLine($"ModifyProductPage: Initial DLC set to {_currentProduct.Dlc:dd/MM/yyyy}");
+                            Debug.WriteLine(
+                                $"ModifyProductPage: Initial DLC set to {_currentProduct.Dlc:dd/MM/yyyy}"
+                            );
                         }
                     }
                 }
             }
         }
-        
+
         // Champ privé pour stocker la quantité numérique, synchronisé avec CurrentProduct.Quantity
         private int _currentQuantity;
 
         public ModifyProductPage()
         {
             InitializeComponent();
-            BindingContext = this; 
+            _productService = App.Services.GetService<NeonProductService>();
+            BindingContext = this;
         }
 
         // Méthode pour charger les détails du produit en fonction de l'ID unique
@@ -79,26 +88,39 @@ namespace perimapp.Pages
         {
             if (!string.IsNullOrEmpty(uniqueId))
             {
-                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p => p.ProductUniqueId == uniqueId);
+                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p =>
+                    p.ProductUniqueId == uniqueId
+                );
 
                 if (product != null)
                 {
-                    CurrentProduct = product; 
-                    Debug.WriteLine($"ModifyProductPage: Produit à modifier chargé : {CurrentProduct.Name}");
+                    CurrentProduct = product;
+                    Debug.WriteLine(
+                        $"ModifyProductPage: Produit à modifier chargé : {CurrentProduct.Name}"
+                    );
 
                     CheckImageUrlAsync(CurrentProduct.UrlImage);
                 }
                 else
                 {
-                    Debug.WriteLine("ModifyProductPage: Produit non trouvé avec ProductUniqueId : " + uniqueId);
+                    Debug.WriteLine(
+                        "ModifyProductPage: Produit non trouvé avec ProductUniqueId : " + uniqueId
+                    );
                     await DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
-                    await Shell.Current.GoToAsync(".."); 
+                    //await Shell.Current.GoToAsync("..");
+                    await Shell.Current.GoToAsync(nameof(MainPage));
                 }
             }
             else
             {
-                Debug.WriteLine("ModifyProductPage: Aucun ProductUniqueId fourni pour la modification.");
-                await DisplayAlert("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
+                Debug.WriteLine(
+                    "ModifyProductPage: Aucun ProductUniqueId fourni pour la modification."
+                );
+                await DisplayAlert(
+                    "Erreur",
+                    "Impossible de modifier. Aucun ID de produit fourni.",
+                    "OK"
+                );
                 await Shell.Current.GoToAsync("..");
             }
         }
@@ -120,7 +142,9 @@ namespace perimapp.Pages
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"ModifyProductPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}");
+                    Debug.WriteLine(
+                        $"ModifyProductPage: Erreur lors de la vérification de l'URL de l'image : {ex.Message}"
+                    );
                 }
             }
             else
@@ -135,7 +159,8 @@ namespace perimapp.Pages
         // Synchronise la valeur de _currentQuantity avec le texte de l'Entry
         private void UpdateCurrentQuantityFromEntry()
         {
-            if (QuantityEntry == null) return;
+            if (QuantityEntry == null)
+                return;
 
             if (int.TryParse(QuantityEntry.Text, out int parsedValue))
             {
@@ -143,30 +168,49 @@ namespace perimapp.Pages
             }
             else
             {
-                _currentQuantity = 1; 
+                _currentQuantity = 1;
                 QuantityEntry.Text = _currentQuantity.ToString();
-                Debug.WriteLine("UpdateCurrentQuantityFromEntry: Saisie invalide détectée, quantité réinitialisée à 1.");
+                Debug.WriteLine(
+                    "UpdateCurrentQuantityFromEntry: Saisie invalide détectée, quantité réinitialisée à 1."
+                );
             }
         }
 
         // Gère la validation de la DLC lors de la complétion de la saisie
         private async void ProductDlcEntry_Completed(object sender, EventArgs e)
         {
-            if (CurrentProduct == null) return;
+            if (CurrentProduct == null)
+                return;
 
             Entry entry = (Entry)sender;
             string newDateText = entry.Text;
 
-            if (DateTime.TryParseExact(newDateText, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out DateTime parsedDate))
+            if (
+                DateTime.TryParseExact(
+                    newDateText,
+                    "dd/MM/yyyy",
+                    null,
+                    System.Globalization.DateTimeStyles.None,
+                    out DateTime parsedDate
+                )
+            )
             {
                 CurrentProduct.Dlc = parsedDate; // UTILISE .Dlc
-                Debug.WriteLine($"ProductDlcEntry_Completed: DLC mise à jour à {parsedDate:dd/MM/yyyy}");
+                Debug.WriteLine(
+                    $"ProductDlcEntry_Completed: DLC mise à jour à {parsedDate:dd/MM/yyyy}"
+                );
             }
             else
             {
-                await DisplayAlert("Erreur de format", "Veuillez entrer la date au format JJ/MM/AAAA. (Ex: 01/01/2025)", "OK");
+                await DisplayAlert(
+                    "Erreur de format",
+                    "Veuillez entrer la date au format JJ/MM/AAAA. (Ex: 01/01/2025)",
+                    "OK"
+                );
                 entry.Text = CurrentProduct.Dlc.ToString("dd/MM/yyyy"); // UTILISE .Dlc
-                Debug.WriteLine($"ProductDlcEntry_Completed: Format de date invalide. Restauré à {CurrentProduct.Dlc:dd/MM/yyyy}");
+                Debug.WriteLine(
+                    $"ProductDlcEntry_Completed: Format de date invalide. Restauré à {CurrentProduct.Dlc:dd/MM/yyyy}"
+                );
             }
         }
 
@@ -183,23 +227,32 @@ namespace perimapp.Pages
         private async void QuantityEntry_Unfocused(object sender, FocusEventArgs e)
         {
             Debug.WriteLine("QuantityEntry_Unfocused called.");
-            if (CurrentProduct == null) return;
+            if (CurrentProduct == null)
+                return;
 
             Entry entry = (Entry)sender;
             string newQuantityText = entry.Text;
 
             if (int.TryParse(newQuantityText, out int quantity) && quantity >= 1)
             {
-                _currentQuantity = quantity; 
+                _currentQuantity = quantity;
                 CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
-                Debug.WriteLine($"QuantityEntry_Unfocused: Quantité valide définie à {_currentQuantity}");
+                Debug.WriteLine(
+                    $"QuantityEntry_Unfocused: Quantité valide définie à {_currentQuantity}"
+                );
             }
             else
             {
-                await DisplayAlert("Saisie invalide", "Veuillez entrer une quantité numérique valide (minimum 1).", "OK");
+                await DisplayAlert(
+                    "Saisie invalide",
+                    "Veuillez entrer une quantité numérique valide (minimum 1).",
+                    "OK"
+                );
                 entry.Text = _currentQuantity.ToString();
                 CurrentProduct.Quantity = _currentQuantity; // UTILISE .Quantity
-                Debug.WriteLine($"QuantityEntry_Unfocused: Quantité invalide. Restaurée à {_currentQuantity}");
+                Debug.WriteLine(
+                    $"QuantityEntry_Unfocused: Quantité invalide. Restaurée à {_currentQuantity}"
+                );
             }
         }
 
@@ -207,13 +260,16 @@ namespace perimapp.Pages
         private void OnIncrementQuantityClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnIncrementQuantityClicked called.");
-            if (CurrentProduct == null) return;
+            if (CurrentProduct == null)
+                return;
 
             UpdateCurrentQuantityFromEntry();
 
             if (_currentQuantity >= 99)
             {
-                Debug.WriteLine("OnIncrementQuantityClicked: Quantity is already 99. Not incrementing further.");
+                Debug.WriteLine(
+                    "OnIncrementQuantityClicked: Quantity is already 99. Not incrementing further."
+                );
                 return;
             }
 
@@ -227,7 +283,8 @@ namespace perimapp.Pages
         private void OnDecrementQuantityClicked(object sender, EventArgs e)
         {
             Debug.WriteLine("OnDecrementQuantityClicked called.");
-            if (CurrentProduct == null) return;
+            if (CurrentProduct == null)
+                return;
 
             UpdateCurrentQuantityFromEntry();
 
@@ -240,7 +297,9 @@ namespace perimapp.Pages
             }
             else
             {
-                Debug.WriteLine("OnDecrementQuantityClicked: Quantity is already 1. Not decrementing.");
+                Debug.WriteLine(
+                    "OnDecrementQuantityClicked: Quantity is already 1. Not decrementing."
+                );
             }
         }
 
@@ -249,11 +308,11 @@ namespace perimapp.Pages
         {
             if (CurrentProduct != null)
             {
-                if (QuantityEntry.IsFocused) 
+                if (QuantityEntry.IsFocused)
                 {
-                    QuantityEntry_Unfocused(QuantityEntry, null); 
+                    QuantityEntry_Unfocused(QuantityEntry, null);
                 }
-                
+
                 if (string.IsNullOrWhiteSpace(CurrentProduct.Name))
                 {
                     await DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
@@ -263,18 +322,45 @@ namespace perimapp.Pages
                 // Vérifie la quantité directement sur le modèle
                 if (CurrentProduct.Quantity < 1) // UTILISE .Quantity
                 {
-                    await DisplayAlert("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
+                    await DisplayAlert(
+                        "Erreur",
+                        "La quantité doit être supérieure ou égale à 1.",
+                        "OK"
+                    );
                     return;
                 }
-                
-                Debug.WriteLine($"Produit {CurrentProduct.Name} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : ");
+
+                bool updated = await _productService.UpdateUserProductAsync(CurrentProduct);
+                if (!updated)
+                {
+                    await DisplayAlert(
+                        "Erreur",
+                        "Impossible de sauvegarder le produit en base.",
+                        "OK"
+                    );
+                    return;
+                }
+
+                await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
+
+                Debug.WriteLine(
+                    $"Produit {CurrentProduct.Name} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : "
+                );
                 Debug.WriteLine($"  Quantité: {CurrentProduct.Quantity}"); // UTILISE .Quantity
                 Debug.WriteLine($"  DLC: {CurrentProduct.Dlc:dd/MM/yyyy}"); // UTILISE .Dlc
                 Debug.WriteLine($"  Catégorie: {CurrentProduct.Category}");
                 Debug.WriteLine($"  URL Image: {CurrentProduct.UrlImage}");
 
-                await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
-                await Shell.Current.GoToAsync("..");
+                //await Shell.Current.GoToAsync("..");
+                try
+                {
+                    await Shell.Current.GoToAsync("..");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[DEBUG] - Erreur navigation : {ex.Message}");
+                    await Shell.Current.GoToAsync(nameof(MainPage));
+                }
             }
             else
             {

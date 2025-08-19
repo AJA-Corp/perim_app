@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using perimapp.Services;
 
 namespace perimapp;
 
@@ -21,6 +22,8 @@ public static class MauiProgram
                 fonts.AddFont("InterMedium.ttf", "InterMedium");
                 fonts.AddFont("InterThin.ttf", "InterThin");
             });
+
+        builder.Services.AddSingleton<NeonProductService>();
 
 #if DEBUG
         builder.Logging.AddDebug();
