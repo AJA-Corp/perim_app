@@ -98,6 +98,20 @@ namespace perimapp.Models
                 return $"{days}j";
             }
         }
+        
+        public double DaysRemainingFontSize
+        {
+            get
+            {
+                // La propriété DaysRemaining est déjà disponible
+                if (DaysRemaining >= 1000 && DaysRemaining <= 9999)
+                {
+                    return 20; // 4 chiffres, on réduit la taille
+                }
+        
+                return 24; // Taille de police par défaut
+            }
+        }
 
         public string DaysRemainingTextDetailsPage
         {
