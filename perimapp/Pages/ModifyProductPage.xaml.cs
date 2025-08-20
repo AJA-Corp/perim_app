@@ -354,7 +354,9 @@ namespace perimapp.Pages
                 //await Shell.Current.GoToAsync("..");
                 try
                 {
-                    await Shell.Current.GoToAsync("..");
+                    await Shell.Current.GoToAsync(
+                        $"{nameof(DetailsPage)}?ProductUniqueId={CurrentProduct.ProductUniqueId}"
+                    );
                 }
                 catch (Exception ex)
                 {
