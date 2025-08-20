@@ -45,7 +45,7 @@ namespace perimapp.Pages
                     _currentProduct = value;
                     OnPropertyChanged(); // Notifie les changements pour l'UI
 
-                    // Initialiser _currentQuantity et l'affichage des Entries lors du chargement du produit
+                    // Initialiser _currentQuantity et l'affichage de l'Entry lors du chargement du produit
                     if (_currentProduct != null)
                     {
                         // Initialiser la quantité numérique à partir du modèle (qui est un int)
@@ -59,15 +59,9 @@ namespace perimapp.Pages
                                 $"ModifyProductPage: Initial quantity set to {_currentQuantity}"
                             );
                         }
-
-                        // Mettre à jour le texte de l'Entry DLC avec le formatage
-                        if (ProductDlcEntry != null)
-                        {
-                            ProductDlcEntry.Text = _currentProduct.Dlc.ToString("dd/MM/yyyy"); // UTILISE .Dlc
-                            Debug.WriteLine(
-                                $"ModifyProductPage: Initial DLC set to {_currentProduct.Dlc:dd/MM/yyyy}"
-                            );
-                        }
+                
+                        // Le DatePicker se met à jour automatiquement grâce à la liaison de données.
+                        // Il n'y a donc plus besoin de faire référence à ProductDlcEntry.
                     }
                 }
             }
