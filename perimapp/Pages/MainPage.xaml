@@ -154,7 +154,7 @@
                                            TextColor="White"
                                            VerticalOptions="Center" 
                                            HorizontalOptions="Center" 
-                                           FontSize="24"
+                                           FontSize="{Binding DaysRemainingFontSize}"
                                            FontAttributes="Bold"/>
                                 </Border>
                             </Grid>
