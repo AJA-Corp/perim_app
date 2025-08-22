@@ -13,6 +13,20 @@ namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
     {
+        private string _sortButtonText;
+        public string SortButtonText
+        {
+            get => _sortButtonText;
+            set
+            {
+                if (_sortButtonText != value)
+                {
+                    _sortButtonText = value;
+                    OnPropertyChanged(nameof(SortButtonText));
+                }
+            }
+        }
+        
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -44,8 +58,8 @@ namespace perimapp.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur
-            // Le chargement sera géré par la méthode OnAppearing()
+            //Initialisation de la propriété du texte du bouton
+            SortButtonText = "Tri: DLC (proche)";
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -55,6 +69,12 @@ namespace perimapp.Pages
             
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
+            
+            // Définit le tri par défaut une fois les produits chargés
+            SortProducts("DLC (proche)");
+            
+            // AJOUTEZ CETTE LIGNE POUR VÉRIFIER LE COMPTEUR
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Products.Count après tri : {Products.Count}");
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -87,51 +107,50 @@ namespace perimapp.Pages
 
         private async Task LoadProductsAsync()
         {
+            List<ProductInfos> loadedProducts = null;
+    
+            // 1. Tentez de charger depuis la base de données distante
             try
             {
-                // 1. Récupérer l'ID de l'utilisateur de manière sécurisée et asynchrone
                 string userIdString = await SecureStorage.GetAsync("user_id");
-                List<ProductInfos> loadedProducts = null;
-
-                // Si l'ID est valide, on tente de charger depuis la BDD Neon
                 if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
                 {
                     loadedProducts = await _productService.GetUserProductsAsync(userId);
-                }
-
-                // 2. Fallback sur JSON local si aucun produit n'est chargé ou en cas d'erreur
-                if (loadedProducts == null || loadedProducts.Count == 0)
-                {
-                    Console.WriteLine("Aucun produit trouvé en base de données ou ID invalide. Chargement depuis le fichier local.");
-                    loadedProducts = await LoadProductsFromJsonAsync();
-                }
-
-                // 3. Mise à jour de la collection observable et du compteur
-                if (loadedProducts != null)
-                {
-                    var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
-
-                    Products.Clear();
-                    foreach (var product in sortedProducts)
+                    if (loadedProducts != null && loadedProducts.Count > 0)
                     {
-                        Products.Add(product);
+                        Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis la BDD Neon.");
                     }
-                    
-                    DisplayedProductsCount = Products.Count;
-                }
-                else
-                {
-                    DisplayedProductsCount = 0; // S'assurer que le compteur est à 0 si rien n'est chargé
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await DisplayAlert(
-                    "Erreur",
-                    "Impossible de charger les produits. " + ex.Message,
-                    "OK"
-                );
+                Console.WriteLine($"[DEBUG] Erreur lors du chargement des produits depuis la BDD Neon : {ex.Message}");
+            }
+
+            // 2. Si le chargement distant a échoué, tentez le chargement local
+            if (loadedProducts == null || loadedProducts.Count == 0)
+            {
+                Console.WriteLine("[DEBUG] Chargement des produits depuis le fichier JSON local.");
+                loadedProducts = await LoadProductsFromJsonAsync();
+                if (loadedProducts != null)
+                {
+                    Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis le fichier JSON.");
+                }
+            }
+
+            // 3. Mise à jour de la collection observable et du compteur
+            if (loadedProducts != null)
+            {
+                Products.Clear();
+                foreach (var product in loadedProducts)
+                {
+                    Products.Add(product);
+                }
+                DisplayedProductsCount = Products.Count;
+            }
+            else
+            {
+                DisplayedProductsCount = 0;
             }
         }
 
@@ -160,6 +179,46 @@ namespace perimapp.Pages
         private async void OnLostProductsClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(DeletedProductPage));
+        }
+        
+        // Méthode pour le bouton de tri
+        private async void OnSortButtonClicked(object sender, EventArgs e)
+        {
+            string result = await DisplayActionSheet(
+                "Trier par", "Annuler", null, 
+                "DLC (proche)", 
+                "DLC (lointaine)"
+            );
+
+            if (result != "Annuler" && result != null)
+            {
+                SortProducts(result);
+            }
+        }
+
+        // Méthode qui gère la logique de tri
+        private void SortProducts(string sortOption)
+        {
+            IEnumerable<ProductInfos> sortedProducts = Products;
+
+            switch (sortOption)
+            {
+                case "DLC (proche)":
+                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    SortButtonText = "Tri: DLC (proche)";
+                    break;
+                case "DLC (lointaine)":
+                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    SortButtonText = "Tri: DLC (lointaine)";
+                    break;
+            }
+
+            // Le foreach peut maintenant s'exécuter sur la liste triée
+            Products.Clear();
+            foreach (var product in sortedProducts)
+            {
+                Products.Add(product);
+            }
         }
     }
 }
