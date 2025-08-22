@@ -58,7 +58,7 @@
             </Grid>
             
             <!-- MiniHeader -->
-            <Grid Grid.Row="1" BackgroundColor="White" Padding="0" HeightRequest="30">
+            <Grid Grid.Row="1" BackgroundColor="White" Padding="0" HeightRequest="32.5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
@@ -148,7 +148,7 @@
                                         WidthRequest="62"  
                                         Padding="0"                 
                                         Margin="0,0,0,0"           
-                                        StrokeShape="{RoundRectangle 50,0,50,0}"
+                                        StrokeShape="{RoundRectangle CornerRadius='15,0,15,0'}"
                                         StrokeThickness="0">
                                     <Label Text="{Binding DaysRemainingTextMainPage}"
                                            TextColor="White"
@@ -162,6 +162,18 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+            <Button Grid.Row="2"
+                    ImageSource="bin_white.png"
+                    Clicked="OnLostProductsClicked"
+                    BackgroundColor="#58BF7F"
+                    TextColor="White"
+                    WidthRequest="60"
+                    HeightRequest="60"
+                    CornerRadius="20"
+                    VerticalOptions="End"
+                    HorizontalOptions="Start"
+                    Margin="15,0,15,15"
+                    Padding="10"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>
