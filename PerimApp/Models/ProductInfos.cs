@@ -119,6 +119,9 @@ namespace perimapp.Models
         }
 
          // pas stocké sur DB
+         //stockage des Produits en ligne neon db
         public string ProductUniqueId { get; set; } = Guid.NewGuid().ToString();
+        //en local avec SQlite
+        public int ProductId { get; set; } 
     }
 }

@@ -14,7 +14,7 @@ namespace perimapp.Pages
         private string _productUniqueId;
         public string ProductUniqueId
         {
-            get => _productUniqueId.ToString();
+            get => _productUniqueId;//.ToString();//
             set
             {
                 _productUniqueId = value;

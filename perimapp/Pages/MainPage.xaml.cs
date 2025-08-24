@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; // <-- Pour NeonProductService
+using perimapp.Services; 
 
 namespace perimapp.Pages
 {
@@ -38,14 +38,12 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             int savedUserId = Preferences.Default.Get("UserId", -1);
-            Console.WriteLine(
-                $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
-            );
+            Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}");
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur
-            // Le chargement sera géré par la méthode OnAppearing()
+            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur//
+            // Le chargement géré par la méthode OnAppearing()
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -89,51 +87,45 @@ namespace perimapp.Pages
         {
             try
             {
-                // 1. Récupérer l'ID de l'utilisateur de manière sécurisée et asynchrone
-                string userIdString = await SecureStorage.GetAsync("user_id");
-                List<ProductInfos> loadedProducts = null;
+                var localService = new LocalProductService();
+                // Charger les produits depuis le fichier local
+                List<ProductInfos> loadedProducts = await localService.LoadProductsAsync();
 
-                // Si l'ID est valide, on tente de charger depuis la BDD Neon
+                // Si l’utilisateur est en ligne, récupérer les produits serveur et fusionner
+                string userIdString = await SecureStorage.GetAsync("user_id");
                 if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
                 {
-                    loadedProducts = await _productService.GetUserProductsAsync(userId);
-                }
+                    var serveurProducts = await _productService.GetUserProductsAsync(userId);
 
-                // 2. Fallback sur JSON local si aucun produit n'est chargé ou en cas d'erreur
-                if (loadedProducts == null || loadedProducts.Count == 0)
-                {
-                    Console.WriteLine("Aucun produit trouvé en base de données ou ID invalide. Chargement depuis le fichier local.");
-                    loadedProducts = await LoadProductsFromJsonAsync();
-                }
-
-                // 3. Mise à jour de la collection observable et du compteur
-                if (loadedProducts != null)
-                {
-                    var sortedProducts = loadedProducts.OrderBy(p => p.DaysRemaining).ToList();
-
-                    Products.Clear();
-                    foreach (var product in sortedProducts)
+                    foreach (var p in serveurProducts)
                     {
-                        Products.Add(product);
+                        // Ajout seulement si non présent localement (pour les doublons)
+                        if (!loadedProducts.Any(x => x.ProductUniqueId == p.ProductUniqueId))
+                        {
+                            loadedProducts.Add(p);
+                            // Sauvegarde les nouveaux produits DB dans le fichier local
+                            await localService.AddProductAsync(p);
+                        }
                     }
-                    
-                    DisplayedProductsCount = Products.Count;
                 }
-                else
+
+                // Mise à jour de la collection observable et du compteur
+                Products.Clear();
+                foreach (var product in loadedProducts.OrderBy(p => p.DaysRemaining))
                 {
-                    DisplayedProductsCount = 0; // S'assurer que le compteur est à 0 si rien n'est chargé
+                    Products.Add(product);
                 }
+                DisplayedProductsCount = Products.Count;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await DisplayAlert(
-                    "Erreur",
-                    "Impossible de charger les produits. " + ex.Message,
-                    "OK"
-                );
+                await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
             }
         }
+
+
+
 
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
