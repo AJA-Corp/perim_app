@@ -84,49 +84,58 @@ namespace perimapp.Pages
         }
 
         private async Task LoadProductsAsync()
-        {
-            try
             {
-                var localService = new LocalProductService();
-                // Charger les produits depuis le fichier local
-                List<ProductInfos> loadedProducts = await localService.LoadProductsAsync();
-
-                // Si l’utilisateur est en ligne, récupérer les produits serveur et fusionner
-                string userIdString = await SecureStorage.GetAsync("user_id");
-                if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                try
                 {
-                    var serveurProducts = await _productService.GetUserProductsAsync(userId);
+                    var localService = new LocalProductService();
+                    List<ProductInfos> products;
 
-                    foreach (var p in serveurProducts)
+                    // Récupérer l'ID utilisateur
+                    string userIdString = await SecureStorage.GetAsync("user_id");
+
+                    // Vérifie si Internet est dispo
+                    bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                    if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
                     {
-                        // Ajout seulement si non présent localement (pour les doublons)
-                        if (!loadedProducts.Any(x => x.ProductUniqueId == p.ProductUniqueId))
+                        try
                         {
-                            loadedProducts.Add(p);
-                            // Sauvegarde les nouveaux produits DB dans le fichier local
-                            await localService.AddProductAsync(p);
+                            // Charger les produits depuis le serveur
+                            var serveurProducts = await _productService.GetUserProductsAsync(userId);
+
+                            //  Remplacer le cache local par les produits en ligne
+                            await localService.SaveProductsAsync(serveurProducts);
+
+                            //  Utiliser ces produits pour l'affichage
+                            products = serveurProducts;
+                        }
+                        catch
+                        {
+                            // Si le serveur ne répond pas, on retombe sur le local
+                            products = await localService.LoadProductsAsync();
                         }
                     }
-                }
+                    else
+                    {
+                        //  Pas de connexion → produits locaux uniquement
+                        products = await localService.LoadProductsAsync();
+                    }
 
-                // Mise à jour de la collection observable et du compteur
-                Products.Clear();
-                foreach (var product in loadedProducts.OrderBy(p => p.DaysRemaining))
+                    // Mise à jour de la liste globale et de l'UI
+                    AppData.CurrentProducts.Clear();
+                    foreach (var product in products.OrderBy(p => p.DaysRemaining))
+                        AppData.CurrentProducts.Add(product);
+
+                    DisplayedProductsCount = AppData.CurrentProducts.Count;
+                }
+                catch (Exception ex)
                 {
-                    Products.Add(product);
+                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
                 }
-                DisplayedProductsCount = Products.Count;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
-            }
-        }
-
-
-
-
+        
+        
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
             try
