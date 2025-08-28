@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "perimapp", "perimapp\perimapp.csproj", "{95D02E68-B101-4925-93D4-8DD12FF76399}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerimApp.Core", "PerimApp.Core\PerimApp.Core.csproj", "{27AD5349-8A18-4F03-B0B0-7971966B1414}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerimApp.Tests", "PerimApp.Tests\PerimApp.Tests.csproj", "{37B849F6-B6D8-4F68-8177-306A4E960DFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,13 @@ Global
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27AD5349-8A18-4F03-B0B0-7971966B1414}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27AD5349-8A18-4F03-B0B0-7971966B1414}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27AD5349-8A18-4F03-B0B0-7971966B1414}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27AD5349-8A18-4F03-B0B0-7971966B1414}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37B849F6-B6D8-4F68-8177-306A4E960DFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37B849F6-B6D8-4F68-8177-306A4E960DFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37B849F6-B6D8-4F68-8177-306A4E960DFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37B849F6-B6D8-4F68-8177-306A4E960DFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

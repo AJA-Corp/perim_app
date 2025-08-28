@@ -1,0 +1,13 @@
+# Ajouts pour les tests
+**/bin/
+**/obj/
+**/.vs/
+coverage-report/
+TestResults/
+*.cobertura.xml
+*.coverage
+*.coveragexml
+
+# Fichiers temporaires de tests
+**/*.tmp
+**/*.log
