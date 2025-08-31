@@ -1,0 +1,62 @@
+```
+Architecture Perim'App - Vue d'ensemble
+=====================================
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        PRESENTATION LAYER                       │
+├─────────────────────────────────────────────────────────────────┤
+│  MainPage.xaml     │  AddProductPage.xaml  │  ProfilePage.xaml  │
+│  DetailsPage.xaml  │  LogInPage.xaml       │  SignUpPage.xaml   │
+│                                                                 │
+│  📱 Interface utilisateur XAML + Code-behind C#                │
+└─────────────────────────────────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      APPLICATION LAYER                         │
+├─────────────────────────────────────────────────────────────────┤
+│  NeonProductService     │  NeonUserService                     │
+│  OpenFoodFactsService   │  PasswordHasher                      │
+│                                                                 │
+│  🔧 Services métier et logique applicative                     │
+└─────────────────────────────────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        DOMAIN LAYER                            │
+├─────────────────────────────────────────────────────────────────┤
+│  ProductInfos.cs       │  UserProfileDetails.cs               │
+│  AppData.cs            │  Converters/                         │
+│                                                                 │
+│  📊 Modèles de données et logique métier                       │
+└─────────────────────────────────────────────────────────────────┘
+                                   ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE LAYER                        │
+├─────────────────────────────────────────────────────────────────┤
+│  PostgreSQL Database (Neon)    │  Open Food Facts API          │
+│  - users                       │  - Données produits externes  │
+│  - products_data              │                                │
+│  - products_users             │                                │
+│                                                                 │
+│  🗄️ Persistance et services externes                           │
+└─────────────────────────────────────────────────────────────────┘
+
+Flux de données principal :
+==========================
+
+1. Utilisateur → Interface XAML (MainPage)
+2. Interface → Service (NeonProductService)
+3. Service → Base de données PostgreSQL
+4. Données ← Service ← Base de données
+5. Interface ← Modèle (ProductInfos) ← Service
+6. Affichage produits avec calculs de péremption
+
+Technologies utilisées :
+========================
+
+Frontend:    .NET MAUI 9.0, XAML, C#
+Backend:     Services C#, Npgsql
+Database:    PostgreSQL (Neon Cloud)
+Security:    Argon2 Password Hashing
+Testing:     xUnit, 35 tests unitaires
+CI/CD:       GitHub Actions
+```
