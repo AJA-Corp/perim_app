@@ -23,6 +23,8 @@ public static class MauiProgram
                 fonts.AddFont("InterThin.ttf", "InterThin");
             });
 
+        builder.Services.AddSingleton<NeonProductService>();
+
 #if DEBUG
         builder.Logging.AddDebug();
 #endif

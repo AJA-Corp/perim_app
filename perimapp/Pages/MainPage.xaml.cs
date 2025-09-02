@@ -7,12 +7,26 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; 
+using perimapp.Services; // <-- Pour NeonProductService
 
 namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
+    
     {
+        private string _sortButtonText;
+        public string SortButtonText
+        {
+            get => _sortButtonText;
+            set
+            {
+                if (_sortButtonText != value)
+                {
+                    _sortButtonText = value;
+                    OnPropertyChanged(nameof(SortButtonText));
+                }
+            }
+        }
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -38,12 +52,14 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             int savedUserId = Preferences.Default.Get("UserId", -1);
-            Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}");
+            Console.WriteLine(
+                $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
+            );
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur//
-            // Le chargement géré par la méthode OnAppearing()
+            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur
+            // Le chargement sera géré par la méthode OnAppearing()
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -161,6 +177,46 @@ namespace perimapp.Pages
         private async void OnLostProductsClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(DeletedProductPage));
+        }
+        
+        // Méthode pour le bouton de tri
+        private async void OnSortButtonClicked(object sender, EventArgs e)
+        {
+            string result = await DisplayActionSheet(
+                "Trier par", "Annuler", null, 
+                "DLC (proche)", 
+                "DLC (lointaine)"
+            );
+
+            if (result != "Annuler" && result != null)
+            {
+                SortProducts(result);
+            }
+        }
+
+        // Méthode qui gère la logique de tri
+        private void SortProducts(string sortOption)
+        {
+            IEnumerable<ProductInfos> sortedProducts = Products;
+
+            switch (sortOption)
+            {
+                case "DLC (proche)":
+                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    SortButtonText = "Tri: DLC (proche)";
+                    break;
+                case "DLC (lointaine)":
+                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    SortButtonText = "Tri: DLC (lointaine)";
+                    break;
+            }
+
+            // Le foreach peut maintenant s'exécuter sur la liste triée
+            Products.Clear();
+            foreach (var product in sortedProducts)
+            {
+                Products.Add(product);
+            }
         }
     }
 }
