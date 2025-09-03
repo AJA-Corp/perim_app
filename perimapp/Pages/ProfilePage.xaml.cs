@@ -32,8 +32,10 @@ namespace perimapp.Pages
         private int _registeredProductsCount;
         private int _lostProductsCount;
         private string _familyCode;
-        
+        //pour la bdd (Neon)
         private readonly NeonUserService _userService;
+        //pour le Local
+        private readonly LocalUserService _localUserService;
 
         public string UserName { get => _userName; set { if (_userName != value) { _userName = value; OnPropertyChanged(); } } }
         public int RegisteredProductsCount { get => _registeredProductsCount; set { if (_registeredProductsCount != value) { _registeredProductsCount = value; OnPropertyChanged(); } } }
@@ -50,6 +52,7 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             _userService = new NeonUserService();
+            _localUserService = new LocalUserService(); //local
 
             UserName = "Chargement...";
             FamilyCode = "Chargement...";
@@ -69,41 +72,48 @@ namespace perimapp.Pages
         {
             try
             {
-                // ... (Logique pour récupérer l'ID de l'utilisateur) ...
+                // Charger le local storage
+                var localUser = await _localUserService.LoadUserAsync();
+                if (localUser != null)
+                {
+                    UpdateUI(localUser);
+                    Debug.WriteLine("Profil chargé depuis le stockage local ✅");
+                }
+
+                // rafraîchir depuis Neon
                 var userIdStr = await SecureStorage.GetAsync("user_id");
                 if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 {
-                    Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé. L'utilisateur est-il connecté ?");
-                    SetDefaultProfileValues("Utilisateur non connecté");
+                    Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé.");
                     return;
                 }
 
-                // 1. Appel pour obtenir les informations de base du profil
                 var userProfile = await _userService.GetUserProfileAsync(userId);
-        
-                // 2. Appel pour obtenir le nombre de produits enregistrés
                 int productCount = await _userService.GetRegisteredProductsCountAsync(userId);
 
                 if (userProfile != null)
                 {
-                    UserName = $"{userProfile.FirstName} {userProfile.LastName}";
-                    FamilyCode = userProfile.HomeCode.ToString();
-                    RegisteredProductsCount = productCount; // Affectez le résultat du second appel ici
-                    LostProductsCount = 0;
+                    userProfile.RegisteredProductsCount = productCount;
 
-                    Debug.WriteLine($"ProfilePage: Profil de l'utilisateur ID {userId} chargé depuis NeonDB.");
-                }
-                else
-                {
-                    SetDefaultProfileValues("Profil introuvable");
-                    Debug.WriteLine($"ProfilePage: Profil pour l'utilisateur ID {userId} non trouvé dans la base de données.");
+                    // Sauvegarde locale mise à jour
+                    await _localUserService.SaveUserAsync(userProfile);
+
+                    UpdateUI(userProfile);
+                    Debug.WriteLine("Profil mis à jour depuis NeonDB ✅");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProfilePage [ERREUR] : Une erreur inattendue est survenue : {ex.Message}");
-                SetDefaultProfileValues("Erreur de chargement");
+                Debug.WriteLine($"ProfilePage [ERREUR] : {ex.Message}");
             }
+        }
+        //pour le localUser
+        private void UpdateUI(UserProfileDetails user)
+        {
+            UserName = $"{user.FirstName} {user.LastName}";
+            FamilyCode = user.HomeCode.ToString();
+            RegisteredProductsCount = user.RegisteredProductsCount;
+            LostProductsCount = string.IsNullOrEmpty(user.LostProducts) ? 0 : user.LostProducts.Split(',').Length;
         }
 
         private void SetDefaultProfileValues(string defaultName)
@@ -133,13 +143,15 @@ namespace perimapp.Pages
             // 1. Masquer le menu
             IsMenuVisible = false;
 
-            // 2. Nettoyer l'état de l'utilisateur (supprimer les informations de session)
+            // 2. Nettoyer l'état de l'utilisateur (supprimer les informations de session) et supprime ID de lutilisateur et le profile en local 
             SecureStorage.Remove("user_id");
+            _localUserService.DeleteUser();
             Debug.WriteLine("Déconnexion de l'utilisateur. Suppression de l'ID utilisateur.");
 
             // 3. Rediriger l'utilisateur vers la page de connexion
             // Assurez-vous que la route vers la page de connexion est bien définie dans votre AppShell.xaml
             await Shell.Current.GoToAsync(nameof(StartingPage));
+            
         }
     }
 }
