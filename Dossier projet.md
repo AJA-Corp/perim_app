@@ -165,40 +165,362 @@ L’intégration de Git/GitHub avec Jira renforce encore cette organisation, pui
 
 # Spécifications Fonctionnelles {#spécifications-fonctionnelles}
 
-(très important pour justifier la partie “Concepteur” du titre)
+## Expression des besoins
 
-- Expressions des besoins (utiliser un persona)
+### Contexte
 
-Nous souhaitions une applications française et compatible Android et IOS  
-Simple d’utilisation
+D'après le ministère de l'agriculture et de la souveraineté alimentaire, en France, le gaspillage alimentaire s'élevait en 2021 à **8,8 millions de tonnes**, soit **129 kg par personne**. 47% de ces déchets proviennent des ménages, représentant près de **4,3 millions de tonnes** de produits encore comestibles.
 
-Risques et difficultés
+### Persona principal
 
-Les risques sont multiples:
+**Marie, 32 ans, mère de famille active**
+- Vit en famille avec 2 enfants
+- Travaille à temps plein
+- Fait ses courses 1-2 fois par semaine
+- Préoccupée par le gaspillage alimentaire
+- Utilise son smartphone quotidiennement
+- Besoin de rapidité et simplicité dans ses outils
 
-- Tests non intégrés  
-- Manque de temps
+*"J'aimerais un moyen simple de suivre les dates de péremption de nos produits pour éviter de jeter de la nourriture. Il me faut quelque chose de rapide à utiliser entre mes courses et mon travail."*
 
-Les difficultés le sont tout aussi:
+### Objectifs de l'application
 
-- Rythme parfois cassé (4 jours entreprise / 1 jour école), il est compliqué de déconnecter d’un projet pour tout de suite en reprendre un, puis repasser à l’autre sans avoir eu le temps de réaliser quoi que ce soit  
-- Alternances différées (L’un à commencé en septembre, un autre en novembre, et le dernier n’a pas eu d’alternance)
+1. **Alerter** les utilisateurs lorsque le produit arrive à date de péremption
+2. **Réduire** le gaspillage alimentaire  
+3. **Encourager** une consommation plus responsable
 
-- Modélisation (UML avec Use Cases, Diagrammes d’activité, Diagrammes de classe)
+### Exigences fonctionnelles
 
-Cas d’utilisation
+#### F1 - Gestion des utilisateurs
+- **F1.1** : L'utilisateur peut créer un compte avec email/mot de passe
+- **F1.2** : L'utilisateur peut se connecter/déconnecter
+- **F1.3** : L'utilisateur peut modifier ses informations de profil
 
-Diagramme d’Activité
+#### F2 - Gestion des produits
+- **F2.1** : L'utilisateur peut ajouter un produit manuellement
+- **F2.2** : L'utilisateur peut scanner un code-barres pour ajouter un produit
+- **F2.3** : L'utilisateur peut modifier les informations d'un produit
+- **F2.4** : L'utilisateur peut supprimer un produit
+- **F2.5** : L'utilisateur peut visualiser la liste de ses produits
+- **F2.6** : L'utilisateur peut trier/filtrer ses produits par date de péremption
 
-- Conception de base de données (par ex: modélisation Merise pour les BDD relationnelles, ou diagrammes de classes pour BDD NoSQL)
+#### F3 - Notifications et alertes
+- **F3.1** : L'application alerte l'utilisateur des produits proches de l'expiration
+- **F3.2** : L'utilisateur peut configurer ses préférences de notification
+- **F3.3** : L'application affiche visuellement l'urgence (codes couleur)
+
+#### F4 - Base de données produits
+- **F4.1** : L'application récupère automatiquement les informations produit via code-barres
+- **F4.2** : L'application stocke les données utilisateur de manière sécurisée
+
+### Exigences non-fonctionnelles
+
+#### Performance
+- Temps de réponse < 2 secondes pour l'affichage de la liste
+- Synchronisation en arrière-plan
+
+#### Compatibilité
+- Compatible Android (API 21+) et iOS (13+)
+- Interface adaptée aux écrans mobiles
+- Support hors ligne pour la consultation
+
+#### Sécurité
+- Chiffrement des mots de passe (Argon2)
+- Communication sécurisée HTTPS
+- Stockage local sécurisé
+
+#### Ergonomie
+- Interface intuitive et accessible
+- Design cohérent suivant les guidelines Material Design / Human Interface
+- Support multi-langues (français principalement)
+
+## Cas d'utilisation
+
+![Diagramme des cas d'utilisation](Images/Use%20Cases.png)
+
+### UC1 - Ajouter un produit
+**Acteur** : Utilisateur  
+**Précondition** : Utilisateur connecté  
+**Déclencheur** : L'utilisateur souhaite ajouter un nouveau produit  
+**Scenario nominal** :
+1. L'utilisateur accède à l'écran d'ajout
+2. L'utilisateur saisit ou scanne le code-barres
+3. L'application récupère les informations produit
+4. L'utilisateur confirme et ajoute la date de péremption
+5. Le produit est ajouté à la liste
+
+### UC2 - Consulter les alertes
+**Acteur** : Utilisateur  
+**Précondition** : Utilisateur connecté, produits en base  
+**Déclencheur** : L'utilisateur consulte sa liste de produits  
+**Scenario nominal** :
+1. L'utilisateur ouvre l'application
+2. La liste des produits s'affiche avec indicateurs visuels
+3. Les produits proches de l'expiration sont mis en évidence
+4. L'utilisateur peut agir sur les produits alertés
+
+## Modélisation UML
+
+![Diagramme d'activité](Images/Activity%20Diagram.png)
+
+Le diagramme d'activité présente le processus principal de l'application, de la connexion à la gestion des produits.
+
+![Diagramme de classes](Images/Core%20Class%20Diagram.png)
+
+Le diagramme de classes illustre la structure des données principales : User, Product, et leurs relations.
+
+## Risques et difficultés identifiés
+
+### Risques techniques
+- **Tests non intégrés** : Risque de régressions non détectées
+- **Manque de temps** : Planning serré avec contraintes d'alternance
+- **Synchronisation données** : Gestion de la cohérence entre local/distant
+
+### Difficultés organisationnelles
+- **Rythme d'alternance** : Alternance 4j entreprise / 1j école complexifie la continuité
+- **Équipe distribuée** : Alternances différées (septembre/novembre) 
+- **Coordination** : Synchronisation entre les différents rythmes de travail
+
+### Mesures d'atténuation
+- Planning adaptatif avec jalons flexibles
+- Documentation technique complète
+- Outils de collaboration (GitHub, Jira)
+- Communication régulière via Discord/Teams
 
 # Specifications Techniques {#specifications-techniques}
+
+## Architecture globale
+
+![Diagramme d'architecture](Images/Architecture%20Diagram.png)
+
+L'application Perim'App suit une architecture moderne basée sur .NET MAUI pour le développement multiplateforme.
+
+### Stack technologique
+
+#### Frontend - Application mobile
+- **Framework** : .NET MAUI 9.0
+- **Langage** : C# 12
+- **UI** : XAML avec binding MVVM
+- **Patterns** : MVVM Community Toolkit
+- **Plateformes cibles** : Android (API 21+), iOS (13+), Windows
+
+#### Backend - Base de données et services
+- **Base de données** : PostgreSQL (hébergée sur NeonDB)
+- **ORM** : Npgsql pour l'accès direct PostgreSQL
+- **API externe** : OpenFoodFacts pour les informations produits
+- **Authentification** : Locale avec hachage Argon2
+
+#### Packages NuGet utilisés
+```xml
+<PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
+<PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
+<PackageReference Include="Npgsql" Version="9.0.3" />
+```
+
+### Modèle de données
+
+![Modèle Conceptuel de Données](Images/MCD_PerimAPP.png)
+
+#### Tables principales
+
+**Users**
+- user_id (PK)
+- email
+- password_hash
+- first_name
+- last_name
+- created_at
+
+**Products**
+- product_id (PK)
+- user_id (FK)
+- product_name
+- product_barcode
+- product_category
+- product_quantity
+- product_dlc (date limite consommation)
+- url_image
+- added_at
+
+### Services et couches
+
+#### Couche Données (Data Layer)
+```csharp
+// AppData.cs - Gestionnaire de données global
+public static class AppData
+{
+    public static ObservableCollection<ProductInfos> CurrentProducts { get; set; }
+    public static UserProfile? CurrentUser { get; set; }
+}
+```
+
+#### Couche Services (Service Layer)
+
+**NeonProductService** : Gestion des produits avec PostgreSQL
+```csharp
+public class NeonProductService
+{
+    public async Task<List<ProductInfos>> GetProductsAsync(int userId)
+    public async Task AddProductAsync(ProductInfos product)
+    public async Task UpdateProductAsync(ProductInfos product)
+    public async Task DeleteProductAsync(int productId)
+}
+```
+
+**NeonUserService** : Gestion des utilisateurs
+```csharp
+public class NeonUserService
+{
+    public async Task<bool> RegisterUserAsync(UserProfile user)
+    public async Task<UserProfile?> AuthenticateUserAsync(string email, string password)
+}
+```
+
+**OpenFoodFactsService** : Intégration API externe
+```csharp
+public class OpenFoodFactsService
+{
+    public async Task<ProductInfos?> GetProductByBarcodeAsync(string barcode)
+}
+```
+
+**PasswordHasher** : Sécurisation des mots de passe
+```csharp
+public static class PasswordHasher
+{
+    public static string HashPassword(string password)
+    public static bool VerifyPassword(string password, string hash)
+}
+```
+
+#### Couche Présentation (UI Layer)
+
+Pages principales :
+- **StartingPage** : Écran d'accueil
+- **LogInPage** : Authentification
+- **SignUpPage** : Inscription
+- **MainPage** : Liste des produits
+- **AddProductPage** : Ajout de produit
+- **DetailsPage** : Détails d'un produit
+- **ModifyProductPage** : Modification
+- **ProfilePage** : Profil utilisateur
+
+### Configuration technique
+
+#### Plateformes supportées
+```xml
+<TargetFrameworks>net9.0-android</TargetFrameworks>
+<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">
+  $(TargetFrameworks);net9.0-windows10.0.19041.0
+</TargetFrameworks>
+```
+
+#### Versions minimales
+- **Android** : API 21 (Android 5.0)
+- **Windows** : 10.0.17763.0
+- **iOS** : Compatible avec les versions supportées par .NET MAUI
+
+### Connexion base de données
+
+Configuration PostgreSQL via NeonDB :
+```csharp
+private const string ConnectionString = "Host=ep-restless-field-a8gc8nce.eastus2.aws.neon.tech;" +
+                                       "Database=perimapp;" +
+                                       "Username=perimapp_owner;" +
+                                       "Password=[PROTECTED];" +
+                                       "SSL Mode=Require;";
+```
+
+### Performance et optimisation
+
+#### Stratégies de performance
+- **Lazy Loading** : Chargement des données à la demande
+- **Caching local** : Stockage temporaire pour réduire les appels réseau
+- **Async/Await** : Opérations asynchrones pour la fluidité UI
+- **ObservableCollection** : Binding automatique pour les mises à jour UI
+
+#### Gestion hors ligne
+- Stockage local des données critiques
+- Synchronisation différée lors de la reconnexion
+- Gestion des conflits de données
 
 # Maquettes {#maquettes}
 
 L’entièreté du maquettage à été réalisé avec Figma  
 La couleur principale de l’application est le vert (\#58BF7F):  
 ![\#58BF7F][image1]
+
+## Écrans de l'application
+
+### Écran d'accueil et d'authentification
+
+![Écran d'accueil](Images/Maquettes/Accueil.png)
+
+L'écran d'accueil présente l'application avec un design épuré utilisant la charte graphique verte.
+
+![Page de connexion](Images/Maquettes/LogIn.png)
+
+La page de connexion permet aux utilisateurs existants de s'authentifier avec leur email et mot de passe.
+
+![Page d'inscription](Images/Maquettes/SignUp.png)
+
+La page d'inscription permet aux nouveaux utilisateurs de créer un compte avec validation des informations.
+
+### Interface principale
+
+![Page principale](Images/Maquettes/Main.png)
+
+La page principale affiche la liste des produits avec leur date d'expiration, permettant un tri par date de péremption.
+
+![Page principale après ajout](Images/Maquettes/MainAfterAdd.png)
+
+Vue de la page principale après l'ajout d'un nouveau produit, montrant la mise à jour en temps réel de la liste.
+
+![Page principale après modification](Images/Maquettes/MainAfterModify.png)
+
+Vue de la page principale après modification d'un produit existant.
+
+### Gestion des produits
+
+![Ajout de produit](Images/Maquettes/AddProduct.png)
+
+Interface d'ajout d'un nouveau produit avec saisie du nom, code-barres et date de péremption.
+
+![Détails du produit](Images/Maquettes/DetailsProduct.png)
+
+Page de détails d'un produit affichant toutes les informations disponibles (nom, catégorie, date de péremption, etc.).
+
+![Détails après modification](Images/Maquettes/DetailsAfterModify.png)
+
+Vue des détails du produit après modification des informations.
+
+![Modification de produit](Images/Maquettes/ModifyProduct.png)
+
+Interface de modification permettant d'éditer les informations d'un produit existant.
+
+### Fonctionnalités avancées
+
+![Notifications](Images/Maquettes/Notifications.png)
+
+Système de notifications pour alerter les utilisateurs des produits arrivant à expiration.
+
+![Profil utilisateur](Images/Maquettes/Profile.png)
+
+Page de profil utilisateur permettant de gérer les informations personnelles et les préférences.
+
+![Interface PomPotes](Images/Maquettes/PomPotes.png)
+
+Fonctionnalité collaborative permettant le partage de produits entre utilisateurs (fonctionnalité future).
+
+## Cohérence du design
+
+Toutes les maquettes respectent une charte graphique cohérente avec :
+- Utilisation du vert \#58BF7F comme couleur principale
+- Typographie lisible et moderne
+- Interface intuitive avec navigation claire
+- Design responsive adapté aux écrans mobiles
+- Iconographie cohérente pour les actions (ajout, modification, suppression)
 
 # MCD \- MLD {#mcd---mld}
 
@@ -235,9 +557,841 @@ Conformément au RGPD, nous récoltons uniquement l’adresse mail de l’utilis
 
 # Sécurité {#sécurité}
 
+## Authentification et autorisation
+
+### Hachage des mots de passe
+L'application utilise **Argon2id** pour le hachage sécurisé des mots de passe, considéré comme l'état de l'art en matière de protection des mots de passe.
+
+```csharp
+public static class PasswordHasher
+{
+    public static string HashPassword(string password)
+    {
+        var config = new Argon2Config
+        {
+            Type = Argon2Type.Argon2id,    // Résistant aux attaques GPU et side-channel
+            Version = Argon2Version.Nineteen,
+            TimeCost = 10,                  // 10 itérations
+            MemoryCost = 32768,            // 32 MB de mémoire
+            Lanes = 4,                     // 4 threads parallèles
+            Threads = Environment.ProcessorCount,
+            Password = Encoding.UTF8.GetBytes(password),
+            Salt = GenerateSalt(),         // Salt aléatoire unique
+            HashLength = 20                // Hash de 20 bytes
+        };
+        
+        var argon2A = new Argon2(config);
+        using (argon2A)
+        {
+            return argon2A.Hash().Encoded;
+        }
+    }
+}
+```
+
+### Génération de sel cryptographique
+Chaque mot de passe utilise un sel unique généré de manière cryptographiquement sécurisée :
+
+```csharp
+private static byte[] GenerateSalt()
+{
+    var buffer = new byte[16];
+    using (var rng = RandomNumberGenerator.Create())
+    {
+        rng.GetBytes(buffer);
+    }
+    return buffer;
+}
+```
+
+## Protection des données
+
+### Chiffrement des communications
+- **HTTPS obligatoire** : Toutes les communications entre l'application et la base de données PostgreSQL utilisent SSL/TLS
+- **Certificats valides** : Vérification des certificats SSL pour éviter les attaques man-in-the-middle
+
+```csharp
+private const string ConnectionString = 
+    "Host=ep-restless-field-a8gc8nce.eastus2.aws.neon.tech;" +
+    "Database=perimapp;" +
+    "Username=perimapp_owner;" +
+    "Password=[PROTECTED];" +
+    "SSL Mode=Require;";  // SSL obligatoire
+```
+
+### Conformité RGPD
+Conformément au RGPD, l'application met en place plusieurs mesures :
+
+**Minimisation des données** :
+- Collecte uniquement l'email et le mot de passe hashé
+- Les produits stockés ne contiennent pas de données personnelles sensibles
+- Pas de tracking ou de cookies non essentiels
+
+**Droits des utilisateurs** :
+- Droit d'accès : Consultation des données via l'interface utilisateur
+- Droit de rectification : Modification des informations produits
+- Droit à l'effacement : Suppression de compte et données associées
+
+**Sécurité des données** :
+- Mots de passe jamais stockés en clair
+- Base de données hébergée en Europe (AWS eu-east-1)
+- Chiffrement en transit et au repos
+
+## Sécurité applicative
+
+### Validation des entrées
+```csharp
+// Validation des emails
+public static bool IsValidEmail(string email)
+{
+    var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    return emailRegex.IsMatch(email);
+}
+
+// Protection contre les injections SQL avec paramètres
+using var command = new NpgsqlCommand(query, connection);
+command.Parameters.AddWithValue("@userId", userId);
+command.Parameters.AddWithValue("@productName", productName);
+```
+
+### Gestion des erreurs sécurisée
+- Messages d'erreur génériques pour éviter la fuite d'informations
+- Logs détaillés côté serveur, messages simples côté client
+- Pas d'exposition de la stack trace en production
+
+### Protection contre les attaques communes
+
+**Injection SQL** :
+- Utilisation exclusive de requêtes paramétrées
+- Aucune concaténation de chaînes dans les requêtes SQL
+
+**Cross-Site Scripting (XSS)** :
+- Encodage automatique des données en XAML
+- Validation des entrées utilisateur
+
+**Attaques par force brute** :
+- Complexité minimale des mots de passe (implémentée côté client)
+- Possibilité d'ajouter un système de limitation de tentatives
+
+## Sécurité mobile
+
+### Stockage local sécurisé
+```csharp
+// Utilisation du stockage sécurisé MAUI pour les tokens sensibles
+await SecureStorage.SetAsync("auth_token", authToken);
+var token = await SecureStorage.GetAsync("auth_token");
+```
+
+### Permissions minimales
+L'application demande uniquement les permissions nécessaires :
+- **Accès réseau** : Pour la synchronisation des données
+- **Stockage local** : Pour le cache des données utilisateur
+- **Appareil photo** (futur) : Pour le scan de codes-barres
+
+### Obfuscation du code
+En production, le code peut être obfusqué pour compliquer la rétro-ingénierie :
+```xml
+<!-- Configuration de protection du code -->
+<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+</PropertyGroup>
+```
+
+## Audit et monitoring
+
+### Journalisation sécurisée
+```csharp
+// Logs d'audit sans données sensibles
+_logger.LogInformation("User {UserId} attempted login at {Timestamp}", 
+    userId, DateTime.UtcNow);
+
+// Pas de log des mots de passe ou données personnelles
+_logger.LogWarning("Failed login attempt for user {UserId}", userId);
+```
+
+### Détection d'anomalies
+- Monitoring des tentatives de connexion échouées
+- Alertes en cas d'activité suspecte
+- Logs centralisés pour analyse forensique
+
+### Tests de sécurité
+**Tests automatisés** :
+- Validation des hashes de mots de passe
+- Tests d'injection SQL
+- Vérification des permissions
+
+**Tests manuels périodiques** :
+- Audit de sécurité du code
+- Tests de pénétration des API
+- Revue des configurations de sécurité
+
 # CI/CD {#ci/cd}
 
+## Stratégie DevOps
+
+L'intégration continue et le déploiement continu (CI/CD) sont mis en place pour automatiser les processus de développement, test et déploiement de l'application Perim'App.
+
+## Gestion du code source
+
+### Git et GitHub
+```bash
+# Structure des branches
+main/                 # Branche principale (production)
+├── develop/         # Branche de développement
+├── feature/DEV-*    # Branches de fonctionnalités (intégration Jira)
+└── hotfix/BUG-*     # Branches de correction urgente
+```
+
+### Convention de nommage des commits
+```
+feat: ajout de la fonctionnalité de scan de code-barres
+fix: correction du calcul des jours restants
+docs: mise à jour de la documentation technique
+style: amélioration de l'interface utilisateur
+refactor: restructuration du service de données
+test: ajout de tests unitaires pour ProductService
+```
+
+### Intégration Jira-GitHub
+- **Branches automatiques** : Création automatique depuis les tickets Jira
+- **Liaison commits-tickets** : Référencement automatique des issues
+- **Suivi de progression** : Mise à jour du statut des tickets via les commits
+
+## Pipeline CI/CD
+
+### Workflow GitHub Actions
+
+**.github/workflows/ci.yml**
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build application
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Run unit tests
+      run: dotnet test --no-build --configuration Release --logger trx
+    
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results
+        path: '**/*.trx'
+        reporter: dotnet-trx
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run security scan
+      uses: securecodewarrior/github-action-add-sarif@v1
+      with:
+        sarif-file: 'security-results.sarif'
+    
+    - name: Upload results to GitHub Security
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'security-results.sarif'
+
+  android-build:
+    runs-on: ubuntu-latest
+    needs: [build, security-scan]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET MAUI
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Install MAUI workload
+      run: dotnet workload install maui
+    
+    - name: Build Android APK
+      run: |
+        dotnet publish -f net9.0-android \
+          -c Release \
+          -p:AndroidSdkDirectory=$ANDROID_SDK_ROOT \
+          -o ./artifacts/android
+    
+    - name: Upload Android artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-apk
+        path: ./artifacts/android/*.apk
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [android-build]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Deploy to staging
+      run: |
+        echo "Deploying to staging environment"
+        # Commands de déploiement staging
+    
+    - name: Run integration tests
+      run: |
+        echo "Running integration tests"
+        # Tests d'intégration automatisés
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [android-build]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        echo "Deploying to production"
+        # Commands de déploiement production
+```
+
+## Environnements
+
+### Développement
+- **Local** : Environnement de développement individuel
+- **Base de données** : PostgreSQL locale ou conteneur Docker
+- **Configuration** : `appsettings.Development.json`
+
+### Staging (Pré-production)
+- **Environnement** : Serveur de test dédié
+- **Base de données** : Instance PostgreSQL de test sur NeonDB
+- **Tests automatisés** : Exécution de la suite de tests d'intégration
+- **Validation** : Tests utilisateurs et validation métier
+
+### Production
+- **Environnement** : Serveur de production sécurisé
+- **Base de données** : PostgreSQL production sur NeonDB avec sauvegardes
+- **Monitoring** : Surveillance en temps réel des performances
+- **Rollback** : Capacité de retour à la version précédente
+
+## Tests automatisés
+
+### Tests unitaires
+```csharp
+[TestClass]
+public class ProductServiceTests
+{
+    [TestMethod]
+    public async Task GetProductsAsync_ShouldReturnUserProducts()
+    {
+        // Arrange
+        var service = new NeonProductService();
+        var userId = 1;
+        
+        // Act
+        var result = await service.GetProductsAsync(userId);
+        
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.All(p => p.UserId == userId));
+    }
+}
+```
+
+### Tests d'intégration
+```csharp
+[TestClass]
+public class DatabaseIntegrationTests
+{
+    [TestMethod]
+    public async Task DatabaseConnection_ShouldSucceed()
+    {
+        // Test de connexion à la base de données
+        using var connection = new NpgsqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        
+        Assert.AreEqual(ConnectionState.Open, connection.State);
+    }
+}
+```
+
+### Tests end-to-end
+```csharp
+[TestClass]
+public class UserJourneyTests
+{
+    [TestMethod]
+    public async Task CompleteUserJourney_ShouldSucceed()
+    {
+        // Test du parcours utilisateur complet :
+        // 1. Inscription
+        // 2. Connexion
+        // 3. Ajout de produit
+        // 4. Consultation de la liste
+        // 5. Modification du produit
+        // 6. Suppression
+    }
+}
+```
+
+## Qualité du code
+
+### Analyse statique
+```yaml
+# Configuration SonarQube
+sonar:
+  projectKey: "perim-app"
+  sources: "."
+  exclusions: "**/bin/**,**/obj/**"
+  coverage.exclusions: "**/Models/**,**/Data/**"
+  cs.coverage.reportPaths: "coverage.xml"
+```
+
+### Métriques de qualité
+- **Couverture de tests** : > 80%
+- **Complexité cyclomatique** : < 10 par méthode
+- **Duplication de code** : < 3%
+- **Vulnérabilités** : 0 critique, 0 haute
+
+### Code review obligatoire
+```yaml
+# Configuration des pull requests
+protection_rules:
+  required_reviews: 2
+  dismiss_stale_reviews: true
+  require_code_owner_reviews: true
+  required_status_checks:
+    - "build"
+    - "security-scan"
+    - "unit-tests"
+```
+
+## Déploiement
+
+### Stratégie de déploiement
+1. **Blue-Green Deployment** : Basculement sans interruption
+2. **Rolling Updates** : Mise à jour progressive
+3. **Rollback automatique** : En cas d'échec de déploiement
+
+### Configuration des secrets
+```bash
+# Variables d'environnement sécurisées
+DATABASE_CONNECTION_STRING=${{ secrets.DB_CONNECTION }}
+API_KEY=${{ secrets.OPENFOODFACTS_KEY }}
+SIGNING_KEY=${{ secrets.ANDROID_SIGNING_KEY }}
+```
+
+### Monitoring post-déploiement
+- **Health checks** : Vérification automatique du bon fonctionnement
+- **Alertes** : Notification en cas de problème
+- **Métriques** : Suivi des performances et de l'utilisation
+
+## Outils utilisés
+
+### Développement
+- **IDE** : JetBrains Rider
+- **Contrôle de version** : Git + GitHub
+- **Gestion de projet** : Jira
+
+### CI/CD
+- **Pipeline** : GitHub Actions
+- **Analyse de code** : SonarQube
+- **Tests** : MSTest / NUnit
+- **Sécurité** : CodeQL, Dependabot
+
+### Monitoring
+- **Application** : Application Insights
+- **Infrastructure** : Azure Monitor
+- **Logs** : Centralisés avec Serilog
+
 # Evolutions {#evolutions}
+
+# Déploiement {#déploiement}
+
+## Architecture de déploiement
+
+### Infrastructure cloud
+L'application Perim'App est conçue pour un déploiement cloud moderne avec une approche scalable et sécurisée.
+
+**Base de données** :
+- **Provider** : NeonDB (PostgreSQL managé)
+- **Région** : Europe (GDPR compliance)
+- **Haute disponibilité** : Réplication automatique
+- **Sauvegardes** : Quotidiennes avec rétention 30 jours
+
+**API et services** :
+- **Hébergement** : Potentiel déploiement sur Azure App Service ou AWS Lambda
+- **Monitoring** : Application Insights / CloudWatch
+- **Scaling** : Auto-scaling basé sur la charge
+
+### Déploiement mobile
+
+#### Android
+```yaml
+# Configuration du build de production
+Production:
+  BuildConfiguration: Release
+  TargetFramework: net9.0-android
+  MinimumSdkVersion: 21  # Android 5.0+
+  TargetSdkVersion: 34   # Android 14
+  
+  Optimizations:
+    EnableProguard: true      # Obfuscation du code
+    EnableR8: true           # Optimisation du bytecode
+    AndroidLinkMode: Full    # Liaison complète des assemblies
+    
+  Security:
+    UseHttpsOnly: true
+    EnableNetworkSecurityConfig: true
+    RequireAppSigning: true
+```
+
+**Google Play Store** :
+```bash
+# Build pour production
+dotnet publish -f net9.0-android \
+  -c Release \
+  -p:AndroidKeyStore=true \
+  -p:AndroidSigningKeyStore=release.keystore \
+  -p:AndroidSigningKeyAlias=perimapp \
+  -p:AndroidSigningKeyPass=$KEYSTORE_PASSWORD \
+  -p:AndroidSigningStorePass=$STORE_PASSWORD
+```
+
+#### iOS (Prévu)
+```yaml
+# Configuration iOS future
+iOS:
+  MinimumVersion: "13.0"
+  TargetVersion: "17.0"
+  Distribution: App Store
+  
+  Certificates:
+    Development: iOS_Development.p12
+    Distribution: iOS_Distribution.p12
+    
+  Provisioning:
+    Development: Dev_Provisioning_Profile.mobileprovision
+    AdHoc: AdHoc_Provisioning_Profile.mobileprovision
+    AppStore: AppStore_Provisioning_Profile.mobileprovision
+```
+
+## Processus de déploiement
+
+### Environnements de déploiement
+
+#### 1. Développement local
+```bash
+# Configuration locale
+DATABASE_URL=postgresql://localhost:5432/perimapp_dev
+API_BASE_URL=http://localhost:5000
+LOG_LEVEL=Debug
+ENVIRONMENT=Development
+```
+
+#### 2. Staging
+```bash
+# Configuration de test
+DATABASE_URL=postgresql://staging-ep-xxx.neon.tech/perimapp_staging
+API_BASE_URL=https://staging-api.perimapp.com
+LOG_LEVEL=Information
+ENVIRONMENT=Staging
+```
+
+#### 3. Production
+```bash
+# Configuration production
+DATABASE_URL=postgresql://ep-restless-field-a8gc8nce.eastus2.aws.neon.tech/perimapp
+API_BASE_URL=https://api.perimapp.com
+LOG_LEVEL=Warning
+ENVIRONMENT=Production
+```
+
+### Pipeline de déploiement automatisé
+
+#### Étape 1 : Validation
+```yaml
+validation:
+  - code_quality_check
+  - security_scan
+  - unit_tests
+  - integration_tests
+  - performance_tests
+```
+
+#### Étape 2 : Build
+```yaml
+build:
+  android:
+    - restore_dependencies
+    - compile_application
+    - generate_apk
+    - sign_apk
+    - upload_to_artifacts
+  
+  ios:  # Future
+    - compile_application
+    - generate_ipa
+    - sign_ipa
+    - upload_to_artifacts
+```
+
+#### Étape 3 : Déploiement staging
+```yaml
+staging_deployment:
+  - download_artifacts
+  - deploy_to_test_environment
+  - run_smoke_tests
+  - notify_qa_team
+```
+
+#### Étape 4 : Validation QA
+```yaml
+qa_validation:
+  - manual_testing
+  - user_acceptance_testing
+  - performance_validation
+  - security_testing
+```
+
+#### Étape 5 : Déploiement production
+```yaml
+production_deployment:
+  - create_release_tag
+  - deploy_to_play_store
+  - deploy_to_app_store  # Future
+  - update_documentation
+  - notify_stakeholders
+```
+
+## Configuration des stores
+
+### Google Play Store
+
+#### Configuration du listing
+```yaml
+play_store:
+  app_id: com.ajacorp.perimapp
+  title: "Perim'App - Anti-Gaspillage Alimentaire"
+  short_description: "Gérez vos dates de péremption et réduisez le gaspillage"
+  full_description: |
+    Perim'App vous aide à suivre les dates de péremption de vos produits 
+    alimentaires pour réduire le gaspillage. Ajoutez vos produits, 
+    recevez des alertes et consommez responsable.
+  
+  category: Food & Drink
+  content_rating: Everyone
+  price: Free
+  
+  screenshots:
+    - main_screen.png
+    - add_product.png
+    - notifications.png
+    - product_details.png
+  
+  keywords:
+    - gaspillage alimentaire
+    - dates de péremption
+    - écologie
+    - alimentation
+    - anti-gaspi
+```
+
+#### Déploiement en phases
+```yaml
+rollout_strategy:
+  internal_testing:
+    - team_members: 5
+    - duration: 1 week
+    
+  closed_testing:
+    - beta_users: 50
+    - duration: 2 weeks
+    
+  open_testing:
+    - public_users: 500
+    - duration: 3 weeks
+    
+  production:
+    - rollout_percentage: 100%
+    - monitoring: enabled
+```
+
+### Apple App Store (Futur)
+
+#### Configuration iOS
+```yaml
+app_store:
+  bundle_id: com.ajacorp.perimapp
+  app_name: "Perim'App"
+  version: "1.0.0"
+  
+  categories:
+    primary: Food & Drink
+    secondary: Utilities
+  
+  app_store_connect:
+    team_id: XXXXXXXXXX
+    app_id: YYYYYYYYYY
+  
+  review_guidelines:
+    - no_private_apis: true
+    - content_appropriate: true
+    - functionality_complete: true
+```
+
+## Monitoring et maintenance
+
+### Métriques de performance
+```yaml
+monitoring:
+  application:
+    - response_time: < 2s
+    - error_rate: < 1%
+    - crash_rate: < 0.1%
+    - user_satisfaction: > 4.5/5
+  
+  infrastructure:
+    - database_response: < 100ms
+    - api_availability: > 99.9%
+    - ssl_certificate: valid
+    - security_scan: weekly
+```
+
+### Alertes automatiques
+```yaml
+alerts:
+  critical:
+    - database_down
+    - api_unreachable
+    - high_error_rate
+    
+  warning:
+    - slow_response_time
+    - high_memory_usage
+    - ssl_expiration_soon
+    
+  info:
+    - deployment_complete
+    - backup_successful
+    - security_scan_complete
+```
+
+### Plan de maintenance
+```yaml
+maintenance_schedule:
+  daily:
+    - backup_verification
+    - log_analysis
+    - performance_check
+    
+  weekly:
+    - security_updates
+    - dependency_updates
+    - performance_optimization
+    
+  monthly:
+    - full_security_audit
+    - capacity_planning
+    - disaster_recovery_test
+```
+
+## Stratégie de mise à jour
+
+### Versioning sémantique
+```
+Version Format: MAJOR.MINOR.PATCH
+- MAJOR: Breaking changes
+- MINOR: New features (backward compatible)
+- PATCH: Bug fixes
+
+Examples:
+- 1.0.0: Initial release
+- 1.1.0: Add barcode scanning
+- 1.1.1: Fix date calculation bug
+- 2.0.0: Complete UI redesign
+```
+
+### Distribution des mises à jour
+```yaml
+update_strategy:
+  android:
+    - auto_update: enabled
+    - staged_rollout: 10% -> 50% -> 100%
+    - rollback_capability: enabled
+    
+  ios:  # Future
+    - app_store_review: required
+    - phased_release: enabled
+    - emergency_fixes: expedited_review
+```
+
+### Communication utilisateurs
+```yaml
+release_communication:
+  in_app:
+    - update_notifications
+    - changelog_display
+    - feature_highlights
+    
+  external:
+    - blog_posts
+    - social_media
+    - email_newsletters
+```
+
+## Sécurité du déploiement
+
+### Chiffrement et signatures
+```yaml
+security:
+  code_signing:
+    - android_keystore: encrypted
+    - certificate_validation: enabled
+    - signature_verification: required
+  
+  secrets_management:
+    - environment_variables: encrypted
+    - api_keys: rotated_regularly
+    - certificates: auto_renewal
+```
+
+### Conformité et certifications
+```yaml
+compliance:
+  gdpr:
+    - data_minimization: implemented
+    - user_consent: explicit
+    - data_portability: available
+    - right_to_erasure: implemented
+  
+  security_standards:
+    - owasp_compliance: checked
+    - penetration_testing: quarterly
+    - vulnerability_scanning: automated
+```
 
 # Conclusions {#conclusions}
 
