@@ -536,25 +536,6 @@ Toutes les maquettes respectent une charte graphique cohérente avec :
 
 # Code {#code}
 
-## Architecture {#architecture}
-
-![][image3]
-
-Ce diagramme est voué à être amélioré afin d’y ajouter le support IOS
-
-## Front-end {#front-end}
-
-Composants d’interface  
-Connexion avec le back-end
-
-## Back-end {#back-end}
-
-Services  
-Sécurité  
-Conformément au RGPD, nous récoltons uniquement l’adresse mail de l’utilisateur ainsi que son mot de passe préalablement hashé afin de protéger ses données personnelles
-
-## Tests {#tests}
-
 # Sécurité {#sécurité}
 
 ## Authentification et autorisation
