@@ -536,6 +536,600 @@ Toutes les maquettes respectent une charte graphique cohérente avec :
 
 # Code {#code}
 
+## Architecture des dossiers et fichiers
+
+### Structure globale du projet
+
+Le projet Perim'App suit une architecture .NET MAUI organisée en couches, avec une séparation claire entre les composants :
+
+```
+perimapp/                          # Projet principal MAUI
+├── Pages/                         # Pages de l'interface utilisateur
+│   ├── MainPage.xaml/.cs         # Page principale (liste produits)
+│   ├── AddProductPage.xaml/.cs   # Ajout de produits
+│   ├── DetailsPage.xaml/.cs      # Détails d'un produit
+│   ├── ModifyProductPage.xaml/.cs # Modification de produits
+│   ├── ProfilePage.xaml/.cs      # Profil utilisateur
+│   ├── LogInPage.xaml/.cs        # Connexion
+│   ├── SignUpPage.xaml/.cs       # Inscription
+│   └── StartingPage.xaml/.cs     # Page d'accueil
+├── Platforms/                     # Code spécifique aux plateformes
+│   ├── Android/                   # Configuration Android
+│   ├── iOS/                       # Configuration iOS
+│   ├── Windows/                   # Configuration Windows
+│   └── MacCatalyst/              # Configuration macOS
+├── Resources/                     # Ressources de l'application
+│   ├── AppIcon/                   # Icônes d'application
+│   ├── Fonts/                     # Polices personnalisées
+│   ├── Styles/                    # Styles XAML
+│   └── Splash/                    # Écran de démarrage
+├── App.xaml/.cs                   # Configuration de l'application
+├── AppShell.xaml/.cs             # Navigation Shell
+├── MauiProgram.cs                # Point d'entrée et DI
+└── perimapp.csproj               # Configuration du projet
+
+PerimApp/                          # Composants partagés
+├── Models/                        # Modèles de données
+│   ├── ProductInfos.cs           # Modèle produit
+│   └── UserProfile.cs            # Modèle utilisateur
+├── Services/                      # Services métier
+│   ├── NeonProductService.cs     # Service produits (DB)
+│   ├── NeonUserService.cs        # Service utilisateurs (DB)
+│   ├── OpenFoodFactsService.cs   # API externe
+│   └── PasswordHasher.cs         # Sécurité
+├── Converters/                    # Convertisseurs XAML
+│   └── DlcColorConverter.cs      # Couleurs selon DLC
+├── Data/                          # Accès aux données
+│   └── AppData.cs                # Configuration données
+├── Headers/                       # Composants UI partagés
+│   └── SharedHeader.xaml/.cs     # En-tête commun
+└── PopUp/                         # Fenêtres popup
+    └── NotificationPopUp.xaml/.cs # Notifications
+```
+
+### Configuration du projet
+
+Le fichier `perimapp.csproj` définit la configuration technique :
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <MauiVersion>9.0.50</MauiVersion>
+    <TargetFrameworks>net9.0-android</TargetFrameworks>
+    <ApplicationTitle>Perim'App</ApplicationTitle>
+    <ApplicationId>com.companyname.perimapp</ApplicationId>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Maui" Version="11.2.0" />
+    <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
+  </ItemGroup>
+</Project>
+```
+
+## Front-end
+
+### Technologies utilisées
+
+L'interface utilisateur de Perim'App est développée avec **.NET MAUI 9.0** (Multi-platform App UI), permettant un développement unifié pour :
+- **Android** (version principale)
+- **Windows** (support natif)
+- **iOS** (configuration prête)
+- **macOS** via MacCatalyst
+
+### Architecture MVVM
+
+L'application suit le pattern **Model-View-ViewModel (MVVM)** :
+
+#### Modèles (Models)
+```csharp
+public class ProductInfos
+{
+    public int Id { get; set; }
+    public long Barcode { get; set; }
+    public string Name { get; set; }
+    public string UrlImage { get; set; }
+    public DateTime Dlc { get; set; }
+    
+    // Propriété calculée pour l'affichage
+    public int DaysRemaining => (Dlc - DateTime.Today).Days;
+    
+    public string DaysRemainingTextMainPage
+    {
+        get
+        {
+            int days = DaysRemaining;
+            if (days < 0) return "Exp.";
+            if (days == 0) return "Auj.";
+            if (days == 1) return "1j";
+            return $"{days}j";
+        }
+    }
+}
+```
+
+#### Vues (Views) - XAML
+```xaml
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             x:Class="perimapp.Pages.MainPage"
+             Title="Mes Produits">
+    
+    <ContentPage.Resources>
+        <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
+    </ContentPage.Resources>
+    
+    <Grid RowDefinitions="Auto, Auto, *">
+        <!-- Header personnalisé -->
+        <Grid Grid.Row="0" BackgroundColor="#58BF7F">
+            <Label Text="Perim'App" 
+                   FontFamily="InterBold"
+                   FontSize="20"
+                   TextColor="White" />
+        </Grid>
+        
+        <!-- Liste des produits -->
+        <CollectionView Grid.Row="2" 
+                        ItemsSource="{Binding Products}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <!-- Template produit avec binding -->
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>
+```
+
+#### Convertisseurs de données
+```csharp
+public class DlcColorConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is int daysRemaining)
+        {
+            if (daysRemaining < 0) return Colors.Red;     // Expiré
+            if (daysRemaining <= 2) return Colors.Orange; // Bientôt expiré
+            return Colors.Green;                           // Bon état
+        }
+        return Colors.Gray;
+    }
+}
+```
+
+### Navigation et interface
+
+#### Shell Navigation
+L'application utilise **AppShell** pour la navigation :
+
+```csharp
+public partial class AppShell : Shell
+{
+    public AppShell()
+    {
+        InitializeComponent();
+        
+        // Enregistrement des routes
+        Routing.RegisterRoute("details", typeof(DetailsPage));
+        Routing.RegisterRoute("modify", typeof(ModifyProductPage));
+    }
+}
+```
+
+#### Fonctionnalités UI principales
+
+1. **Scan de code-barres** : Intégration caméra pour scanner les produits
+2. **Gestion tactile** : Interface optimisée mobile avec gestures
+3. **Notifications visuelles** : Système d'alertes intégré
+4. **Thème cohérent** : Charte graphique avec couleurs personnalisées
+
+### Ressources et assets
+
+#### Polices personnalisées
+```csharp
+// Configuration dans MauiProgram.cs
+.ConfigureFonts(fonts =>
+{
+    fonts.AddFont("InterBold.ttf", "InterBold");
+    fonts.AddFont("InterLight.ttf", "InterLight");
+    fonts.AddFont("InterMedium.ttf", "InterMedium");
+});
+```
+
+#### Styles XAML
+```xaml
+<!-- Colors.xaml -->
+<ResourceDictionary>
+    <Color x:Key="Primary">#58BF7F</Color>
+    <Color x:Key="Secondary">#F0F0F0</Color>
+    <Color x:Key="Tertiary">#FF6B6B</Color>
+</ResourceDictionary>
+```
+
+## Back-end
+
+### Architecture sans serveur dédié
+
+Perim'App utilise une **architecture client-serveur simplifiée** où l'application mobile se connecte directement à la base de données, sans serveur d'API intermédiaire. Cette approche convient parfaitement à une application de gestion personnelle.
+
+### Services de données
+
+#### Service principal - NeonProductService
+```csharp
+public class NeonProductService
+{
+    private const string ConnectionString = 
+        "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;" +
+        "Username=perimapp_owner;Password=npg_*****;" +
+        "Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
+
+    public async Task<List<ProductInfos>> GetUserProductsAsync(int userId)
+    {
+        var products = new List<ProductInfos>();
+        
+        await using var conn = new NpgsqlConnection(ConnectionString);
+        await conn.OpenAsync();
+
+        string query = @"
+            SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, 
+                   conservation, pu.dlc, pu.quantity, pu.added_at
+            FROM products_users pu
+            JOIN products_data pd ON pu.barcode = pd.barcode
+            WHERE pu.user_id = @userId;
+        ";
+
+        await using var cmd = new NpgsqlCommand(query, conn);
+        cmd.Parameters.AddWithValue("userId", userId);
+        
+        await using var reader = await cmd.ExecuteReaderAsync();
+        
+        while (await reader.ReadAsync())
+        {
+            products.Add(new ProductInfos
+            {
+                Id = reader.GetInt32(0),
+                Barcode = reader.GetInt64(1),
+                Name = reader.GetString(2),
+                UrlImage = reader.GetString(3),
+                // ... mapping des autres champs
+            });
+        }
+        
+        return products;
+    }
+}
+```
+
+#### Gestion des utilisateurs - NeonUserService
+```csharp
+public class NeonUserService
+{
+    public async Task<bool> AuthenticateUserAsync(string email, string password)
+    {
+        await using var conn = new NpgsqlConnection(ConnectionString);
+        await conn.OpenAsync();
+
+        string query = @"
+            SELECT password_hash 
+            FROM users 
+            WHERE email = @email AND is_active = true;
+        ";
+
+        await using var cmd = new NpgsqlCommand(query, conn);
+        cmd.Parameters.AddWithValue("email", email);
+        
+        var storedHash = await cmd.ExecuteScalarAsync() as string;
+        
+        if (storedHash != null)
+        {
+            return PasswordHasher.VerifyPassword(password, storedHash);
+        }
+        
+        return false;
+    }
+}
+```
+
+### Intégration API externe
+
+#### OpenFoodFacts Service
+```csharp
+public class OpenFoodFactsService
+{
+    private static readonly HttpClient _httpClient = new HttpClient();
+    private const string BaseUrl = "https://world.openfoodfacts.org/api/v0/product/";
+
+    public async Task<ProductInfos?> GetProductByBarcodeAsync(string barcode)
+    {
+        try
+        {
+            string url = $"{BaseUrl}{barcode}.json";
+            var response = await _httpClient.GetStringAsync(url);
+            
+            var apiResponse = JsonSerializer.Deserialize<OpenFoodFactsResponse>(response);
+            
+            if (apiResponse?.Status == 1 && apiResponse.Product != null)
+            {
+                return new ProductInfos
+                {
+                    Barcode = long.Parse(barcode),
+                    Name = apiResponse.Product.ProductName ?? "Produit inconnu",
+                    UrlImage = apiResponse.Product.ImageUrl ?? "",
+                    Category = apiResponse.Product.Categories ?? "Non classé"
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            // Logging de l'erreur
+            System.Diagnostics.Debug.WriteLine($"Erreur API OpenFoodFacts: {ex.Message}");
+        }
+        
+        return null;
+    }
+}
+```
+
+### Sécurité backend
+
+#### Hachage des mots de passe
+```csharp
+public static class PasswordHasher
+{
+    public static string HashPassword(string password)
+    {
+        var config = new Argon2Config
+        {
+            Type = Argon2Type.Argon2id,
+            Version = Argon2Version.Nineteen,
+            TimeCost = 10,
+            MemoryCost = 32768,
+            Lanes = 4,
+            Password = Encoding.UTF8.GetBytes(password),
+            Salt = GenerateSalt(),
+            HashLength = 20
+        };
+        
+        using var argon2 = new Argon2(config);
+        return argon2.Hash().Encoded;
+    }
+
+    public static bool VerifyPassword(string password, string hash)
+    {
+        return Argon2.Verify(hash, password);
+    }
+}
+```
+
+### Base de données
+
+#### Configuration PostgreSQL (NeonDB)
+- **Hébergement** : Neon (PostgreSQL cloud)
+- **SSL** : Obligatoire avec certificat auto-signé
+- **Connection pooling** : Géré par Neon
+- **Requêtes paramétrées** : Protection contre injection SQL
+
+#### Principales tables
+- `users` : Gestion des comptes utilisateurs
+- `products_data` : Catalogue des produits (OpenFoodFacts)
+- `products_users` : Produits personnels des utilisateurs
+
+### Injection de dépendances
+
+```csharp
+// MauiProgram.cs
+public static class MauiProgram
+{
+    public static MauiApp CreateMauiApp()
+    {
+        var builder = MauiApp.CreateBuilder();
+        
+        // Configuration MAUI
+        builder.UseMauiApp<App>()
+               .UseMauiCommunityToolkit();
+        
+        // Enregistrement des services
+        builder.Services.AddSingleton<NeonProductService>();
+        builder.Services.AddSingleton<NeonUserService>();
+        builder.Services.AddTransient<OpenFoodFactsService>();
+        
+        return builder.Build();
+    }
+}
+```
+
+## Tests
+
+### État actuel des tests
+
+**⚠️ Tests non implémentés actuellement**
+
+Le projet Perim'App ne contient pas encore de suite de tests automatisés. Cette section documente la stratégie de test recommandée pour le développement futur.
+
+### Stratégie de test recommandée
+
+#### Tests unitaires
+Structure proposée pour les tests unitaires :
+
+```
+Tests/
+├── PerimApp.Tests.Unit/
+│   ├── Models/
+│   │   ├── ProductInfosTests.cs
+│   │   └── UserProfileTests.cs
+│   ├── Services/
+│   │   ├── PasswordHasherTests.cs
+│   │   ├── NeonProductServiceTests.cs
+│   │   └── OpenFoodFactsServiceTests.cs
+│   └── Converters/
+│       └── DlcColorConverterTests.cs
+```
+
+**Exemple de test unitaire pour PasswordHasher :**
+```csharp
+[TestClass]
+public class PasswordHasherTests
+{
+    [TestMethod]
+    public void HashPassword_ShouldReturnValidHash()
+    {
+        // Arrange
+        string password = "TestPassword123!";
+        
+        // Act
+        string hash = PasswordHasher.HashPassword(password);
+        
+        // Assert
+        Assert.IsNotNull(hash);
+        Assert.IsTrue(hash.Length > 0);
+        Assert.IsTrue(PasswordHasher.VerifyPassword(password, hash));
+    }
+    
+    [TestMethod]
+    public void VerifyPassword_WithWrongPassword_ShouldReturnFalse()
+    {
+        // Arrange
+        string password = "CorrectPassword";
+        string wrongPassword = "WrongPassword";
+        string hash = PasswordHasher.HashPassword(password);
+        
+        // Act
+        bool result = PasswordHasher.VerifyPassword(wrongPassword, hash);
+        
+        // Assert
+        Assert.IsFalse(result);
+    }
+}
+```
+
+#### Tests d'intégration
+```csharp
+[TestClass]
+public class DatabaseIntegrationTests
+{
+    private NeonProductService _productService;
+    
+    [TestInitialize]
+    public void Setup()
+    {
+        _productService = new NeonProductService();
+    }
+    
+    [TestMethod]
+    public async Task GetUserProducts_WithValidUserId_ShouldReturnProducts()
+    {
+        // Arrange
+        int testUserId = 1;
+        
+        // Act
+        var products = await _productService.GetUserProductsAsync(testUserId);
+        
+        // Assert
+        Assert.IsNotNull(products);
+        // Validation des données retournées
+    }
+}
+```
+
+#### Tests d'interface utilisateur (UI Tests)
+Framework recommandé : **Appium** pour MAUI
+
+```csharp
+[TestClass]
+public class LoginPageUITests
+{
+    private AppiumDriver _driver;
+    
+    [TestInitialize]
+    public void Setup()
+    {
+        // Configuration du driver Appium
+        var options = new AppiumOptions();
+        _driver = new AndroidDriver(options);
+    }
+    
+    [TestMethod]
+    public void Login_WithValidCredentials_ShouldNavigateToMainPage()
+    {
+        // Arrange
+        var emailField = _driver.FindElement(By.Id("EmailEntry"));
+        var passwordField = _driver.FindElement(By.Id("PasswordEntry"));
+        var loginButton = _driver.FindElement(By.Id("LoginButton"));
+        
+        // Act
+        emailField.SendKeys("test@example.com");
+        passwordField.SendKeys("validpassword");
+        loginButton.Click();
+        
+        // Assert
+        var mainPageElement = _driver.FindElement(By.Id("ProductList"));
+        Assert.IsNotNull(mainPageElement);
+    }
+}
+```
+
+### Configuration recommandée
+
+#### Packages NuGet nécessaires
+```xml
+<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+<PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+<PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+<PackageReference Include="Moq" Version="4.20.69" />
+<PackageReference Include="FluentAssertions" Version="6.12.0" />
+```
+
+#### Pipeline CI/CD pour tests
+```yaml
+# GitHub Actions - tests.yml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Run unit tests
+        run: dotnet test --configuration Release --verbosity normal
+      
+      - name: Generate test coverage
+        run: dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Métriques de qualité recommandées
+
+#### Couverture de code cible
+- **Services** : 80% minimum
+- **Modèles** : 90% minimum  
+- **Convertisseurs** : 85% minimum
+- **Globale** : 75% minimum
+
+#### Types de tests prioritaires
+1. **Tests unitaires** pour la logique métier
+2. **Tests d'intégration** pour la base de données
+3. **Tests de sécurité** pour l'authentification
+4. **Tests UI** pour les parcours utilisateur critiques
+
+### Outils de test recommandés
+
+- **Framework** : MSTest ou NUnit
+- **Mocking** : Moq
+- **Assertions** : FluentAssertions
+- **Coverage** : Coverlet
+- **UI Testing** : Appium + Selenium
+- **Performance** : NBomber pour les tests de charge
+
 # Sécurité {#sécurité}
 
 ## Authentification et autorisation
