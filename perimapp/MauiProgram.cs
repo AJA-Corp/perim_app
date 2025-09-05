@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 using perimapp.Services;
 
 namespace perimapp;
@@ -14,6 +15,7 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
             .UseMauiCommunityToolkitCore()
+            .UseLocalNotification()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("InterBold.ttf", "InterBold");

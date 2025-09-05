@@ -1,6 +1,7 @@
 ﻿using Microsoft.Maui.Storage;
 using perimapp.Data;
 using perimapp.Pages;
+using Plugin.LocalNotification;
 
 namespace perimapp
 {
@@ -13,6 +14,10 @@ namespace perimapp
             InitializeComponent();
 
             Services = serviceProvider;
+
+#if ANDROID
+            perimapp.Platforms.Android.NotificationWorkerManager.ScheduleWork();
+#endif
             MainPage = new AppShell();
         }
     }

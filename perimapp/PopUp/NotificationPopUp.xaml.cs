@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Views;
+using System.Text.Json;
 
 namespace perimapp.PopUp;
 
@@ -7,37 +8,57 @@ public partial class NotificationPopUp : Popup
     public NotificationPopUp()
     {
         InitializeComponent();
-
+        
+        // Limiter la hauteur du popup sur les petits écrans
         double screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
         MainScroll.MaximumHeightRequest = screenHeight * 0.7;
+
+        LoadSettings();
     }
 
-
-    private async void OnValidateClicked(object sender, EventArgs e)
+    private void LoadSettings()
     {
-        Console.WriteLine("Le bouton 'Valider' a été cliqué !");
-    /*
-        // Votre code commenté reste ici
-        // if (int.TryParse(RedEntry.Text, out int red) &&
-        //     int.TryParse(OrangeEntry.Text, out int orange) &&
-        //     int.TryParse(YellowEntry.Text, out int yellow) &&
-        //     int.TryParse(GreenEntry.Text, out int green) &&
-        //     int.TryParse(BlueEntry.Text, out int blue))
-        // {
-        //     if (red < orange && orange < yellow && yellow < green && green < blue)
-        //     {
-        //         await Application.Current.MainPage.DisplayAlert("Succès", "Valeurs enregistrées avec succès.", "OK");
-        //         Close(); // Ferme le popup
-        //     }
-        //     else
-        //     {
-        //         await Application.Current.MainPage.DisplayAlert("Erreur", "Les valeurs doivent suivre l’ordre : rouge < orange < jaune < vert < bleu.", "OK");
-        //     }
-        // }
-        // else
-        // {
-        //     await Application.Current.MainPage.DisplayAlert("Erreur", "Saisie invalide. Tous les champs doivent contenir des nombres.", "OK");
-        // }
-    */
+        var settingsJson = Preferences.Get("NotificationDays", string.Empty);
+        List<int> notificationDays;
+
+        if (!string.IsNullOrEmpty(settingsJson))
+        {
+            // Si des paramètres existent, on les charge
+            notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson);
+        }
+        else
+        {
+            // Sinon, on définit les valeurs par défaut
+            notificationDays = new List<int> { 1, 3, 7 };
+        }
+
+        // Met à jour l'état de chaque Switch en fonction de la liste (par défaut ou chargée)
+        OneDayEntry.IsToggled = notificationDays.Contains(1);
+        TwoDaysEntry.IsToggled = notificationDays.Contains(2);
+        ThreeDaysEntry.IsToggled = notificationDays.Contains(3);
+        FourDaysEntry.IsToggled = notificationDays.Contains(4);
+        FiveDaysEntry.IsToggled = notificationDays.Contains(5);
+        SixDaysEntry.IsToggled = notificationDays.Contains(6);
+        SevenDaysEntry.IsToggled = notificationDays.Contains(7);
+    }
+
+    private void OnValidateClicked(object sender, EventArgs e)
+    {
+        var daysToNotify = new List<int>();
+
+        if (OneDayEntry.IsToggled) daysToNotify.Add(1);
+        if (TwoDaysEntry.IsToggled) daysToNotify.Add(2);
+        if (ThreeDaysEntry.IsToggled) daysToNotify.Add(3);
+        if (FourDaysEntry.IsToggled) daysToNotify.Add(4);
+        if (FiveDaysEntry.IsToggled) daysToNotify.Add(5);
+        if (SixDaysEntry.IsToggled) daysToNotify.Add(6);
+        if (SevenDaysEntry.IsToggled) daysToNotify.Add(7);
+
+        // Convertit la liste en JSON et la sauvegarde dans les préférences de l'appareil
+        var settingsJson = JsonSerializer.Serialize(daysToNotify);
+        Preferences.Set("NotificationDays", settingsJson);
+
+        // On ferme le pop-up
+        Close();
     }
 }

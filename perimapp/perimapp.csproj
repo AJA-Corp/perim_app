@@ -71,6 +71,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
     <PackageReference Include="Microsoft.Maui.Core" Version="9.0.50" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
+    <PackageReference Include="Plugin.LocalNotification" Version="12.0.2" />
   </ItemGroup>
   <ItemGroup>
     <MauiXaml Update="Pages/MainPage.xaml">
@@ -82,5 +83,9 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0-android'">
+    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.5.0.3" />
+    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.10.3" />
   </ItemGroup>
 </Project>
