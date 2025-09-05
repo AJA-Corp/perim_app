@@ -16,7 +16,11 @@ namespace perimapp
             Services = serviceProvider;
 
 #if ANDROID
-            perimapp.Platforms.Android.NotificationWorkerManager.ScheduleWork();
+            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
+            {
+                var intent = new Android.Content.Intent(Android.App.Application.Context, typeof(perimapp.Platforms.Android.NotificationForegroundService));
+                Android.App.Application.Context.StartForegroundService(intent);
+            }
 #endif
             MainPage = new AppShell();
         }
