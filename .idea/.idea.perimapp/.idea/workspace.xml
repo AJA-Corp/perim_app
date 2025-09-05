@@ -17,8 +17,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="bcd460af-aed7-48ee-af6d-dc61903a060d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/PerimApp/Services/LocalProductService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/deploymentTargetSelector.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/deploymentTargetSelector.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/projectSettingsUpdater.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.perimapp/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/perimapp/AppShell.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/perimapp/AppShell.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PerimApp/Models/ProductInfos.cs" beforeDir="false" afterPath="$PROJECT_DIR$/PerimApp/Models/ProductInfos.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PerimApp/Pages/DeletedProductPage.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/PerimApp/Pages/DeletedProductPage.xaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/perimapp/MauiProgram.cs" beforeDir="false" afterPath="$PROJECT_DIR$/perimapp/MauiProgram.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/perimapp/Pages/MainPage.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/perimapp/Pages/MainPage.xaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,16 +34,16 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "AlexandreBobis"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AlexandreBobis&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/AJA-Corp/perim_app.git",
-    "accountId": "44b24541-fa0a-4dc5-9572-e1837a42bb33"
+    "accountId": "5cf976c4-3dda-4af2-9932-8c36113114ce"
   }
 }]]></component>
   <component name="HighlightingSettingsPerFile">
@@ -56,30 +62,29 @@
   &quot;associatedIndex&quot;: 1
 }</component>
   <component name="ProjectId" id="2pqhyYMt6zQuxaslc7vGKcP9dqt" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.perimapp: Windows Machine.executor&quot;: &quot;Run&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android.perimapp.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/DEV-20&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CppGeneralOptionsId&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.perimapp: Windows Machine.executor": "Run",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android.perimapp.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "feature/DEV-78",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "CppGeneralOptionsId",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Android.perimapp">
     <configuration name="perimapp: Windows Machine" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/perimapp/perimapp.csproj" />
@@ -153,6 +158,7 @@
       <workItem from="1738934648343" duration="6185000" />
       <workItem from="1738944005787" duration="43000" />
       <workItem from="1744359928677" duration="5062000" />
+      <workItem from="1755938160913" duration="11586000" />
     </task>
     <servers />
   </component>
@@ -173,6 +179,24 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
+          <option name="timeStamp" value="1" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
+          <option name="timeStamp" value="2" />
+        </breakpoint>
+        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
+          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

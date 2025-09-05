@@ -12,6 +12,7 @@ using perimapp.Services; // <-- Pour NeonProductService
 namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
+    
     {
         private string _sortButtonText;
         public string SortButtonText
@@ -26,7 +27,6 @@ namespace perimapp.Pages
                 }
             }
         }
-        
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -58,8 +58,8 @@ namespace perimapp.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            //Initialisation de la propriété du texte du bouton
-            SortButtonText = "Tri: DLC (proche)";
+            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur
+            // Le chargement sera géré par la méthode OnAppearing()
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -69,12 +69,6 @@ namespace perimapp.Pages
             
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
-            
-            // Définit le tri par défaut une fois les produits chargés
-            SortProducts("DLC (proche)");
-            
-            // AJOUTEZ CETTE LIGNE POUR VÉRIFIER LE COMPTEUR
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] Products.Count après tri : {Products.Count}");
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -106,54 +100,58 @@ namespace perimapp.Pages
         }
 
         private async Task LoadProductsAsync()
-        {
-            List<ProductInfos> loadedProducts = null;
-    
-            // 1. Tentez de charger depuis la base de données distante
-            try
             {
-                string userIdString = await SecureStorage.GetAsync("user_id");
-                if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                try
                 {
-                    loadedProducts = await _productService.GetUserProductsAsync(userId);
-                    if (loadedProducts != null && loadedProducts.Count > 0)
+                    var localService = new LocalProductService();
+                    List<ProductInfos> products;
+
+                    // Récupérer l'ID utilisateur
+                    string userIdString = await SecureStorage.GetAsync("user_id");
+
+                    // Vérifie si Internet est dispo
+                    bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                    if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
                     {
-                        Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis la BDD Neon.");
+                        try
+                        {
+                            // Charger les produits depuis le serveur
+                            var serveurProducts = await _productService.GetUserProductsAsync(userId);
+
+                            //  Remplacer le cache local par les produits en ligne
+                            await localService.SaveProductsAsync(serveurProducts);
+
+                            //  Utiliser ces produits pour l'affichage
+                            products = serveurProducts;
+                        }
+                        catch
+                        {
+                            // Si le serveur ne répond pas, on retombe sur le local
+                            products = await localService.LoadProductsAsync();
+                        }
                     }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[DEBUG] Erreur lors du chargement des produits depuis la BDD Neon : {ex.Message}");
-            }
+                    else
+                    {
+                        //  Pas de connexion → produits locaux uniquement
+                        products = await localService.LoadProductsAsync();
+                    }
 
-            // 2. Si le chargement distant a échoué, tentez le chargement local
-            if (loadedProducts == null || loadedProducts.Count == 0)
-            {
-                Console.WriteLine("[DEBUG] Chargement des produits depuis le fichier JSON local.");
-                loadedProducts = await LoadProductsFromJsonAsync();
-                if (loadedProducts != null)
+                    // Mise à jour de la liste globale et de l'UI
+                    AppData.CurrentProducts.Clear();
+                    foreach (var product in products.OrderBy(p => p.DaysRemaining))
+                        AppData.CurrentProducts.Add(product);
+
+                    DisplayedProductsCount = AppData.CurrentProducts.Count;
+                }
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis le fichier JSON.");
+                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
                 }
             }
-
-            // 3. Mise à jour de la collection observable et du compteur
-            if (loadedProducts != null)
-            {
-                Products.Clear();
-                foreach (var product in loadedProducts)
-                {
-                    Products.Add(product);
-                }
-                DisplayedProductsCount = Products.Count;
-            }
-            else
-            {
-                DisplayedProductsCount = 0;
-            }
-        }
-
+        
+        
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
             try
