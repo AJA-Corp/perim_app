@@ -52,14 +52,11 @@ namespace perimapp.Platforms.Android
             var currentHour = DateTime.Now.Hour;
             var lastNotificationSentHour = Preferences.Get(LastNotificationSentHourKey, -1);
 
-            // Vérifier si l'heure actuelle fait partie de nos heures de notification ET si la notification n'a pas déjà été envoyée pour cette heure
             if (!notificationHours.Contains(currentHour) || lastNotificationSentHour == currentHour)
             {
-                // Si l'heure actuelle ne correspond pas, ou si la notification a déjà été envoyée pour cette heure, on ne fait rien
                 return;
             }
 
-            // Annuler toutes les notifications existantes avant d'en créer de nouvelles
             LocalNotificationCenter.Current.CancelAll();
             
             var allProducts = AppData.CurrentProducts.ToList();
@@ -90,7 +87,11 @@ namespace perimapp.Platforms.Android
                     NotificationId = 0,
                     Title = title,
                     Description = description,
-                    Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
+                    Android = new AndroidOptions
+                    {
+                        IconSmallName = new AndroidIcon("perimapplogotransparent"),
+                        VisibilityType = AndroidVisibilityType.Public
+                    },
                     Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                 };
                 await LocalNotificationCenter.Current.Show(request);
@@ -108,9 +109,9 @@ namespace perimapp.Platforms.Android
                 }
                 else
                 {
-                    description = expiredProducts.Count == 1
-                        ? $"Le produit '{expiredProducts.First().Name}' a expiré hier."
-                        : $"{expiredProducts.Count} produits ont expiré hier : {string.Join(", ", expiredProducts.Select(p => p.Name))}.";
+                            description = expiredProducts.Count == 1
+                                ? $"Le produit '{expiredProducts.First().Name}' a expiré hier."
+                                : $"{expiredProducts.Count} produits ont expiré hier : {string.Join(", ", expiredProducts.Select(p => p.Name))}.";
                 }
                 
                 var request = new NotificationRequest
@@ -118,7 +119,11 @@ namespace perimapp.Platforms.Android
                     NotificationId = -1,
                     Title = title,
                     Description = description,
-                    Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
+                    Android = new AndroidOptions
+                    {
+                        IconSmallName = new AndroidIcon("perimapplogotransparent"),
+                        VisibilityType = AndroidVisibilityType.Public
+                    },
                     Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                 };
                 await LocalNotificationCenter.Current.Show(request);
@@ -179,7 +184,11 @@ namespace perimapp.Platforms.Android
                         NotificationId = days,
                         Title = title,
                         Description = description,
-                        Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
+                        Android = new AndroidOptions
+                        {
+                            IconSmallName = new AndroidIcon("perimapplogotransparent"),
+                            VisibilityType = AndroidVisibilityType.Public
+                        },
                         Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                     };
                     await LocalNotificationCenter.Current.Show(request);
@@ -187,7 +196,6 @@ namespace perimapp.Platforms.Android
                 }
             }
 
-            // Mettre à jour l'heure de la dernière notification pour éviter les doublons dans l'heure
             Preferences.Set(LastNotificationSentHourKey, currentHour);
         }
         
@@ -200,13 +208,13 @@ namespace perimapp.Platforms.Android
             var notificationBuilder = new NotificationCompat.Builder(this, "perimapp_channel")
                 .SetContentTitle(notificationTitle)
                 .SetContentText(notificationContent)
-                .SetSmallIcon(Resource.Drawable.perimapplogo)
+                .SetSmallIcon(Resource.Drawable.perimapplogotransparent)
                 .SetCategory(NotificationCompat.CategoryService)
                 .SetOngoing(true);
             
             if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
             {
-                var channel = new NotificationChannel("perimapp_channel", "Perim'App Service", NotificationImportance.Low);
+                var channel = new NotificationChannel("perimapp_channel", "Perim'App Service", NotificationImportance.Min);
                 notificationManager.CreateNotificationChannel(channel);
             }
             
