@@ -23,6 +23,7 @@ namespace perimapp.Platforms.Android
         private static readonly List<int> notificationHours = new List<int> { 7, 11, 18 };
         private Timer _timer;
         private const int SERVICE_NOTIFICATION_ID = 10001;
+        private const string LastNotificationSentHourKey = "LastNotificationSentHour";
 
         public override IBinder OnBind(Intent intent)
         {
@@ -34,7 +35,6 @@ namespace perimapp.Platforms.Android
             StartForeground(SERVICE_NOTIFICATION_ID, CreateNotification().Build());
             
             // On déclenche la méthode de vérification toutes les 60 secondes pour une grande fiabilité
-            // La logique de l'application s'assurera que la notification n'est envoyée qu'à l'heure voulue
             _timer = new Timer(async (e) => await CheckAndSendNotifications(), null, 0, 60000);
 
             return StartCommandResult.Sticky;
@@ -48,14 +48,19 @@ namespace perimapp.Platforms.Android
 
         private async Task CheckAndSendNotifications()
         {
-            // Vérifier si l'heure actuelle fait partie de nos heures de notification
             var currentHour = DateTime.Now.Hour;
-            if (!notificationHours.Contains(currentHour))
+            var lastNotificationSentHour = Preferences.Get(LastNotificationSentHourKey, -1);
+
+            // Vérifier si l'heure actuelle fait partie de nos heures de notification ET si la notification n'a pas déjà été envoyée pour cette heure
+            if (!notificationHours.Contains(currentHour) || lastNotificationSentHour == currentHour)
             {
-                // Si l'heure actuelle ne correspond pas, ne rien faire
+                // Si l'heure actuelle ne correspond pas, ou si la notification a déjà été envoyée pour cette heure, on ne fait rien
                 return;
             }
 
+            // Annuler toutes les notifications existantes avant d'en créer de nouvelles
+            LocalNotificationCenter.Current.CancelAll();
+            
             var allProducts = AppData.CurrentProducts.ToList();
             var settingsJson = Preferences.Get("NotificationDays", string.Empty);
             List<int> notificationDays = string.IsNullOrEmpty(settingsJson)
@@ -174,9 +179,12 @@ namespace perimapp.Platforms.Android
                         Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                     };
                     await LocalNotificationCenter.Current.Show(request);
-                    await Task.Delay(1000); 
+                    await Task.Delay(2500); 
                 }
             }
+
+            // Mettre à jour l'heure de la dernière notification pour éviter les doublons dans l'heure
+            Preferences.Set(LastNotificationSentHourKey, currentHour);
         }
         
         private NotificationCompat.Builder CreateNotification()
