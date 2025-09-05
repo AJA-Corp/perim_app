@@ -5,6 +5,7 @@ using AndroidX.Core.App;
 using perimapp.Data;
 using perimapp.Models;
 using Plugin.LocalNotification;
+using Plugin.LocalNotification.AndroidOption; 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -89,6 +90,7 @@ namespace perimapp.Platforms.Android
                     NotificationId = 0,
                     Title = title,
                     Description = description,
+                    Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
                     Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                 };
                 await LocalNotificationCenter.Current.Show(request);
@@ -116,6 +118,7 @@ namespace perimapp.Platforms.Android
                     NotificationId = -1,
                     Title = title,
                     Description = description,
+                    Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
                     Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                 };
                 await LocalNotificationCenter.Current.Show(request);
@@ -176,10 +179,11 @@ namespace perimapp.Platforms.Android
                         NotificationId = days,
                         Title = title,
                         Description = description,
+                        Android = new AndroidOptions { VisibilityType = AndroidVisibilityType.Public },
                         Schedule = new NotificationRequestSchedule { NotifyTime = DateTime.Now }
                     };
                     await LocalNotificationCenter.Current.Show(request);
-                    await Task.Delay(2500); 
+                    await Task.Delay(1500); 
                 }
             }
 
