@@ -545,46 +545,45 @@ Le projet Perim'App suit une architecture .NET MAUI organisée en couches, avec 
 ```
 perimapp/                          # Projet principal MAUI
 ├── Pages/                         # Pages de l'interface utilisateur
-│   ├── MainPage.xaml/.cs         # Page principale (liste produits)
-│   ├── AddProductPage.xaml/.cs   # Ajout de produits
-│   ├── DetailsPage.xaml/.cs      # Détails d'un produit
+│   ├── MainPage.xaml/.cs          # Page principale (liste produits)
+│   ├── AddProductPage.xaml/.cs    # Ajout de produits
+│   ├── DetailsPage.xaml/.cs       # Détails d'un produit
 │   ├── ModifyProductPage.xaml/.cs # Modification de produits
-│   ├── ProfilePage.xaml/.cs      # Profil utilisateur
-│   ├── LogInPage.xaml/.cs        # Connexion
-│   ├── SignUpPage.xaml/.cs       # Inscription
-│   └── StartingPage.xaml/.cs     # Page d'accueil
+│   ├── ProfilePage.xaml/.cs       # Profil utilisateur
+│   ├── LogInPage.xaml/.cs         # Connexion
+│   ├── SignUpPage.xaml/.cs        # Inscription
+│   └── StartingPage.xaml/.cs      # Page d'accueil
 ├── Platforms/                     # Code spécifique aux plateformes
 │   ├── Android/                   # Configuration Android
 │   ├── iOS/                       # Configuration iOS
 │   ├── Windows/                   # Configuration Windows
-│   └── MacCatalyst/              # Configuration macOS
+│   └── MacCatalyst/               # Configuration macOS
 ├── Resources/                     # Ressources de l'application
 │   ├── AppIcon/                   # Icônes d'application
 │   ├── Fonts/                     # Polices personnalisées
 │   ├── Styles/                    # Styles XAML
 │   └── Splash/                    # Écran de démarrage
-├── App.xaml/.cs                   # Configuration de l'application
-├── AppShell.xaml/.cs             # Navigation Shell
-├── MauiProgram.cs                # Point d'entrée et DI
-└── perimapp.csproj               # Configuration du projet
-
-PerimApp/                          # Composants partagés
 ├── Models/                        # Modèles de données
-│   ├── ProductInfos.cs           # Modèle produit
-│   └── UserProfile.cs            # Modèle utilisateur
+│   ├── ProductInfos.cs            # Modèle produit
+│   └── UserProfile.cs             # Modèle utilisateur
 ├── Services/                      # Services métier
-│   ├── NeonProductService.cs     # Service produits (DB)
-│   ├── NeonUserService.cs        # Service utilisateurs (DB)
-│   ├── OpenFoodFactsService.cs   # API externe
-│   └── PasswordHasher.cs         # Sécurité
+│   ├── NeonProductService.cs      # Service produits (DB)
+│   ├── NeonUserService.cs         # Service utilisateurs (DB)
+│   ├── OpenFoodFactsService.cs    # API externe
+│   └── PasswordHasher.cs          # Sécurité
 ├── Converters/                    # Convertisseurs XAML
-│   └── DlcColorConverter.cs      # Couleurs selon DLC
+│   └── DlcColorConverter.cs       # Couleurs selon DLC
 ├── Data/                          # Accès aux données
-│   └── AppData.cs                # Configuration données
+│   └── AppData.cs                 # Configuration données
 ├── Headers/                       # Composants UI partagés
-│   └── SharedHeader.xaml/.cs     # En-tête commun
-└── PopUp/                         # Fenêtres popup
-    └── NotificationPopUp.xaml/.cs # Notifications
+│   └── SharedHeader.xaml/.cs      # En-tête commun
+├── PopUp/                         # Fenêtres popup
+│   └── NotificationPopUp.xaml/.cs # Notifications
+├── App.xaml/.cs                   # Configuration de l'application
+├── AppShell.xaml/.cs              # Navigation Shell
+├── MauiProgram.cs                 # Point d'entrée et DI
+└── perimapp.csproj                # Configuration du projet
+
 ```
 
 ### Configuration du projet
