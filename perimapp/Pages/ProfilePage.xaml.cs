@@ -13,8 +13,22 @@ namespace perimapp.Pages
 {
     public partial class ProfilePage : ContentPage, INotifyPropertyChanged
     {
-        // Propriété pour gérer la visibilité du menu de déconnexion
         private bool _isMenuVisible = false;
+        private string _userName;
+        private int _registeredProductsCount;
+        private int _lostProductsCount;
+        private string _familyCode;
+        // Propriété pour gérer la visibilité du menu de déconnexion
+        
+        //pour la bdd (Neon)
+        private readonly NeonUserService _userService;
+        private NeonProductService _productService;
+        //pour le Local
+        private readonly LocalUserService _localUserService;
+        //pour les produits enregistrer sur profilepage 
+        private readonly LocalProductService _localProductService;
+
+        
         public bool IsMenuVisible
         {
             get => _isMenuVisible;
@@ -28,14 +42,6 @@ namespace perimapp.Pages
             }
         }
 
-        private string _userName;
-        private int _registeredProductsCount;
-        private int _lostProductsCount;
-        private string _familyCode;
-        //pour la bdd (Neon)
-        private readonly NeonUserService _userService;
-        //pour le Local
-        private readonly LocalUserService _localUserService;
 
         public string UserName { get => _userName; set { if (_userName != value) { _userName = value; OnPropertyChanged(); } } }
         public int RegisteredProductsCount { get => _registeredProductsCount; set { if (_registeredProductsCount != value) { _registeredProductsCount = value; OnPropertyChanged(); } } }
@@ -52,7 +58,10 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             _userService = new NeonUserService();
+            _productService = new NeonProductService();
             _localUserService = new LocalUserService(); //local
+            _localProductService = new LocalProductService();//pour les produits 
+
 
             UserName = "Chargement...";
             FamilyCode = "Chargement...";
@@ -69,44 +78,65 @@ namespace perimapp.Pages
         }
 
         private async Task LoadProfileDataAsync()
+{
+    try
+    {
+        // 1. Charger les infos utilisateur depuis le local d'abord
+        var localUser = await _localUserService.LoadUserAsync();
+        if (localUser != null)
         {
-            try
+            UpdateUI(localUser);
+            Debug.WriteLine("Profil chargé depuis le stockage local ✅");
+        }
+
+        // 2. Charger les produits enregistrés depuis le local
+        var localProducts = await _localProductService.LoadProductsAsync();
+        RegisteredProductsCount = localProducts.Count;
+
+        // 3. Essayer de rafraîchir depuis Neon si on a une connexion
+        var userIdStr = await SecureStorage.GetAsync("user_id");
+        if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+        {
+            Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé.");
+            return;
+        }
+
+        try
+        {
+            // On récupère le profil complet depuis NeonDB
+            var userProfile = await _userService.GetUserProfileAsync(userId);
+            int productCount = await _userService.GetRegisteredProductsCountAsync(userId);
+
+            if (userProfile != null)
             {
-                // Charger le local storage
-                var localUser = await _localUserService.LoadUserAsync();
-                if (localUser != null)
+                // On met à jour le profil
+                userProfile.RegisteredProductsCount = productCount;
+                await _localUserService.SaveUserAsync(userProfile);
+                UpdateUI(userProfile);
+                Debug.WriteLine("Profil mis à jour depuis Neon");
+
+                // On synchronise les produits si le serveur en a
+                if (productCount > localProducts.Count)
                 {
-                    UpdateUI(localUser);
-                    Debug.WriteLine("Profil chargé depuis le stockage local ✅");
+                    var serverProducts = await _productService.GetUserProductsAsync(userId);
+                    await _localProductService.SaveProductsAsync(serverProducts);
+                    RegisteredProductsCount = serverProducts.Count;
                 }
 
-                // rafraîchir depuis Neon
-                var userIdStr = await SecureStorage.GetAsync("user_id");
-                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
-                {
-                    Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé.");
-                    return;
-                }
-
-                var userProfile = await _userService.GetUserProfileAsync(userId);
-                int productCount = await _userService.GetRegisteredProductsCountAsync(userId);
-
-                if (userProfile != null)
-                {
-                    userProfile.RegisteredProductsCount = productCount;
-
-                    // Sauvegarde locale mise à jour
-                    await _localUserService.SaveUserAsync(userProfile);
-
-                    UpdateUI(userProfile);
-                    Debug.WriteLine("Profil mis à jour depuis NeonDB ✅");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ProfilePage [ERREUR] : {ex.Message}");
+                Debug.WriteLine(" Produits mis à jour depuis NeonDB ✅");
             }
         }
+        catch
+        {
+            Debug.WriteLine("Mode hors-ligne activé → utilisation des données locales");
+        }
+    }
+    catch (Exception ex)
+    {
+        Debug.WriteLine($"ProfilePage [ERREUR] : {ex.Message}");
+    }
+}
+
         //pour le localUser
         private void UpdateUI(UserProfileDetails user)
         {
