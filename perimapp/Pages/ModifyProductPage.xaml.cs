@@ -170,6 +170,7 @@ namespace perimapp.Pages
             }
         }
 
+        /*
         // Gère la validation de la DLC lors de la complétion de la saisie
         private async void ProductDlcEntry_Completed(object sender, EventArgs e)
         {
@@ -207,6 +208,7 @@ namespace perimapp.Pages
                 );
             }
         }
+        */
 
         // Place le curseur à la fin du texte lorsque l'Entry de quantité est focus
         private void QuantityEntry_Focused(object sender, FocusEventArgs e)
@@ -302,6 +304,12 @@ namespace perimapp.Pages
         {
             if (CurrentProduct != null)
             {
+                if (DlcPicker != null)
+                {
+                    CurrentProduct.Dlc = DlcPicker.Date;
+                    Debug.WriteLine($"[DEBUG] Synced DLC from DatePicker: {CurrentProduct.Dlc:dd/MM/yyyy}");
+                }
+                
                 if (QuantityEntry.IsFocused)
                 {
                     QuantityEntry_Unfocused(QuantityEntry, null);
