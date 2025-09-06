@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; // <-- Pour NeonProductService
+using perimapp.Services; 
+using Microsoft.Maui.Storage;
+using Microsoft.Maui.Networking;
 
 namespace perimapp.Pages
 {
@@ -58,8 +60,8 @@ namespace perimapp.Pages
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            // CODE MODIFIÉ : Supprimé le "_ = LoadProductsAsync();" du constructeur
-            // Le chargement sera géré par la méthode OnAppearing()
+            // Initialiser la propriété avec une valeur par défaut
+            SortButtonText = "Tri: DLC (proche)";
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -139,6 +141,8 @@ namespace perimapp.Pages
 
                     // Mise à jour de la liste globale et de l'UI
                     AppData.CurrentProducts.Clear();
+
+                    // NOUVEAU CODE : S'assurer que les produits sont triés à l'affichage initial
                     foreach (var product in products.OrderBy(p => p.DaysRemaining))
                         AppData.CurrentProducts.Add(product);
 
@@ -202,11 +206,11 @@ namespace perimapp.Pages
             switch (sortOption)
             {
                 case "DLC (proche)":
-                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (proche)";
                     break;
                 case "DLC (lointaine)":
-                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (lointaine)";
                     break;
             }
