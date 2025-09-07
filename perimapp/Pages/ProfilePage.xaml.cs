@@ -27,8 +27,9 @@ namespace perimapp.Pages
         private readonly LocalUserService _localUserService;
         //pour les produits enregistrer sur profilepage 
         private readonly LocalProductService _localProductService;
+        private UserProfileDetails? _currentUser;
 
-        
+
         public bool IsMenuVisible
         {
             get => _isMenuVisible;
