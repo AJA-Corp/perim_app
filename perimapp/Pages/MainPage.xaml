@@ -87,7 +87,8 @@
             <RefreshView Grid.Row="2"
                          x:Name= "ProductRefreshView"
                          IsRefreshing="{Binding IsRefreshing}"
-                         Command="{Binding RefreshCommand}" >
+                         Command="{Binding RefreshCommand}" 
+                         RefreshColor="#58BF7F">
                 
                 <CollectionView ItemsSource="{Binding Products}"
                                 SelectionMode="Single"

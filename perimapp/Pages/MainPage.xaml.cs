@@ -30,6 +30,7 @@ namespace perimapp.Pages
                 }
             }
         }
+        //Propriété pour le pull to refresh 
         private bool _isRefreshing;
         public bool IsRefreshing
         {
@@ -43,7 +44,6 @@ namespace perimapp.Pages
                 }
             }
         }
-
         public ICommand RefreshCommand { get; }
 
         
@@ -81,7 +81,7 @@ namespace perimapp.Pages
             // Initialiser la propriété avec une valeur par défaut
             SortButtonText = "Tri: DLC (proche)";
             
-            //Refresh MainPage
+            //Refresh la MainPage
             RefreshCommand = new Command(async () => await OnRefresh());
 
         }
@@ -92,8 +92,8 @@ namespace perimapp.Pages
             base.OnAppearing();
             
             //rafraichissement auto
-            // IsRefreshing = true;
-            // await OnRefresh();
+             // IsRefreshing = true;
+             // await OnRefresh();
             
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
@@ -126,24 +126,6 @@ namespace perimapp.Pages
                         $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
                     );
                 }
-            }
-        }
-        private async Task OnRefresh()
-        {
-            try
-            {
-                // Recharge la liste des produits
-                // await LoadProductsAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
-            }
-            finally
-            {
-                // Arrête l'animation du RefreshView
-                IsRefreshing = false;
             }
         }
 
@@ -202,6 +184,26 @@ namespace perimapp.Pages
                 }
             }
         
+        private async Task OnRefresh()
+        {
+            try
+            {
+                // Recharge la liste des produits
+                await LoadProductsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
+            }
+            finally
+            {
+                        
+                // Arrête l'animation du RefreshView
+                IsRefreshing = false;
+                
+            }
+        }
         
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
