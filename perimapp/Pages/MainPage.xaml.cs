@@ -10,6 +10,7 @@ using perimapp.Models;
 using perimapp.Services; 
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Networking;
+using System.Windows.Input;
 
 namespace perimapp.Pages
 {
@@ -29,6 +30,23 @@ namespace perimapp.Pages
                 }
             }
         }
+        private bool _isRefreshing;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                if (_isRefreshing != value)
+                {
+                    _isRefreshing = value;
+                    OnPropertyChanged(nameof(IsRefreshing));
+                }
+            }
+        }
+
+        public ICommand RefreshCommand { get; }
+
+        
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -62,6 +80,10 @@ namespace perimapp.Pages
 
             // Initialiser la propriété avec une valeur par défaut
             SortButtonText = "Tri: DLC (proche)";
+            
+            //Refresh MainPage
+            RefreshCommand = new Command(async () => await OnRefresh());
+
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -69,8 +91,14 @@ namespace perimapp.Pages
         {
             base.OnAppearing();
             
+            //rafraichissement auto
+            // IsRefreshing = true;
+            // await OnRefresh();
+            
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
+            
+
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -100,6 +128,25 @@ namespace perimapp.Pages
                 }
             }
         }
+        private async Task OnRefresh()
+        {
+            try
+            {
+                // Recharge la liste des produits
+                // await LoadProductsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
+            }
+            finally
+            {
+                // Arrête l'animation du RefreshView
+                IsRefreshing = false;
+            }
+        }
+
 
         private async Task LoadProductsAsync()
             {

@@ -84,10 +84,14 @@
             </Grid>
             
             <!-- Product Cards -->
-            <CollectionView Grid.Row="2" 
-                            ItemsSource="{Binding Products}"
-                            SelectionMode="Single"
-                            SelectionChanged="OnProductSelectionChanged">
+            <RefreshView Grid.Row="2"
+                         x:Name= "ProductRefreshView"
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}" >
+                
+                <CollectionView ItemsSource="{Binding Products}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnProductSelectionChanged">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
@@ -162,6 +166,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+                </RefreshView>
             <Button Grid.Row="2"
                     ImageSource="bin_white.png"
                     Clicked="OnLostProductsClicked"
