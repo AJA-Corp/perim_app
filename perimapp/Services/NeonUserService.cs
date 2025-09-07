@@ -2,11 +2,23 @@ using System;
 using System.Threading.Tasks;
 using Npgsql;
 using perimapp.Models;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace perimapp.Services
 {
     public class NeonUserService
     {
+        private readonly HttpClient _httpClient;
+        private string _baseUrl;
+        // private object _httpClient;
+
+        public NeonUserService()
+        {
+            _httpClient = new HttpClient();
+        }
+
         private const string ConnectionString =
             "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
 
@@ -64,7 +76,7 @@ namespace perimapp.Services
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result) > 0;
         }
-        
+
         public async Task<int> AuthenticateByHomeCodeAsync(int homeCode)
         {
             try
@@ -129,6 +141,7 @@ namespace perimapp.Services
                     bool isPasswordValid = PasswordHasher.VerifyPassword(hashedPassword, password);
                     return isPasswordValid ? userId : -1;
                 }
+
                 Console.WriteLine("[DEBUG]: Email non trouvé ou mot de passe incorrect");
                 return -1; // Email non trouvé
             }
@@ -156,10 +169,10 @@ namespace perimapp.Services
             WHERE
                 id = @UserId;
         ";
-        
+
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
-        
+
                 await using var reader = await cmd.ExecuteReaderAsync();
 
                 if (await reader.ReadAsync())
@@ -181,26 +194,26 @@ namespace perimapp.Services
                 return null;
             }
         }
-        
+
         public async Task<int> GetRegisteredProductsCountAsync(int userId)
         {
             try
             {
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
-        
+
                 // Requête simple pour compter les produits
                 string query = @"
             SELECT COUNT(*) 
             FROM products_users 
             WHERE user_id = @UserId;
         ";
-        
+
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
-        
+
                 object? result = await cmd.ExecuteScalarAsync();
-        
+
                 return result != null ? Convert.ToInt32(result) : 0;
             }
             catch (Exception ex)
@@ -209,10 +222,41 @@ namespace perimapp.Services
                 return 0;
             }
         }
+
         // Update neon db NOM Utilisateur
-        public async Task UpdateUserProfileAsync(int userId, UserProfileDetails currentUser)
+        public async Task<bool> UpdateUserProfileAsync(int userId, UserProfileDetails updatedProfile)
         {
-            throw new NotImplementedException();
+            try
+            {
+                //Prépare les données pour L'API
+                var userData = new
+                {
+                    first_name = updatedProfile.FirstName,
+                    last_name = updatedProfile.LastName,
+                };
+                // appel api 
+                var url = $"{_baseUrl}/users/{userId}"; // Adapte l'URL selon ton API
+                var json = JsonSerializer.Serialize(userData);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PutAsync(url, content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                     Console.WriteLine($"[UpdateUserProfileAsync] Erreur API: {error}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UpdateUserProfileAsync] Exception : {ex.Message}");
+                return false;
+            }
         }
     }
 }
