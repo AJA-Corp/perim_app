@@ -72,6 +72,8 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             int savedUserId = Preferences.Default.Get("UserId", -1);
+            //Refresh la MainPage
+            RefreshCommand = new Command(async () => await OnRefresh());
             Console.WriteLine(
                 $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
             );
@@ -81,8 +83,6 @@ namespace perimapp.Pages
             // Initialiser la propriété avec une valeur par défaut
             SortButtonText = "Tri: DLC (proche)";
             
-            //Refresh la MainPage
-            RefreshCommand = new Command(async () => await OnRefresh());
 
         }
 
