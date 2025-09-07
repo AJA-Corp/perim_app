@@ -10,14 +10,6 @@ namespace perimapp.Services
 {
     public class NeonUserService
     {
-        private readonly HttpClient _httpClient;
-        private string _baseUrl;
-        // private object _httpClient;
-
-        public NeonUserService()
-        {
-            _httpClient = new HttpClient();
-        }
 
         private const string ConnectionString =
             "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
@@ -223,40 +215,36 @@ namespace perimapp.Services
             }
         }
 
-        // Update neon db NOM Utilisateur
+        // Update neon db NOM Utilisateur(requete) 
         public async Task<bool> UpdateUserProfileAsync(int userId, UserProfileDetails updatedProfile)
         {
             try
             {
-                //Prépare les données pour L'API
-                var userData = new
-                {
-                    first_name = updatedProfile.FirstName,
-                    last_name = updatedProfile.LastName,
-                };
-                // appel api 
-                var url = $"{_baseUrl}/users/{userId}"; // Adapte l'URL selon ton API
-                var json = JsonSerializer.Serialize(userData);
-                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
 
-                var response = await _httpClient.PutAsync(url, content);
+                string query = @"
+            UPDATE users
+            SET first_name = @FirstName,
+                last_name = @LastName
+            WHERE id = @UserId;
+        ";
 
-                if (response.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                     Console.WriteLine($"[UpdateUserProfileAsync] Erreur API: {error}");
-                    return false;
-                }
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@FirstName", updatedProfile.FirstName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@LastName", updatedProfile.LastName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                return rowsAffected > 0;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[UpdateUserProfileAsync] Exception : {ex.Message}");
+                Console.WriteLine($"[UpdateUserProfileAsync] Erreur : {ex.Message}");
                 return false;
             }
         }
+
     }
 }

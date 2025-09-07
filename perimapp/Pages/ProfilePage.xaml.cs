@@ -203,11 +203,16 @@ namespace perimapp.Pages
                 _currentUser.LastName = LastNameEntry.Text?.Trim();
 
                 // Sauvegarder sur Neon
-                await _userService.UpdateUserProfileAsync(userId, _currentUser);
+              var success =  await _userService.UpdateUserProfileAsync(userId, _currentUser);
+
+                if (!success)
+                {
+                    await DisplayAlert("Erreur", "La mise à jour du profil a échoué." ,"OK");
+                    return;
+                }
 
                 // Sauvegarder aussi en local
-                await _localUserService.SaveUserAsync(_currentUser);
-
+                    await _localUserService.SaveUserAsync(_currentUser);
                 // Rafraîchir l'affichage
                 UserName = $"{_currentUser.FirstName} {_currentUser.LastName}";
 
