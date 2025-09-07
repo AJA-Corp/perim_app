@@ -209,5 +209,10 @@ namespace perimapp.Services
                 return 0;
             }
         }
+        // Update neon db NOM Utilisateur
+        public async Task UpdateUserProfileAsync(int userId, UserProfileDetails currentUser)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

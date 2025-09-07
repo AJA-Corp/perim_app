@@ -36,6 +36,9 @@ namespace perimapp.Pages
         private readonly NeonUserService _userService;
         //pour le Local
         private readonly LocalUserService _localUserService;
+        
+        private UserProfileDetails _userProfile;
+        private UserProfileDetails _currentUser;
 
         public string UserName { get => _userName; set { if (_userName != value) { _userName = value; OnPropertyChanged(); } } }
         public int RegisteredProductsCount { get => _registeredProductsCount; set { if (_registeredProductsCount != value) { _registeredProductsCount = value; OnPropertyChanged(); } } }
@@ -153,5 +156,71 @@ namespace perimapp.Pages
             await Shell.Current.GoToAsync(nameof(StartingPage));
             
         }
+
+            // Quand on clique sur "Modifier mon profil"
+        private async void OnEditProfileClicked(object sender, EventArgs e)
+        {
+            IsMenuVisible = false;
+
+            // Charger l'utilisateur depuis le local storage
+            _currentUser = await _localUserService.LoadUserAsync();
+
+            if (_currentUser == null)
+            {
+                await DisplayAlert("Erreur", "Impossible de charger votre profil.", "OK");
+                return;
+            }
+
+            // Pré-remplir les champs
+            FirstNameEntry.Text = _currentUser.FirstName;
+            LastNameEntry.Text = _currentUser.LastName;
+
+            // Afficher la popup
+            EditProfilePopup.IsVisible = true;
+        }
+
+        // Si on annule la modification
+        private void OnCancelEditClicked(object sender, EventArgs e)
+        {
+            EditProfilePopup.IsVisible = false;
+        }
+
+        // Quand on clique sur "Enregistrer"
+        private async void OnSaveEditClicked(object sender, EventArgs e)
+        {
+            try
+            {
+                // Récupérer l'ID utilisateur
+                var userIdStr = await SecureStorage.GetAsync("user_id");
+                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                {
+                    await DisplayAlert("Erreur", "Impossible de retrouver votre profil.", "OK");
+                    return;
+                }
+
+                // Mettre à jour les infos en local
+                _currentUser.FirstName = FirstNameEntry.Text?.Trim();
+                _currentUser.LastName = LastNameEntry.Text?.Trim();
+
+                // Sauvegarder sur Neon
+                await _userService.UpdateUserProfileAsync(userId, _currentUser);
+
+                // Sauvegarder aussi en local
+                await _localUserService.SaveUserAsync(_currentUser);
+
+                // Rafraîchir l'affichage
+                UserName = $"{_currentUser.FirstName} {_currentUser.LastName}";
+
+                // Fermer la popup
+                EditProfilePopup.IsVisible = false;
+
+                await DisplayAlert("Succès", "Votre profil a été mis à jour.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
+            }
+        }
+        
     }
 }
