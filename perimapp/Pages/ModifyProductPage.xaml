@@ -64,11 +64,12 @@
                                  StrokeShape="{RoundRectangle CornerRadius=12}"
                                  HorizontalOptions="Center">
                              <DatePicker x:Name="DlcPicker"
-                                         Date="{Binding CurrentProduct.Dlc}"
+                                         Date="{Binding CurrentProduct.Dlc, Mode=TwoWay}"
                                          Format="dd/MM/yyyy"
                                          MinimumDate="{x:Static sys:DateTime.Today}"
                                          TextColor="Black"
-                                         HorizontalOptions="Center" />
+                                         HorizontalOptions="Center"
+                                         />
                          </Border>
                      </HorizontalStackLayout>
 

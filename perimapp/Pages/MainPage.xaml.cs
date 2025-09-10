@@ -7,11 +7,15 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; // <-- Pour NeonProductService
+using perimapp.Services; 
+using Microsoft.Maui.Storage;
+using Microsoft.Maui.Networking;
+using System.Windows.Input;
 
 namespace perimapp.Pages
 {
     public partial class MainPage : ContentPage
+    
     {
         private string _sortButtonText;
         public string SortButtonText
@@ -26,6 +30,22 @@ namespace perimapp.Pages
                 }
             }
         }
+        //Propriété pour le pull to refresh 
+        private bool _isRefreshing;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                if (_isRefreshing != value)
+                {
+                    _isRefreshing = value;
+                    OnPropertyChanged(nameof(IsRefreshing));
+                }
+            }
+        }
+        public ICommand RefreshCommand { get; }
+
         
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
@@ -52,14 +72,18 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             int savedUserId = Preferences.Default.Get("UserId", -1);
+            //Refresh la MainPage
+            RefreshCommand = new Command(async () => await OnRefresh());
             Console.WriteLine(
                 $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
             );
             NavigationPage.SetHasNavigationBar(this, false);
             BindingContext = this;
 
-            //Initialisation de la propriété du texte du bouton
+            // Initialiser la propriété avec une valeur par défaut
             SortButtonText = "Tri: DLC (proche)";
+            
+
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -67,14 +91,14 @@ namespace perimapp.Pages
         {
             base.OnAppearing();
             
+            //rafraichissement auto
+             // IsRefreshing = true;
+             // await OnRefresh();
+            
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
             
-            // Définit le tri par défaut une fois les produits chargés
-            SortProducts("DLC (proche)");
-            
-            // AJOUTEZ CETTE LIGNE POUR VÉRIFIER LE COMPTEUR
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] Products.Count après tri : {Products.Count}");
+
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -105,55 +129,82 @@ namespace perimapp.Pages
             }
         }
 
+
         private async Task LoadProductsAsync()
+            {
+                try
+                {
+                    var localService = new LocalProductService();
+                    List<ProductInfos> products;
+
+                    // Récupérer l'ID utilisateur
+                    string userIdString = await SecureStorage.GetAsync("user_id");
+
+                    // Vérifie si Internet est dispo
+                    bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                    if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                    {
+                        try
+                        {
+                            // Charger les produits depuis le serveur
+                            var serveurProducts = await _productService.GetUserProductsAsync(userId);
+
+                            //  Remplacer le cache local par les produits en ligne
+                            await localService.SaveProductsAsync(serveurProducts);
+
+                            //  Utiliser ces produits pour l'affichage
+                            products = serveurProducts;
+                        }
+                        catch
+                        {
+                            // Si le serveur ne répond pas, on retombe sur le local
+                            products = await localService.LoadProductsAsync();
+                        }
+                    }
+                    else
+                    {
+                        //  Pas de connexion → produits locaux uniquement
+                        products = await localService.LoadProductsAsync();
+                    }
+
+                    // Mise à jour de la liste globale et de l'UI
+                    AppData.CurrentProducts.Clear();
+
+                    // NOUVEAU CODE : S'assurer que les produits sont triés à l'affichage initial
+                    foreach (var product in products.OrderBy(p => p.DaysRemaining))
+                        AppData.CurrentProducts.Add(product);
+
+                    DisplayedProductsCount = AppData.CurrentProducts.Count;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                }
+            }
+        
+        private async Task OnRefresh()
         {
-            List<ProductInfos> loadedProducts = null;
-    
-            // 1. Tentez de charger depuis la base de données distante
             try
             {
-                string userIdString = await SecureStorage.GetAsync("user_id");
-                if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
-                {
-                    loadedProducts = await _productService.GetUserProductsAsync(userId);
-                    if (loadedProducts != null && loadedProducts.Count > 0)
-                    {
-                        Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis la BDD Neon.");
-                    }
-                }
+                // Recharge la liste des produits
+                await LoadProductsAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[DEBUG] Erreur lors du chargement des produits depuis la BDD Neon : {ex.Message}");
+                Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
             }
-
-            // 2. Si le chargement distant a échoué, tentez le chargement local
-            if (loadedProducts == null || loadedProducts.Count == 0)
+            finally
             {
-                Console.WriteLine("[DEBUG] Chargement des produits depuis le fichier JSON local.");
-                loadedProducts = await LoadProductsFromJsonAsync();
-                if (loadedProducts != null)
-                {
-                    Console.WriteLine($"[DEBUG] {loadedProducts.Count} produits chargés depuis le fichier JSON.");
-                }
-            }
-
-            // 3. Mise à jour de la collection observable et du compteur
-            if (loadedProducts != null)
-            {
-                Products.Clear();
-                foreach (var product in loadedProducts)
-                {
-                    Products.Add(product);
-                }
-                DisplayedProductsCount = Products.Count;
-            }
-            else
-            {
-                DisplayedProductsCount = 0;
+                        
+                // Arrête l'animation du RefreshView
+                IsRefreshing = false;
+                
             }
         }
-
+        
         private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
         {
             try
@@ -204,11 +255,11 @@ namespace perimapp.Pages
             switch (sortOption)
             {
                 case "DLC (proche)":
-                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (proche)";
                     break;
                 case "DLC (lointaine)":
-                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); // CORRECTION ICI
+                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (lointaine)";
                     break;
             }

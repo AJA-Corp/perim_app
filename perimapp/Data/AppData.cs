@@ -13,5 +13,6 @@ namespace perimapp.Data
 
         // Optionnel : utilisateur courant complet
         // public static UserProfile CurrentUserProfile { get; set; }
+        public static UserProfileDetails? CurrentUser { get; set; }
     }
 }

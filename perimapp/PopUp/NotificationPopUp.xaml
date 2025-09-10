@@ -72,6 +72,7 @@
                                 Padding="5" />
                         </Border>
                         <Switch 
+                            IsToggled="True"
                             x:Name="ThreeDaysEntry"
                             OnColor="#F8961E"
                             ThumbColor="Black"
@@ -140,6 +141,7 @@
                                 Padding="5" />
                         </Border>
                         <Switch 
+                            IsToggled="True"
                             x:Name="SevenDaysEntry"
                             OnColor="#8CD6BF"
                             ThumbColor="Black"

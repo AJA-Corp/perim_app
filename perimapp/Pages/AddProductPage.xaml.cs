@@ -6,10 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using perimapp.Data;
 using perimapp.Services;
+using perimapp.Models;
 
 namespace perimapp.Pages;
-
-// Supposons que ce code se trouve dans votre fichier .xaml.cs pour la page/popup qui contient ce contrôle.
 
 public partial class AddProductPage : ContentPage // ou Popup
 {
@@ -61,7 +60,7 @@ public partial class AddProductPage : ContentPage // ou Popup
 
     private void OnIncrementQuantityClicked(object sender, EventArgs e)
     {
-        // Avant d'incrémenter, assurez-vous que la valeur de l'Entry est bien prise en compte
+        // Avant d'incrémenter, regarder si la valeur de l'Entry est bien prise en compte
         UpdateCurrentQuantityFromEntry();
 
         _currentQuantity++;
@@ -86,7 +85,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         // Tente de parser le texte actuel de l'Entry
         if (int.TryParse(QuantityEntry.Text, out int parsedQuantity))
         {
-            // Assurez-vous que la quantité n'est pas inférieure à 1
+            // Assurez que la quantité n'est pas inférieure à 1
             _currentQuantity = Math.Max(1, parsedQuantity);
         }
         else
@@ -114,65 +113,64 @@ public partial class AddProductPage : ContentPage // ou Popup
     }
 
     private async void OnValidateClicked(object sender, EventArgs e)
-{
-    // Étape 1 : Récupérer l'ID utilisateur de manière sécurisée et asynchrone
-    string userIdString = await SecureStorage.GetAsync("user_id");
-    
-    // Étape 2 : Vérifier que l'ID a bien été récupéré et est valide
-    if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
     {
-        await DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
-        // Rediriger vers la page de connexion si nécessaire
-        await Shell.Current.GoToAsync(nameof(StartingPage));
-        return;
-    }
+        string userIdString = await SecureStorage.GetAsync("user_id");
 
-    if (!long.TryParse(BarcodeEntry.Text, out long barcode))
-    {
-        await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
-        return;
-    }
-
-    var service = new NeonProductService();
-    var product = await service.GetProductDataAsync(barcode);
-
-    if (product == null)
-    {
-        var apiService = new OpenFoodFactsService();
-        var apiProduct = await apiService.GetProductFromApiAsync(barcode);
-
-        if (apiProduct == null)
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
         {
-            await DisplayAlert("Erreur", "Produit introuvable dans la base et API.", "OK");
+            await DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+            await Shell.Current.GoToAsync(nameof(StartingPage));
             return;
         }
 
-        await service.AddProductDataAsync(apiProduct);
-        product = apiProduct;
+        if (!long.TryParse(BarcodeEntry.Text, out long barcode))
+        {
+            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            return;
+        }
+
+        var service = new NeonProductService();
+        var product = await service.GetProductDataAsync(barcode);
+
+        if (product == null)
+        {
+            var apiService = new OpenFoodFactsService();
+            var apiProduct = await apiService.GetProductFromApiAsync(barcode);
+
+            if (apiProduct == null)
+            {
+                await DisplayAlert("Erreur", "Produit introuvable dans la base et API.", "OK");
+                return;
+            }
+
+            await service.AddProductDataAsync(apiProduct);
+            product = apiProduct;
+        }
+
+        product.Dlc = DlcPicker.Date;
+        product.Quantity = _currentQuantity;
+        product.AddedAt = DateTime.Now;
+
+        bool ok = await service.AddUserProductAsync(product, userId);
+
+        // Sauvegarde locale pour le hors-ligne
+        var localService = new LocalProductService();
+        await localService.AddProductAsync(product);
+
+        AppData.CurrentProducts.Add(product);
+
+        if (ok)
+        {
+            await DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
+            await Shell.Current.GoToAsync(nameof(MainPage));
+        }
+        else
+        {
+            await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
+        }
     }
 
-    product.Dlc = DlcPicker.Date;
-    product.Quantity = _currentQuantity;
-    product.AddedAt = DateTime.Now;
 
-    // Étape 3 : Utiliser l'ID valide pour ajouter le produit
-    bool ok = await service.AddUserProductAsync(product, userId);
-
-    Console.WriteLine($"[DEBUG] - ok: {ok}");
-
-    if (ok)
-    {
-        // La ligne suivante doit probablement aussi être adaptée pour ne pas utiliser AppData
-        // (par exemple en ajoutant le produit à une liste locale de la page ou d'un ViewModel)
-        AppData.CurrentProducts.Add(product); 
-        await DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
-        await Shell.Current.GoToAsync(nameof(MainPage));
-    }
-    else
-    {
-        await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
-    }
-}
 
     private async void BarcodeEntry_OnCompleted(object sender, EventArgs e)
     {
