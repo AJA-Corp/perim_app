@@ -1,0 +1,170 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  ANDROID_API_LEVEL: 35
+  ANDROID_BUILD_TOOLS_VERSION: 35.0.0
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-android
+
+    - name: Restore dependencies
+      run: dotnet restore perimapp/perimapp.csproj
+
+    - name: Build Android APK
+      run: |
+        dotnet publish perimapp/perimapp.csproj -f net9.0-android -c Release --output ./output
+        
+    - name: Sign APK (if release)
+      if: github.event_name == 'release'
+      run: |
+        # Note: In production, you would configure actual APK signing here
+        # For now, we'll just copy the unsigned APK
+        echo "APK signing would be configured here for production releases"
+        
+    - name: Upload APK artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: perimapp-${{ github.event_name == 'release' && github.event.release.tag_name || github.sha }}
+        path: ./output/
+        retention-days: ${{ github.event_name == 'release' && 90 || 30 }}
+
+  docker-build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy, docker-build-and-push]
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    
+    steps:
+    - name: Deploy to staging environment
+      run: |
+        echo "🚀 Deploying to staging environment"
+        echo "This would typically:"
+        echo "  - Update staging environment with new image"
+        echo "  - Run smoke tests"
+        echo "  - Notify team of deployment"
+        echo "Docker image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy, docker-build-and-push]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+    - name: Deploy to production environment
+      run: |
+        echo "🚀 Deploying to production environment"
+        echo "Release: ${{ github.event.release.tag_name }}"
+        echo "This would typically:"
+        echo "  - Update production environment with release image"
+        echo "  - Run comprehensive tests"
+        echo "  - Update monitoring and alerting"
+        echo "  - Notify stakeholders of deployment"
+
+  create-release-notes:
+    name: Update Release Notes
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.event_name == 'release'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate release notes
+      run: |
+        echo "📋 Release Notes for ${{ github.event.release.tag_name }}" > release-notes.md
+        echo "" >> release-notes.md
+        echo "## Changes" >> release-notes.md
+        git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD~1)..HEAD >> release-notes.md
+        echo "" >> release-notes.md
+        echo "## Build Information" >> release-notes.md
+        echo "- Build Date: $(date)" >> release-notes.md
+        echo "- Commit: ${{ github.sha }}" >> release-notes.md
+        echo "- Docker Image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}" >> release-notes.md
+        
+    - name: Upload release notes
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-notes-${{ github.event.release.tag_name }}
+        path: release-notes.md

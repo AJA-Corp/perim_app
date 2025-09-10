@@ -1,4 +1,12 @@
-# Running the Project with Docker
+# Perim App
+
+A .NET MAUI Android application with comprehensive CI/CD pipeline.
+
+## CI/CD Implementation
+
+For detailed information about the Continuous Integration and Continuous Deployment setup, please see [ci-cd.md](ci-cd.md).
+
+## Running the Project with Docker
 
 This section provides instructions to build and run the project using Docker.
 

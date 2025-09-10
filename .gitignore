@@ -20,3 +20,14 @@ riderModule.iml
 .cxx
 local.properties
 .vs/
+
+# Additional CI/CD and build artifacts
+*.apk
+*.aab
+*.ipa
+logs/
+*.log
+*.tmp
+test-results/
+coverage/
+artifacts/

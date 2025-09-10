@@ -38,13 +38,13 @@ RUN mkdir -p ${ANDROID_SDK_ROOT} && \
 RUN dotnet workload install maui-android
 
 # Copy the entire project directory
-COPY ./PerimApp /src/PerimApp
+COPY ./perimapp /src/perimapp
 
 # Verify the presence of critical files
-RUN test -f /src/PerimApp/Resources/Splash/splash.svg || (echo "splash.svg not found" && exit 1)
+RUN test -f /src/perimapp/Resources/Splash/splash.svg || (echo "splash.svg not found" && exit 1)
 
 # Build and publish the application
-RUN cd /src/PerimApp && \
+RUN cd /src/perimapp && \
     dotnet restore && \
     dotnet build -f net9.0-android -c Release && \
     dotnet publish -f net9.0-android -c Release -o /app/publish

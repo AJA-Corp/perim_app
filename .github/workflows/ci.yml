@@ -1,0 +1,144 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  ANDROID_API_LEVEL: 35
+  ANDROID_BUILD_TOOLS_VERSION: 35.0.0
+
+jobs:
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore perimapp/perimapp.csproj
+
+    - name: Build for analysis
+      run: dotnet build perimapp/perimapp.csproj --no-restore --configuration Release
+
+    - name: Run code analysis
+      run: |
+        dotnet format perimapp/perimapp.csproj --verify-no-changes --verbosity diagnostic
+      continue-on-error: true
+
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore perimapp/perimapp.csproj
+
+    - name: Security scan
+      run: |
+        dotnet list perimapp/perimapp.csproj package --vulnerable --include-transitive
+      continue-on-error: true
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: [code-quality]
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-android
+
+    - name: Restore dependencies
+      run: dotnet restore perimapp/perimapp.csproj
+
+    - name: Build Android APK
+      run: |
+        dotnet build perimapp/perimapp.csproj -f net9.0-android -c Release
+      
+    - name: Upload Android artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: android-app-${{ github.sha }}
+        path: |
+          perimapp/bin/Release/net9.0-android/
+        retention-days: 7
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: perimapp:ci-test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  notify-status:
+    name: Notify Build Status
+    runs-on: ubuntu-latest
+    needs: [code-quality, security-scan, build-android, docker-build]
+    if: always()
+    
+    steps:
+    - name: Check job status
+      run: |
+        echo "Code Quality: ${{ needs.code-quality.result }}"
+        echo "Security Scan: ${{ needs.security-scan.result }}"
+        echo "Android Build: ${{ needs.build-android.result }}"
+        echo "Docker Build: ${{ needs.docker-build.result }}"
+        
+        if [[ "${{ needs.build-android.result }}" == "failure" || "${{ needs.docker-build.result }}" == "failure" ]]; then
+          echo "❌ Critical builds failed"
+          exit 1
+        elif [[ "${{ needs.code-quality.result }}" == "failure" || "${{ needs.security-scan.result }}" == "failure" ]]; then
+          echo "⚠️ Quality checks failed but builds succeeded"
+          exit 0
+        else
+          echo "✅ All checks passed"
+          exit 0
+        fi

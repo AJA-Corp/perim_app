@@ -39,12 +39,12 @@ docker-compose*
 .vs/
 
 # Ensure necessary files are included
-!PerimApp/**/*.cs
-!PerimApp/**/*.xaml
-!PerimApp/**/*.xml
-!PerimApp/**/*.plist
-!PerimApp/**/*.json
-!PerimApp/**/*.svg
-!PerimApp/Resources/**/*
+!perimapp/**/*.cs
+!perimapp/**/*.xaml
+!perimapp/**/*.xml
+!perimapp/**/*.plist
+!perimapp/**/*.json
+!perimapp/**/*.svg
+!perimapp/Resources/**/*
 
 # End of .dockerignore file
