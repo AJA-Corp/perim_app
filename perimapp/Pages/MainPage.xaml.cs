@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; 
+using perimapp.Services;
+using perimapp.Helpers;
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Networking;
 using System.Windows.Input;
+using System.Threading;
 
 namespace perimapp.Pages
 {
@@ -66,6 +68,8 @@ namespace perimapp.Pages
         }
 
         private readonly NeonProductService _productService = new NeonProductService();
+        private CancellationTokenSource _loadingCancellationToken;
+        private bool _isFirstLoad = true;
 
 
         public MainPage()
@@ -91,14 +95,21 @@ namespace perimapp.Pages
         {
             base.OnAppearing();
             
-            //rafraichissement auto
-             // IsRefreshing = true;
-             // await OnRefresh();
-            
-            // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
-            await LoadProductsAsync();
-            
-
+            // Only load products if this is the first time or if cache is invalid
+            if (_isFirstLoad || !ProductCacheService.IsCacheValid())
+            {
+                await LoadProductsAsync();
+                _isFirstLoad = false;
+            }
+            else
+            {
+                // Use cached data for instant loading
+                var cachedProducts = ProductCacheService.GetCachedProducts();
+                if (cachedProducts != null)
+                {
+                    UpdateProductCollection(cachedProducts);
+                }
+            }
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -131,63 +142,103 @@ namespace perimapp.Pages
 
 
         private async Task LoadProductsAsync()
+        {
+            // Cancel any existing loading operation
+            _loadingCancellationToken?.Cancel();
+            _loadingCancellationToken = new CancellationTokenSource();
+            var cancellationToken = _loadingCancellationToken.Token;
+
+            try
             {
-                try
+                // Check cache first for instant loading
+                var cachedProducts = ProductCacheService.GetCachedProducts();
+                if (cachedProducts != null)
                 {
-                    var localService = new LocalProductService();
-                    List<ProductInfos> products;
+                    UpdateProductCollection(cachedProducts);
+                    return; // Use cached data, don't hit the database
+                }
 
-                    // Récupérer l'ID utilisateur
-                    string userIdString = await SecureStorage.GetAsync("user_id");
+                var localService = new LocalProductService();
+                List<ProductInfos> products;
 
-                    // Vérifie si Internet est dispo
-                    bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+                // Récupérer l'ID utilisateur
+                string userIdString = await SecureStorage.GetAsync("user_id");
 
-                    if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                // Vérifie si Internet est dispo
+                bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                {
+                    try
                     {
-                        try
-                        {
-                            // Charger les produits depuis le serveur
-                            var serveurProducts = await _productService.GetUserProductsAsync(userId);
+                        // Check for cancellation before network call
+                        cancellationToken.ThrowIfCancellationRequested();
+                        
+                        // Charger les produits depuis le serveur en arrière-plan
+                        products = await Task.Run(async () => await _productService.GetUserProductsAsync(userId), cancellationToken);
 
-                            //  Remplacer le cache local par les produits en ligne
-                            await localService.SaveProductsAsync(serveurProducts);
+                        // Check for cancellation before updating cache
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                            //  Utiliser ces produits pour l'affichage
-                            products = serveurProducts;
-                        }
-                        catch
-                        {
-                            // Si le serveur ne répond pas, on retombe sur le local
-                            products = await localService.LoadProductsAsync();
-                        }
+                        // Update cache with fresh data
+                        ProductCacheService.SetCachedProducts(products);
+                        
+                        // Remplacer le cache local par les produits en ligne
+                        await localService.SaveProductsAsync(products);
                     }
-                    else
+                    catch (OperationCanceledException)
                     {
-                        //  Pas de connexion → produits locaux uniquement
+                        return; // Operation was cancelled, exit gracefully
+                    }
+                    catch
+                    {
+                        // Si le serveur ne répond pas, on retombe sur le local
                         products = await localService.LoadProductsAsync();
+                        ProductCacheService.SetCachedProducts(products);
                     }
-
-                    // Mise à jour de la liste globale et de l'UI
-                    AppData.CurrentProducts.Clear();
-
-                    // NOUVEAU CODE : S'assurer que les produits sont triés à l'affichage initial
-                    foreach (var product in products.OrderBy(p => p.DaysRemaining))
-                        AppData.CurrentProducts.Add(product);
-
-                    DisplayedProductsCount = AppData.CurrentProducts.Count;
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                    // Pas de connexion → produits locaux uniquement
+                    products = await localService.LoadProductsAsync();
+                    ProductCacheService.SetCachedProducts(products);
                 }
+
+                // Check for cancellation before UI update
+                cancellationToken.ThrowIfCancellationRequested();
+
+                // Update UI on main thread
+                UpdateProductCollection(products);
             }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled, no action needed
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+            }
+        }
+
+        private void UpdateProductCollection(List<ProductInfos> products)
+        {
+            // Use efficient collection update instead of Clear() + AddRange()
+            var sortedProducts = products.OrderBy(p => p.DaysRemaining).ToList();
+            
+            // Update the collection efficiently
+            AppData.CurrentProducts.ReplaceWith(sortedProducts);
+            
+            DisplayedProductsCount = AppData.CurrentProducts.Count;
+        }
         
         private async Task OnRefresh()
         {
             try
             {
+                // Invalidate cache to force fresh data
+                ProductCacheService.InvalidateCache();
+                
                 // Recharge la liste des produits
                 await LoadProductsAsync();
             }
@@ -198,10 +249,8 @@ namespace perimapp.Pages
             }
             finally
             {
-                        
                 // Arrête l'animation du RefreshView
                 IsRefreshing = false;
-                
             }
         }
         
@@ -247,29 +296,29 @@ namespace perimapp.Pages
             }
         }
 
-        // Méthode qui gère la logique de tri
+        // Méthode qui gère la logique de tri optimisée
         private void SortProducts(string sortOption)
         {
-            IEnumerable<ProductInfos> sortedProducts = Products;
+            var currentProducts = Products.ToList(); // Create a snapshot to avoid collection modification
+
+            List<ProductInfos> sortedProducts;
 
             switch (sortOption)
             {
                 case "DLC (proche)":
-                    sortedProducts = Products.OrderBy(p => p.DaysRemaining).ToList(); 
+                    sortedProducts = currentProducts.OrderBy(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (proche)";
                     break;
                 case "DLC (lointaine)":
-                    sortedProducts = Products.OrderByDescending(p => p.DaysRemaining).ToList(); 
+                    sortedProducts = currentProducts.OrderByDescending(p => p.DaysRemaining).ToList(); 
                     SortButtonText = "Tri: DLC (lointaine)";
                     break;
+                default:
+                    return; // No change needed
             }
 
-            // Le foreach peut maintenant s'exécuter sur la liste triée
-            Products.Clear();
-            foreach (var product in sortedProducts)
-            {
-                Products.Add(product);
-            }
+            // Efficient collection update
+            Products.ReplaceWith(sortedProducts);
         }
     }
 }

@@ -343,6 +343,9 @@ namespace perimapp.Pages
                     return;
                 }
 
+                // Update cache with modified product
+                ProductCacheService.UpdateProductInCache(CurrentProduct);
+
                 await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
 
                 Debug.WriteLine(

@@ -157,6 +157,8 @@ public partial class AddProductPage : ContentPage // ou Popup
         var localService = new LocalProductService();
         await localService.AddProductAsync(product);
 
+        // Update cache with new product
+        ProductCacheService.AddProductToCache(product);
         AppData.CurrentProducts.Add(product);
 
         if (ok)

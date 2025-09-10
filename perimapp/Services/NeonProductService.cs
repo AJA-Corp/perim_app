@@ -3,18 +3,24 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Npgsql;
 using perimapp.Models;
+using System.Threading;
 
 namespace perimapp.Services
 {
     public class NeonProductService
     {
         private const string ConnectionString =
-            "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
+            "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true;Pooling=true;MinPoolSize=1;MaxPoolSize=10;Connection Idle Lifetime=300";
+        
+        private static readonly SemaphoreSlim ConnectionSemaphore = new(5, 5); // Limit concurrent connections
 
         public async Task<List<ProductInfos>> GetUserProductsAsync(int userId)
         {
             var products = new List<ProductInfos>();
 
+            // Use semaphore to limit concurrent connections
+            await ConnectionSemaphore.WaitAsync();
+            
             try
             {
                 await using var conn = new NpgsqlConnection(ConnectionString);
@@ -26,11 +32,15 @@ namespace perimapp.Services
                            pu.dlc, pu.quantity, pu.added_at
                     FROM products_users pu
                     JOIN products_data pd ON pu.barcode = pd.barcode
-                    WHERE pu.user_id = @userId;
+                    WHERE pu.user_id = @userId
+                    ORDER BY pu.dlc ASC;
                 ";
 
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("userId", userId);
+                
+                // Set timeout for better performance on slow connections
+                cmd.CommandTimeout = 30;
 
                 await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -51,12 +61,15 @@ namespace perimapp.Services
 
                     products.Add(product);
                 }
-
-                await conn.CloseAsync();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[DEBUG] - Erreur Neon: {ex.Message}");
+                throw; // Re-throw to allow caller to handle properly
+            }
+            finally
+            {
+                ConnectionSemaphore.Release();
             }
 
             return products;

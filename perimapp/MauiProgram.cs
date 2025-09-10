@@ -26,6 +26,7 @@ public static class MauiProgram
             });
 
         builder.Services.AddSingleton<NeonProductService>();
+        builder.Services.AddSingleton<LocalProductService>();
 
 #if DEBUG
         builder.Logging.AddDebug();

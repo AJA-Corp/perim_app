@@ -92,7 +92,8 @@
                 
                 <CollectionView ItemsSource="{Binding Products}"
                                 SelectionMode="Single"
-                                SelectionChanged="OnProductSelectionChanged">
+                                SelectionChanged="OnProductSelectionChanged"
+                                ItemSizingStrategy="MeasureFirstItem">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
@@ -110,7 +111,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Image -->
+                                <!-- Image with caching -->
                                 <Border Grid.Column="0"
                                         WidthRequest="80"
                                         HeightRequest="80"
@@ -125,7 +126,8 @@
                                     <Image Source="{Binding UrlImage}"
                                            Aspect="AspectFill"
                                            HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
+                                           VerticalOptions="Center"
+                                           CachingEnabled="True"/>
                                 </Border>
 
                                 <!-- Quantité / DLC -->

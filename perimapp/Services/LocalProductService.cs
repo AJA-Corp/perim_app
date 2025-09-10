@@ -10,6 +10,11 @@ namespace perimapp.Services
     public class LocalProductService
     {
         private readonly string _filePath;
+        private static readonly JsonSerializerOptions JsonOptions = new()
+        {
+            WriteIndented = false, // Smaller file size
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
 
         public LocalProductService()
         {
@@ -27,8 +32,8 @@ namespace perimapp.Services
                 if (!File.Exists(_filePath))
                     return new List<ProductInfos>();
 
-                using var stream = File.OpenRead(_filePath);
-                var products = await JsonSerializer.DeserializeAsync<List<ProductInfos>>(stream);
+                var jsonBytes = await File.ReadAllBytesAsync(_filePath);
+                var products = JsonSerializer.Deserialize<List<ProductInfos>>(jsonBytes, JsonOptions);
 
                 return products ?? new List<ProductInfos>();
             }
@@ -46,11 +51,8 @@ namespace perimapp.Services
         {
             try
             {
-                using var stream = File.Create(_filePath);
-                await JsonSerializer.SerializeAsync(stream, products, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+                var jsonBytes = JsonSerializer.SerializeToUtf8Bytes(products, JsonOptions);
+                await File.WriteAllBytesAsync(_filePath, jsonBytes);
             }
             catch (Exception ex)
             {

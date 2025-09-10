@@ -24,7 +24,8 @@ public partial class LoadingPage : ContentPage
 
         Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis SecureStorage : {savedUserIdString}");
 
-        await Task.Delay(5000); // Délai d'initialisation
+        // Remove artificial delay - load immediately for better performance
+        await Task.Delay(500); // Minimal delay to show loading page briefly
 
         // 2. On vérifie si un ID valide a été récupéré
         if (!string.IsNullOrEmpty(savedUserIdString))
