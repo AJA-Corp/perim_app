@@ -48,6 +48,21 @@ namespace perimapp.Pages
         }
         public ICommand RefreshCommand { get; }
 
+        //Propriété pour l'indicateur de chargement
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged(nameof(IsLoading));
+                }
+            }
+        }
+
         
         // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
@@ -150,8 +165,14 @@ namespace perimapp.Pages
 
             try
             {
-                // Check cache first for instant loading
+                // Show loading indicator only if we don't have cached data
                 var cachedProducts = ProductCacheService.GetCachedProducts();
+                if (cachedProducts == null || cachedProducts.Count == 0)
+                {
+                    IsLoading = true;
+                }
+
+                // Use cached data immediately if available
                 if (cachedProducts != null)
                 {
                     UpdateProductCollection(cachedProducts);
@@ -218,6 +239,10 @@ namespace perimapp.Pages
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
                 await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

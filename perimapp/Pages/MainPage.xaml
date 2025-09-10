@@ -90,86 +90,103 @@
                          Command="{Binding RefreshCommand}" 
                          RefreshColor="#58BF7F">
                 
-                <CollectionView ItemsSource="{Binding Products}"
-                                SelectionMode="Single"
-                                SelectionChanged="OnProductSelectionChanged"
-                                ItemSizingStrategy="MeasureFirstItem">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="localModels:ProductInfos"> 
-                        <Border Padding="0"
-                                Stroke="DarkGray"
-                                StrokeThickness="0.1"
-                                BackgroundColor="White">
-                            <Border.Shadow>
-                                <Shadow Brush="LightGray" Offset="0,0" Radius="5" Opacity="0.5" />
-                            </Border.Shadow>
-                            
-                            <Grid HeightRequest="100">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                <Grid>
+                    <CollectionView ItemsSource="{Binding Products}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnProductSelectionChanged"
+                                    ItemSizingStrategy="MeasureFirstItem">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="localModels:ProductInfos"> 
+                                <Border Padding="0"
+                                        Stroke="DarkGray"
+                                        StrokeThickness="0.1"
+                                        BackgroundColor="White">
+                                    <Border.Shadow>
+                                        <Shadow Brush="LightGray" Offset="0,0" Radius="5" Opacity="0.5" />
+                                    </Border.Shadow>
+                                    
+                                    <Grid HeightRequest="100">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                <!-- Image with caching -->
-                                <Border Grid.Column="0"
-                                        WidthRequest="80"
-                                        HeightRequest="80"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        Margin="10,0,0,0"
-                                        Padding="0"                
-                                        Background="Transparent"   
-                                        StrokeShape="{RoundRectangle CornerRadius='3'}"  
-                                        Stroke="Transparent"       
-                                        StrokeThickness="0">
-                                    <Image Source="{Binding UrlImage}"
-                                           Aspect="AspectFill"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"
-                                           CachingEnabled="True"/>
+                                        <!-- Image with caching -->
+                                        <Border Grid.Column="0"
+                                                WidthRequest="80"
+                                                HeightRequest="80"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                Margin="10,0,0,0"
+                                                Padding="0"                
+                                                Background="Transparent"   
+                                                StrokeShape="{RoundRectangle CornerRadius='3'}"  
+                                                Stroke="Transparent"       
+                                                StrokeThickness="0">
+                                            <Image Source="{Binding UrlImage}"
+                                                   Aspect="AspectFill"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"
+                                                   CachingEnabled="True"/>
+                                        </Border>
+
+                                        <!-- Quantité / DLC -->
+                                        <VerticalStackLayout Grid.Column="1"
+                                                             VerticalOptions="Center"
+                                                             Padding="10,0">
+                                            <Label Text="{Binding Name}"
+                                                   FontSize="18"
+                                                   FontAttributes="Bold"
+                                                   LineBreakMode="TailTruncation"  MaxLines="2"
+                                                   TextColor="Black"/>
+                                            <Label Text="{Binding Quantity, StringFormat='Quantité: {0}'}"
+                                                   FontSize="14"
+                                                   TextColor="Gray"/>
+                                            <Label Text="{Binding Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
+                                                   FontSize="12"
+                                                   TextColor="DarkGray"/>
+                                        </VerticalStackLayout>
+
+                                        <!-- Pastille pour DLC / jours restants -->
+                                        <Border Grid.Column="2"
+                                                BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
+                                                HorizontalOptions="End"     
+                                                VerticalOptions="Fill"    
+                                                WidthRequest="62"  
+                                                Padding="0"                 
+                                                Margin="0,0,0,0"           
+                                                StrokeShape="{RoundRectangle CornerRadius='15,0,15,0'}"
+                                                StrokeThickness="0">
+                                            <Label Text="{Binding DaysRemainingTextMainPage}"
+                                                   TextColor="White"
+                                                   VerticalOptions="Center" 
+                                                   HorizontalOptions="Center" 
+                                                   FontSize="{Binding DaysRemainingFontSize}"
+                                                   FontAttributes="Bold"/>
+                                        </Border>
+                                    </Grid>
                                 </Border>
-
-                                <!-- Quantité / DLC -->
-                                <VerticalStackLayout Grid.Column="1"
-                                                     VerticalOptions="Center"
-                                                     Padding="10,0">
-                                    <Label Text="{Binding Name}"
-                                           FontSize="18"
-                                           FontAttributes="Bold"
-                                           LineBreakMode="TailTruncation"  MaxLines="2"
-                                           TextColor="Black"/>
-                                    <Label Text="{Binding Quantity, StringFormat='Quantité: {0}'}"
-                                           FontSize="14"
-                                           TextColor="Gray"/>
-                                    <Label Text="{Binding Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
-                                           FontSize="12"
-                                           TextColor="DarkGray"/>
-                                </VerticalStackLayout>
-
-                                <!-- Pastille pour DLC / jours restants -->
-                                <Border Grid.Column="2"
-                                        BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
-                                        HorizontalOptions="End"     
-                                        VerticalOptions="Fill"    
-                                        WidthRequest="62"  
-                                        Padding="0"                 
-                                        Margin="0,0,0,0"           
-                                        StrokeShape="{RoundRectangle CornerRadius='15,0,15,0'}"
-                                        StrokeThickness="0">
-                                    <Label Text="{Binding DaysRemainingTextMainPage}"
-                                           TextColor="White"
-                                           VerticalOptions="Center" 
-                                           HorizontalOptions="Center" 
-                                           FontSize="{Binding DaysRemainingFontSize}"
-                                           FontAttributes="Bold"/>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-                </RefreshView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                    
+                    <!-- Loading indicator when no products are visible -->
+                    <StackLayout IsVisible="{Binding IsLoading}" 
+                                 HorizontalOptions="Center" 
+                                 VerticalOptions="Center"
+                                 BackgroundColor="White">
+                        <ActivityIndicator IsRunning="{Binding IsLoading}" 
+                                           Color="#58BF7F"
+                                           WidthRequest="40"
+                                           HeightRequest="40"/>
+                        <Label Text="Chargement des produits..." 
+                               FontSize="16" 
+                               TextColor="Gray"
+                               Margin="0,10,0,0"/>
+                    </StackLayout>
+                </Grid>
+            </RefreshView>
             <Button Grid.Row="2"
                     ImageSource="bin_white.png"
                     Clicked="OnLostProductsClicked"

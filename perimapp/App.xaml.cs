@@ -52,6 +52,12 @@ namespace perimapp
             {
                 Console.WriteLine("[DEBUG] Aucun utilisateur trouvé localement.");
             }
+
+            // Start background data service for better performance
+            BackgroundDataService.StartPeriodicRefresh();
+            
+            // Preload data in background for faster app experience
+            _ = Task.Run(async () => await BackgroundDataService.PreloadDataAsync());
         }
 
         //Appelée quand l'application revient en avant-plan.
@@ -60,6 +66,17 @@ namespace perimapp
         {
             base.OnResume();
             AppData.CurrentUser = await _localUserService.LoadUserAsync();
+            
+            // Restart background service if needed
+            BackgroundDataService.StartPeriodicRefresh();
+        }
+
+        protected override void OnSleep()
+        {
+            base.OnSleep();
+            
+            // Stop background service to save battery
+            BackgroundDataService.StopPeriodicRefresh();
         }
     }
 }

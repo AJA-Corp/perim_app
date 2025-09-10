@@ -61,7 +61,7 @@ namespace perimapp.Services
         }
 
         /// <summary>
-        /// Ajoute un produit dans le fichier local
+        /// Ajoute un produit dans le fichier local de manière efficace
         /// </summary>
         public async Task AddProductAsync(ProductInfos product)
         {
@@ -81,12 +81,15 @@ namespace perimapp.Services
         public async Task RemoveProductAsync(string productUniqueId)
         {
             var products = await LoadProductsAsync();
-            products.RemoveAll(p => p.ProductUniqueId == productUniqueId);
-            await SaveProductsAsync(products);
+            var removed = products.RemoveAll(p => p.ProductUniqueId == productUniqueId);
+            if (removed > 0)
+            {
+                await SaveProductsAsync(products);
+            }
         }
 
         /// <summary>
-        /// Met à jour un produit existant
+        /// Met à jour un produit existant de manière efficace
         /// </summary>
         public async Task UpdateProductAsync(ProductInfos updatedProduct)
         {
@@ -97,6 +100,18 @@ namespace perimapp.Services
                 products[index] = updatedProduct;
                 await SaveProductsAsync(products);
             }
+        }
+
+        /// <summary>
+        /// Checks if local cache exists and is recent
+        /// </summary>
+        public bool HasRecentCache()
+        {
+            if (!File.Exists(_filePath))
+                return false;
+
+            var lastWrite = File.GetLastWriteTime(_filePath);
+            return DateTime.Now - lastWrite < TimeSpan.FromMinutes(10);
         }
     }
 }
