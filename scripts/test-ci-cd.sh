@@ -48,9 +48,19 @@ check_prerequisites() {
 # Validate workflow files
 validate_workflows() {
     echo "📋 Validating GitHub Actions workflows..."
-    
+
+    PYTHON_CMD=""
+
     if command -v python3 &> /dev/null; then
-        python3 -c "
+        PYTHON_CMD="python3"
+    elif command -v python &> /dev/null; then
+        PYTHON_CMD="python"
+    elif command -v py &> /dev/null; then
+        PYTHON_CMD="py"
+    fi
+    
+    if [ -n "$PYTHON_CMD" ]; then
+        $PYTHON_CMD -c "
 import yaml
 import sys
 
@@ -63,7 +73,7 @@ workflows = [
 
 for workflow in workflows:
     try:
-        with open(workflow, 'r') as f:
+        with open(workflow, 'r', encoding='utf-8') as f:
             yaml.safe_load(f)
         print(f'✅ {workflow} - Valid YAML syntax')
     except Exception as e:
