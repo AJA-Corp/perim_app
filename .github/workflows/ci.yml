@@ -26,8 +26,11 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Restore dependencies
+    - name: Restore workloads
       run: dotnet workload restore
+
+    - name: Restore dependencies
+      run: dotnet restore perimapp/perimapp.csproj
 
     - name: Build for analysis
       run: dotnet build perimapp/perimapp.csproj --no-restore --configuration Release
@@ -49,7 +52,7 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Restore dependencies
+    - name: Restore workloads
       run: dotnet workload restore
 
     - name: Security scan
