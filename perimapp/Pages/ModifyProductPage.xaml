@@ -45,7 +45,7 @@
                      </Border>
 
                      <Entry x:Name="ProductNameEntry"
-                            Text="{Binding CurrentProduct.DisplayName}" FontSize="20"
+                            FontSize="20"
                             FontAttributes="Bold"
                             TextColor="Black"
                             HorizontalOptions="Center"

@@ -34,19 +34,38 @@ namespace perimapp.Services
 
                 int homeCode = Convert.ToInt32(homeCodeResult);
 
-                string query =
-                    @"
-                    SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
-                           pu.dlc, pu.quantity, pu.added_at, cpn.custom_name
-                    FROM products_users pu
-                    JOIN products_data pd ON pu.barcode = pd.barcode
-                    LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
-                    WHERE pu.user_id = @userId;
-                ";
+                // Check if custom_product_names table exists
+                bool customNamesTableExists = await TableExistsAsync(conn, "custom_product_names");
+
+                string query;
+                if (customNamesTableExists)
+                {
+                    query = @"
+                        SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
+                               pu.dlc, pu.quantity, pu.added_at, cpn.custom_name
+                        FROM products_users pu
+                        JOIN products_data pd ON pu.barcode = pd.barcode
+                        LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
+                        WHERE pu.user_id = @userId;
+                    ";
+                }
+                else
+                {
+                    query = @"
+                        SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
+                               pu.dlc, pu.quantity, pu.added_at, NULL as custom_name
+                        FROM products_users pu
+                        JOIN products_data pd ON pu.barcode = pd.barcode
+                        WHERE pu.user_id = @userId;
+                    ";
+                }
 
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("userId", userId);
-                cmd.Parameters.AddWithValue("homeCode", homeCode);
+                if (customNamesTableExists)
+                {
+                    cmd.Parameters.AddWithValue("homeCode", homeCode);
+                }
 
                 await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -127,17 +146,34 @@ namespace perimapp.Services
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
 
-                string query =
-                    @"
-            SELECT pd.barcode, pd.name, pd.url_image, pd.category, pd.conservation, cpn.custom_name
-            FROM products_data pd
-            LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
-            WHERE pd.barcode = @barcode;
-        ";
+                // Check if custom_product_names table exists
+                bool customNamesTableExists = await TableExistsAsync(conn, "custom_product_names");
+
+                string query;
+                if (customNamesTableExists)
+                {
+                    query = @"
+                SELECT pd.barcode, pd.name, pd.url_image, pd.category, pd.conservation, cpn.custom_name
+                FROM products_data pd
+                LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
+                WHERE pd.barcode = @barcode;
+            ";
+                }
+                else
+                {
+                    query = @"
+                SELECT barcode, name, url_image, category, conservation, NULL as custom_name
+                FROM products_data
+                WHERE barcode = @barcode;
+            ";
+                }
 
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("barcode", barcode);
-                cmd.Parameters.AddWithValue("homeCode", homeCode);
+                if (customNamesTableExists)
+                {
+                    cmd.Parameters.AddWithValue("homeCode", homeCode);
+                }
 
                 await using var reader = await cmd.ExecuteReaderAsync();
                 if (await reader.ReadAsync())
@@ -263,6 +299,13 @@ namespace perimapp.Services
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
 
+                // Check if table exists first
+                if (!await TableExistsAsync(conn, "custom_product_names"))
+                {
+                    Console.WriteLine("[DEBUG] - custom_product_names table does not exist");
+                    return null;
+                }
+
                 string query = @"
                     SELECT custom_name
                     FROM custom_product_names
@@ -289,6 +332,13 @@ namespace perimapp.Services
             {
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
+
+                // Check if table exists first
+                if (!await TableExistsAsync(conn, "custom_product_names"))
+                {
+                    Console.WriteLine("[DEBUG] - custom_product_names table does not exist, skipping custom name save");
+                    return false;
+                }
 
                 // First check if a custom name already exists
                 string checkQuery = @"
@@ -333,6 +383,31 @@ namespace perimapp.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors de la définition du nom personnalisé : {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> TableExistsAsync(NpgsqlConnection conn, string tableName)
+        {
+            try
+            {
+                string query = @"
+                    SELECT EXISTS (
+                        SELECT 1 
+                        FROM information_schema.tables 
+                        WHERE table_name = @tableName
+                    );
+                ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("tableName", tableName);
+
+                object? result = await cmd.ExecuteScalarAsync();
+                return result != null && Convert.ToBoolean(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la vérification de l'existence de la table : {ex.Message}");
                 return false;
             }
         }
