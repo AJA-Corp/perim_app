@@ -71,7 +71,9 @@
                                TextColor="Black"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center" 
-                               Margin="0,5, 0, 0"/>
+                               Margin="0,5, 0, 0"
+                               LineBreakMode="TailTruncation" 
+                               MaxLines="1"/>
                         
                         <Label Text="DLC"
                                FontSize="20"
