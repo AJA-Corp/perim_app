@@ -20,17 +20,33 @@ namespace perimapp.Services
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
 
+                // First get the user's home code
+                string homeCodeQuery = "SELECT home_code FROM users WHERE id = @userId";
+                await using var homeCodeCmd = new NpgsqlCommand(homeCodeQuery, conn);
+                homeCodeCmd.Parameters.AddWithValue("userId", userId);
+                object? homeCodeResult = await homeCodeCmd.ExecuteScalarAsync();
+                
+                if (homeCodeResult == null)
+                {
+                    Console.WriteLine($"[DEBUG] - User {userId} not found");
+                    return products;
+                }
+
+                int homeCode = Convert.ToInt32(homeCodeResult);
+
                 string query =
                     @"
                     SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
-                           pu.dlc, pu.quantity, pu.added_at
+                           pu.dlc, pu.quantity, pu.added_at, cpn.custom_name
                     FROM products_users pu
                     JOIN products_data pd ON pu.barcode = pd.barcode
+                    LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
                     WHERE pu.user_id = @userId;
                 ";
 
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("userId", userId);
+                cmd.Parameters.AddWithValue("homeCode", homeCode);
 
                 await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -47,6 +63,8 @@ namespace perimapp.Services
                         Dlc = reader.GetDateTime(6),
                         Quantity = reader.GetInt32(7),
                         AddedAt = reader.GetDateTime(8),
+                        CustomName = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        HomeCode = homeCode
                     };
 
                     products.Add(product);
@@ -96,6 +114,50 @@ namespace perimapp.Services
             {
                 Console.WriteLine(
                     $"[DEBUG] - Erreur lors de la récupération du produit : {ex.Message}"
+                );
+            }
+
+            return null;
+        }
+
+        public async Task<ProductInfos?> GetProductDataWithCustomNameAsync(long barcode, int homeCode)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            SELECT pd.barcode, pd.name, pd.url_image, pd.category, pd.conservation, cpn.custom_name
+            FROM products_data pd
+            LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
+            WHERE pd.barcode = @barcode;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("barcode", barcode);
+                cmd.Parameters.AddWithValue("homeCode", homeCode);
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                if (await reader.ReadAsync())
+                {
+                    return new ProductInfos
+                    {
+                        Barcode = reader.GetInt64(0),
+                        Name = reader.GetString(1),
+                        UrlImage = reader.GetString(2),
+                        Category = reader.GetString(3),
+                        Conservation = reader.GetString(4),
+                        CustomName = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        HomeCode = homeCode
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"[DEBUG] - Erreur lors de la récupération du produit avec nom personnalisé : {ex.Message}"
                 );
             }
 
@@ -189,6 +251,88 @@ namespace perimapp.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors de la mise à jour : {ex.Message}");
+                return false;
+            }
+        }
+
+        // Custom name management methods
+        public async Task<string?> GetCustomProductNameAsync(long barcode, int homeCode)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+                    SELECT custom_name
+                    FROM custom_product_names
+                    WHERE barcode = @barcode AND home_code = @homeCode;
+                ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("barcode", barcode);
+                cmd.Parameters.AddWithValue("homeCode", homeCode);
+
+                object? result = await cmd.ExecuteScalarAsync();
+                return result?.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération du nom personnalisé : {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<bool> SetCustomProductNameAsync(long barcode, int homeCode, string customName)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                // First check if a custom name already exists
+                string checkQuery = @"
+                    SELECT COUNT(*) 
+                    FROM custom_product_names 
+                    WHERE barcode = @barcode AND home_code = @homeCode;
+                ";
+
+                await using var checkCmd = new NpgsqlCommand(checkQuery, conn);
+                checkCmd.Parameters.AddWithValue("barcode", barcode);
+                checkCmd.Parameters.AddWithValue("homeCode", homeCode);
+
+                int count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+
+                string query;
+                if (count > 0)
+                {
+                    // Update existing custom name
+                    query = @"
+                        UPDATE custom_product_names
+                        SET custom_name = @customName, last_modified = @lastModified
+                        WHERE barcode = @barcode AND home_code = @homeCode;
+                    ";
+                }
+                else
+                {
+                    // Insert new custom name
+                    query = @"
+                        INSERT INTO custom_product_names (barcode, home_code, custom_name, last_modified)
+                        VALUES (@barcode, @homeCode, @customName, @lastModified);
+                    ";
+                }
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("barcode", barcode);
+                cmd.Parameters.AddWithValue("homeCode", homeCode);
+                cmd.Parameters.AddWithValue("customName", customName);
+                cmd.Parameters.AddWithValue("lastModified", DateTime.UtcNow);
+
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la définition du nom personnalisé : {ex.Message}");
                 return false;
             }
         }

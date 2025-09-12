@@ -15,6 +15,8 @@ namespace perimapp.Pages
     public partial class ModifyProductPage : ContentPage, INotifyPropertyChanged
     {
         private readonly NeonProductService _productService;
+        private readonly LocalProductService _localProductService;
+        private string _currentCustomName = string.Empty;
 
         // Propriété bindable pour récupérer l'ID unique du produit passé en paramètre
         private string? _productUniqueId;
@@ -50,6 +52,9 @@ namespace perimapp.Pages
                     {
                         // Initialiser la quantité numérique à partir du modèle (qui est un int)
                         _currentQuantity = Math.Max(1, _currentProduct.Quantity); // UTILISE .Quantity
+                        
+                        // Initialiser le nom personnalisé actuel
+                        _currentCustomName = _currentProduct.DisplayName;
 
                         // Mettre à jour le texte de l'Entry de quantité
                         if (QuantityEntry != null)
@@ -57,6 +62,15 @@ namespace perimapp.Pages
                             QuantityEntry.Text = _currentQuantity.ToString();
                             Debug.WriteLine(
                                 $"ModifyProductPage: Initial quantity set to {_currentQuantity}"
+                            );
+                        }
+                        
+                        // Mettre à jour l'Entry du nom avec le nom d'affichage
+                        if (ProductNameEntry != null)
+                        {
+                            ProductNameEntry.Text = _currentCustomName;
+                            Debug.WriteLine(
+                                $"ModifyProductPage: Initial product name set to {_currentCustomName}"
                             );
                         }
                 
@@ -74,6 +88,7 @@ namespace perimapp.Pages
         {
             InitializeComponent();
             _productService = App.Services.GetService<NeonProductService>();
+            _localProductService = new LocalProductService();
             BindingContext = this;
         }
 
@@ -219,6 +234,15 @@ namespace perimapp.Pages
             }
         }
 
+        // Gère les changements du nom du produit
+        private void ProductNameEntry_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is Entry entry)
+            {
+                _currentCustomName = entry.Text ?? string.Empty;
+            }
+        }
+
         // Gère la validation de la quantité lorsque l'Entry perd le focus
         private async void QuantityEntry_Unfocused(object sender, FocusEventArgs e)
         {
@@ -315,7 +339,8 @@ namespace perimapp.Pages
                     QuantityEntry_Unfocused(QuantityEntry, null);
                 }
 
-                if (string.IsNullOrWhiteSpace(CurrentProduct.Name))
+                // Validate product name
+                if (string.IsNullOrWhiteSpace(_currentCustomName))
                 {
                     await DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
                     return;
@@ -332,6 +357,42 @@ namespace perimapp.Pages
                     return;
                 }
 
+                // Save custom name if it's different from original name and user has home code
+                if (CurrentProduct.HomeCode.HasValue && 
+                    !string.IsNullOrWhiteSpace(_currentCustomName) && 
+                    _currentCustomName.Trim() != CurrentProduct.Name.Trim())
+                {
+                    try
+                    {
+                        // Save custom name to remote database
+                        bool customNameSaved = await _productService.SetCustomProductNameAsync(
+                            CurrentProduct.Barcode, 
+                            CurrentProduct.HomeCode.Value, 
+                            _currentCustomName.Trim());
+
+                        // Save custom name locally for offline access
+                        await _localProductService.SaveCustomProductNameAsync(
+                            CurrentProduct.Barcode, 
+                            CurrentProduct.HomeCode.Value, 
+                            _currentCustomName.Trim());
+
+                        if (customNameSaved)
+                        {
+                            CurrentProduct.CustomName = _currentCustomName.Trim();
+                            Debug.WriteLine($"[DEBUG] Custom name saved: {CurrentProduct.CustomName}");
+                        }
+                        else
+                        {
+                            Debug.WriteLine("[DEBUG] Failed to save custom name to remote database");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[DEBUG] Error saving custom name: {ex.Message}");
+                        // Continue with product update even if custom name save fails
+                    }
+                }
+
                 bool updated = await _productService.UpdateUserProductAsync(CurrentProduct);
                 if (!updated)
                 {
@@ -346,12 +407,13 @@ namespace perimapp.Pages
                 await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
 
                 Debug.WriteLine(
-                    $"Produit {CurrentProduct.Name} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : "
+                    $"Produit {CurrentProduct.DisplayName} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : "
                 );
                 Debug.WriteLine($"  Quantité: {CurrentProduct.Quantity}"); // UTILISE .Quantity
                 Debug.WriteLine($"  DLC: {CurrentProduct.Dlc:dd/MM/yyyy}"); // UTILISE .Dlc
                 Debug.WriteLine($"  Catégorie: {CurrentProduct.Category}");
                 Debug.WriteLine($"  URL Image: {CurrentProduct.UrlImage}");
+                Debug.WriteLine($"  Nom personnalisé: {CurrentProduct.CustomName}");
 
                 //await Shell.Current.GoToAsync("..");
                 try
