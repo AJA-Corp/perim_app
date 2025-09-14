@@ -132,7 +132,7 @@
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Padding="10,0">
-                                    <Label Text="{Binding Name}"
+                                    <Label Text="{Binding DisplayName}"
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"  MaxLines="2"
