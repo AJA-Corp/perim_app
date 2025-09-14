@@ -41,7 +41,7 @@
                                 VerticalOptions="Center"/>
                      </Border>
 
-                    <Label Text="{Binding ProductDetail.Name}"
+                    <Label Text="{Binding ProductDetail.DisplayName}"
                            FontSize="20"
                            FontAttributes="Bold"
                            TextColor="Black"
