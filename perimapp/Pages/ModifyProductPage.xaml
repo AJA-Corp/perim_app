@@ -45,12 +45,13 @@
                      </Border>
 
                      <Entry x:Name="ProductNameEntry"
-                            Text="{Binding CurrentProduct.Name}" FontSize="20"
+                            FontSize="20"
                             FontAttributes="Bold"
                             TextColor="Black"
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center" Margin="0,0,0,10"
-                            Placeholder="Nom du produit"/> 
+                            Placeholder="Nom du produit"
+                            TextChanged="ProductNameEntry_TextChanged"/> 
 
                      <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
                          <Label Text="DLC: "
