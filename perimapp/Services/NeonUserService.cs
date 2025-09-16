@@ -122,7 +122,7 @@ namespace perimapp.Services
 
                 string query =
                     @"
-            SELECT id, password, totp_enabled
+            SELECT id, password, COALESCE(totp_enabled, false) as totp_enabled
             FROM users
             WHERE email = @Email;
         ";
@@ -271,7 +271,7 @@ namespace perimapp.Services
 
                 string query =
                     @"
-            SELECT id, totp_secret, totp_enabled
+            SELECT id, COALESCE(totp_secret, '') as totp_secret, COALESCE(totp_enabled, false) as totp_enabled
             FROM users
             WHERE email = @Email;
         ";
@@ -287,7 +287,7 @@ namespace perimapp.Services
                     string totpSecret = reader.GetString(1);
                     bool totpEnabled = reader.GetBoolean(2);
 
-                    if (!totpEnabled)
+                    if (!totpEnabled || string.IsNullOrEmpty(totpSecret))
                     {
                         return -1; // TOTP non activé
                     }
@@ -316,7 +316,7 @@ namespace perimapp.Services
 
                 string query =
                     @"
-            SELECT email, totp_secret, totp_enabled
+            SELECT email, COALESCE(totp_secret, '') as totp_secret, COALESCE(totp_enabled, false) as totp_enabled
             FROM users
             WHERE email = @Email;
         ";

@@ -41,6 +41,18 @@ namespace perimapp
         {
             base.OnStart();
 
+            // Test TOTP functionality (for debugging)
+#if DEBUG
+            try
+            {
+                perimapp.Testing.TotpTest.RunBasicTest();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DEBUG] TOTP Test failed: {ex.Message}");
+            }
+#endif
+
             // Charger l'utilisateur depuis le stockage local
             AppData.CurrentUser = await _localUserService.LoadUserAsync();
 
