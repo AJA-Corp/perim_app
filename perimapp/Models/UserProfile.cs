@@ -22,6 +22,12 @@ namespace perimapp.Models
         [JsonPropertyName("lost_products")]
         public string LostProducts { get; set; }
 
+        [JsonPropertyName("totp_secret")]
+        public string TotpSecret { get; set; }
+
+        [JsonPropertyName("totp_enabled")]
+        public bool TotpEnabled { get; set; }
+
         // AJOUT DE CETTE PROPRIÉTÉ
         [JsonIgnore] // Cet attribut est utile : il indique au sérialiseur JSON d'ignorer ce champ.
         public int RegisteredProductsCount { get; set; }

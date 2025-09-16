@@ -22,6 +22,8 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(SignUpPage), typeof(SignUpPage));
         Routing.RegisterRoute(nameof(StartingPage), typeof(StartingPage));
         Routing.RegisterRoute(nameof(DeletedProductPage), typeof(DeletedProductPage));
+        Routing.RegisterRoute(nameof(TotpSetupPage), typeof(TotpSetupPage));
+        Routing.RegisterRoute(nameof(TotpVerificationPage), typeof(TotpVerificationPage));
 
         CurrentItem = new ShellContent { Content = new LoadingPage() };
     }

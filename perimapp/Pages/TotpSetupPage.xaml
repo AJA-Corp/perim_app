@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="perimapp.Pages.TotpSetupPage"
+             BackgroundColor="White">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="20">
+            <!-- Titre -->
+            <Grid BackgroundColor="#58BF7F" Padding="20" CornerRadius="10">
+                <Label Text="Configuration de l'authentification à deux facteurs"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+            <!-- Instructions -->
+            <Label Text="Pour sécuriser votre compte, vous devez configurer l'authentification à deux facteurs (2FA)."
+                   FontSize="16"
+                   TextColor="Black"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,20,0,0"/>
+
+            <!-- Étapes -->
+            <VerticalStackLayout Spacing="15">
+                <Label Text="1. Téléchargez une application d'authentification :"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"/>
+                
+                <Label Text="• Google Authenticator"
+                       FontSize="14"
+                       TextColor="Gray"
+                       Margin="20,0,0,0"/>
+                
+                <Label Text="• Microsoft Authenticator"
+                       FontSize="14"
+                       TextColor="Gray"
+                       Margin="20,0,0,0"/>
+                
+                <Label Text="• Authy"
+                       FontSize="14"
+                       TextColor="Gray"
+                       Margin="20,0,0,0"/>
+
+                <Label Text="2. Scannez le QR code ci-dessous :"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       Margin="0,20,0,0"/>
+            </VerticalStackLayout>
+
+            <!-- QR Code -->
+            <Frame BackgroundColor="White"
+                   BorderColor="Gray"
+                   HasShadow="True"
+                   CornerRadius="10"
+                   Padding="20"
+                   HorizontalOptions="Center">
+                <Image x:Name="QrCodeImage"
+                       HeightRequest="200"
+                       WidthRequest="200"
+                       Aspect="AspectFit"/>
+            </Frame>
+
+            <!-- Code secret (en cas de problème avec QR) -->
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Ou saisissez manuellement ce code :"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"
+                       HorizontalOptions="Center"/>
+                
+                <Label x:Name="SecretLabel"
+                       FontSize="14"
+                       FontFamily="Courier"
+                       TextColor="Black"
+                       HorizontalOptions="Center"
+                       BackgroundColor="LightGray"
+                       Padding="10"/>
+            </VerticalStackLayout>
+
+            <!-- Validation -->
+            <VerticalStackLayout Spacing="15" Margin="0,30,0,0">
+                <Label Text="3. Entrez le code de 6 chiffres de votre application :"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="Black"/>
+                
+                <Entry x:Name="TotpCodeEntry"
+                       Placeholder="000000"
+                       Keyboard="Numeric"
+                       MaxLength="6"
+                       FontSize="18"
+                       HorizontalTextAlignment="Center"
+                       BackgroundColor="LightGray"
+                       TextColor="Black"/>
+            </VerticalStackLayout>
+
+            <!-- Boutons -->
+            <VerticalStackLayout Spacing="15" Margin="0,30,0,20">
+                <Button Text="Valider et continuer"
+                        Clicked="OnValidateClicked"
+                        BackgroundColor="#58BF7F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        CornerRadius="50"
+                        HeightRequest="50"
+                        HorizontalOptions="Center"
+                        WidthRequest="250"/>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

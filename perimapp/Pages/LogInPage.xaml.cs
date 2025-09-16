@@ -55,6 +55,11 @@ public partial class LogInPage : ContentPage
             Console.WriteLine($"[DEBUG] Navigation vers route : {nameof(MainPage)}");
             await Shell.Current.GoToAsync(nameof(MainPage));
         }
+        else if (userId == -100)
+        {
+            // Code spécial indiquant que le mot de passe est correct mais qu'il faut valider TOTP
+            await Shell.Current.GoToAsync($"{nameof(TotpVerificationPage)}?email={Uri.EscapeDataString(email)}");
+        }
         else
         {
             // Si l'ID est -1, la connexion a échoué (mauvais identifiants ou code)

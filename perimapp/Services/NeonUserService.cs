@@ -30,10 +30,15 @@ namespace perimapp.Services
 
                 user.HomeCode = uniqueCode;
 
+                // Génération du secret TOTP
+                var totpService = new TotpService();
+                user.TotpSecret = totpService.GenerateSecret();
+                user.TotpEnabled = true; // Activer TOTP par défaut pour les nouveaux utilisateurs
+
                 string insertQuery =
                     @"
-            INSERT INTO users (email, password, home_code)
-            VALUES (@Email, @Password, @HomeCode)
+            INSERT INTO users (email, password, home_code, totp_secret, totp_enabled)
+            VALUES (@Email, @Password, @HomeCode, @TotpSecret, @TotpEnabled)
             RETURNING id;
         ";
 
@@ -41,6 +46,8 @@ namespace perimapp.Services
                 cmd.Parameters.AddWithValue("Email", user.Email);
                 cmd.Parameters.AddWithValue("Password", PasswordHasher.HashPassword(user.Password));
                 cmd.Parameters.AddWithValue("HomeCode", user.HomeCode);
+                cmd.Parameters.AddWithValue("TotpSecret", user.TotpSecret);
+                cmd.Parameters.AddWithValue("TotpEnabled", user.TotpEnabled);
 
                 object? result = await cmd.ExecuteScalarAsync();
                 return result != null ? Convert.ToInt32(result) : -1;
@@ -115,7 +122,7 @@ namespace perimapp.Services
 
                 string query =
                     @"
-            SELECT id, password
+            SELECT id, password, totp_enabled
             FROM users
             WHERE email = @Email;
         ";
@@ -129,9 +136,18 @@ namespace perimapp.Services
                 {
                     int userId = reader.GetInt32(0);
                     string hashedPassword = reader.GetString(1);
+                    bool totpEnabled = reader.GetBoolean(2);
 
                     bool isPasswordValid = PasswordHasher.VerifyPassword(hashedPassword, password);
-                    return isPasswordValid ? userId : -1;
+                    
+                    if (isPasswordValid)
+                    {
+                        // Si TOTP est activé, retourner un code spécial indiquant qu'il faut valider TOTP
+                        // Nous utiliserons -100 comme code pour indiquer "password OK, TOTP required"
+                        return totpEnabled ? -100 : userId;
+                    }
+                    
+                    return -1;
                 }
 
                 Console.WriteLine("[DEBUG]: Email non trouvé ou mot de passe incorrect");
@@ -243,6 +259,89 @@ namespace perimapp.Services
             {
                 Console.WriteLine($"[UpdateUserProfileAsync] Erreur : {ex.Message}");
                 return false;
+            }
+        }
+
+        public async Task<int> AuthenticateUserWithTotpAsync(string email, string totpCode)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            SELECT id, totp_secret, totp_enabled
+            FROM users
+            WHERE email = @Email;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("Email", email);
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    int userId = reader.GetInt32(0);
+                    string totpSecret = reader.GetString(1);
+                    bool totpEnabled = reader.GetBoolean(2);
+
+                    if (!totpEnabled)
+                    {
+                        return -1; // TOTP non activé
+                    }
+
+                    var totpService = new TotpService();
+                    bool isCodeValid = totpService.ValidateCode(totpSecret, totpCode);
+                    
+                    return isCodeValid ? userId : -1;
+                }
+
+                return -1; // Utilisateur non trouvé
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la validation TOTP : {ex.Message}");
+                return -1;
+            }
+        }
+
+        public async Task<UserProfileDetails?> GetUserTotpInfoAsync(string email)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"
+            SELECT email, totp_secret, totp_enabled
+            FROM users
+            WHERE email = @Email;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("Email", email);
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    return new UserProfileDetails
+                    {
+                        Email = reader.GetString(0),
+                        TotpSecret = reader.GetString(1),
+                        TotpEnabled = reader.GetBoolean(2)
+                    };
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors de la récupération des infos TOTP : {ex.Message}");
+                return null;
             }
         }
 

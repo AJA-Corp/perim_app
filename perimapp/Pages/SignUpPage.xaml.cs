@@ -49,11 +49,8 @@ namespace perimapp.Pages
 
             if (userId > 0)
             {
-                // On remplace le stockage dans AppData et Preferences par SecureStorage
-                await SecureStorage.SetAsync("user_id", userId.ToString());
-
-                await DisplayAlert("Succès", "Inscription réussie !", "OK");
-                await Shell.Current.GoToAsync(nameof(MainPage));
+                await DisplayAlert("Succès", "Inscription réussie ! Configurez maintenant l'authentification à deux facteurs.", "OK");
+                await Shell.Current.GoToAsync($"{nameof(TotpSetupPage)}?email={Uri.EscapeDataString(email)}");
             }
             else if (userId == -2)
             {
