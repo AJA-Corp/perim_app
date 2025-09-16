@@ -13,6 +13,7 @@ public partial class AppShell : Shell
         // ENREGISTREZ TOUTES VOS ROUTES ICI
         Routing.RegisterRoute(nameof(AddProductPage), typeof(AddProductPage));
         Routing.RegisterRoute(nameof(DetailsPage), typeof(DetailsPage));
+        Routing.RegisterRoute(nameof(EmailVerificationPage), typeof(EmailVerificationPage));
         Routing.RegisterRoute(nameof(LoadingPage), typeof(LoadingPage));
         Routing.RegisterRoute(nameof(LogInPage), typeof(LogInPage));
         Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
