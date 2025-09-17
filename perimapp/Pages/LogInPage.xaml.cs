@@ -71,13 +71,12 @@ public partial class LogInPage : ContentPage
             
             if (emailSent)
             {
-                // Navigate to email verification page regardless of whether real email was sent or simulated
+                // Navigate to email verification page
                 await Shell.Current.GoToAsync($"{nameof(EmailVerificationPage)}?sessionId={sessionId}");
             }
             else
             {
-                // This should rarely happen now due to fallback to development mode
-                await DisplayAlert("Erreur", "Problème technique avec l'envoi d'email. Le mode développement devrait prendre le relais. Consultez la console pour le code de vérification.", "OK");
+                await DisplayAlert("Erreur", "Impossible d'envoyer l'email de confirmation. Vérifiez votre configuration email dans EmailConfig.cs", "OK");
             }
         }
         else

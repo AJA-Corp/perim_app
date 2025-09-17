@@ -17,61 +17,53 @@ namespace perimapp.Tests
         }
 
         [TestMethod]
-        public async Task SendLoginConfirmationEmailAsync_DevelopmentMode_ReturnsTrue()
+        public async Task SendLoginConfirmationEmailAsync_UnconfiguredEmail_ReturnsFalse()
         {
             // Arrange
             string testEmail = "test@example.com";
             string testCode = "123456";
 
-            // Act - should use development mode by default
+            // Act - should fail due to unconfigured email
             var result = await _emailService.SendLoginConfirmationEmailAsync(testEmail, testCode);
 
             // Assert
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public async Task SendLoginConfirmationEmailAsync_InvalidConfig_FallsBackToDevelopmentMode()
-        {
-            // Arrange
-            string testEmail = "test@example.com";
-            string testCode = "123456";
-            
-            // Configure with invalid credentials
-            _emailService.ConfigureEmail("invalid@email.com", "invalidpassword", EmailProvider.Gmail);
-
-            // Act - should fall back to development mode
-            var result = await _emailService.SendLoginConfirmationEmailAsync(testEmail, testCode);
-
-            // Assert
-            Assert.IsTrue(result); // Should return true due to fallback
-        }
-
-        [TestMethod]
-        public void EmailConfig_DefaultConfiguration_IsDevelopmentMode()
+        public void EmailConfig_DefaultConfiguration_IsNotConfigured()
         {
             // Arrange & Act
             var config = new EmailConfig();
 
             // Assert
-            Assert.IsTrue(config.DevelopmentMode);
-            Assert.AreEqual(EmailProvider.Development, config.Provider);
             Assert.IsFalse(config.IsConfigured);
         }
 
         [TestMethod]
-        public void EmailConfig_WithCredentials_IsConfigured()
+        public void EmailConfig_WithValidCredentials_IsConfigured()
         {
             // Arrange & Act
             var config = new EmailConfig
             {
                 SenderEmail = "test@example.com",
-                SenderPassword = "password",
-                DevelopmentMode = false
+                SenderPassword = "validpassword"
             };
 
             // Assert
             Assert.IsTrue(config.IsConfigured);
+        }
+
+        [TestMethod]
+        public void EmailConfig_WithDefaultPlaceholders_IsNotConfigured()
+        {
+            // Arrange & Act - Default placeholders should not be considered configured
+            var config = new EmailConfig();
+            config.SenderEmail = "votre-email@gmail.com";
+            config.SenderPassword = "votre-mot-de-passe-application";
+
+            // Assert
+            Assert.IsFalse(config.IsConfigured);
         }
     }
 }

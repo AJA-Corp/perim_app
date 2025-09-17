@@ -36,16 +36,7 @@ namespace perimapp.Pages
                 var session = _verificationService.GetSession(_sessionId);
                 if (session != null)
                 {
-                    // Check if we're in development mode
-                    var emailConfig = new Models.EmailConfig();
-                    if (emailConfig.DevelopmentMode)
-                    {
-                        InfoLabel.Text = $"🔧 MODE DÉVELOPPEMENT: Consultez la console pour le code de vérification. Email cible: {MaskEmail(session.Email)}";
-                    }
-                    else
-                    {
-                        InfoLabel.Text = $"Un code de vérification a été envoyé à {MaskEmail(session.Email)}.";
-                    }
+                    InfoLabel.Text = $"Un code de vérification a été envoyé à {MaskEmail(session.Email)}.";
                 }
                 
                 StartTimer();
@@ -160,21 +151,11 @@ namespace perimapp.Pages
             {
                 _sessionId = newSessionId;
                 _remainingSeconds = 300; // Reset timer
-                
-                // Check if we're in development mode for appropriate message
-                var emailConfig = new Models.EmailConfig();
-                if (emailConfig.DevelopmentMode)
-                {
-                    await DisplayAlert("Succès", "Un nouveau code a été généré. Consultez la console pour le voir.", "OK");
-                }
-                else
-                {
-                    await DisplayAlert("Succès", "Un nouveau code a été envoyé à votre email.", "OK");
-                }
+                await DisplayAlert("Succès", "Un nouveau code a été envoyé à votre email.", "OK");
             }
             else
             {
-                await DisplayAlert("Erreur", "Impossible d'envoyer l'email. Consultez la console pour le code.", "OK");
+                await DisplayAlert("Erreur", "Impossible d'envoyer l'email. Vérifiez votre configuration email.", "OK");
             }
         }
 

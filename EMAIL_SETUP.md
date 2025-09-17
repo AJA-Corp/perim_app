@@ -1,74 +1,52 @@
 # Configuration Email pour Perim'App
 
-## Mode Développement (Par défaut)
+## 📧 Configuration Simple
 
-Par défaut, l'application utilise un **mode développement** qui simule l'envoi d'emails en affichant le code de vérification dans la console. Cela permet de tester la fonctionnalité sans configuration email.
+Pour configurer l'envoi d'emails, vous devez modifier le fichier `EmailConfig.cs` dans le dossier `Models`.
 
-## Configuration pour Production
+### Étapes de Configuration
 
-Pour activer l'envoi d'emails réels, vous devez configurer un compte email SMTP.
+1. **Ouvrez le fichier** `perimapp/Models/EmailConfig.cs`
 
-### Option 1: Gmail (Recommandé pour les tests)
+2. **Remplacez les valeurs par défaut** :
+   ```csharp
+   public string SenderEmail { get; set; } = "votre-email@gmail.com"; // ← Votre adresse Gmail
+   public string SenderPassword { get; set; } = "votre-mot-de-passe-application"; // ← Votre mot de passe d'application
+   ```
 
-1. Créez un compte Gmail dédié à l'application
-2. Activez l'authentification à 2 facteurs
-3. Générez un "Mot de passe d'application" :
-   - Allez dans Paramètres Google > Sécurité > Authentification à 2 facteurs
-   - Sélectionnez "Mots de passe d'applications"
-   - Créez un nouveau mot de passe pour "Autre (nom personnalisé)"
-   - Nommez-le "PerimApp"
+3. **Pour Gmail** (recommandé) :
+   - Utilisez votre adresse Gmail complète
+   - Créez un "Mot de passe d'application" (pas votre mot de passe Gmail normal)
 
-4. Modifiez le fichier `EmailConfig.cs` ou utilisez la méthode `ConfigureEmail()` :
+### 🔑 Comment créer un Mot de Passe d'Application Gmail
 
-```csharp
-var emailService = new EmailService();
-emailService.ConfigureEmail(
-    "votre-email@gmail.com", 
-    "votre-mot-de-passe-application", 
-    EmailProvider.Gmail
-);
-```
+1. Allez dans **Paramètres Google** → **Sécurité**
+2. Activez **Authentification à 2 facteurs** (obligatoire)
+3. Dans **Authentification à 2 facteurs**, cliquez sur **Mots de passe d'applications**
+4. Sélectionnez **Autre (nom personnalisé)** et tapez "PerimApp"
+5. Copiez le mot de passe généré (16 caractères sans espaces)
+6. Utilisez ce mot de passe dans `EmailConfig.cs`
 
-### Option 2: Outlook/Hotmail
+### 📝 Exemple de Configuration
 
 ```csharp
-var emailService = new EmailService();
-emailService.ConfigureEmail(
-    "votre-email@outlook.com", 
-    "votre-mot-de-passe", 
-    EmailProvider.Outlook
-);
+public string SenderEmail { get; set; } = "monapp@gmail.com";
+public string SenderPassword { get; set; } = "abcdéfghijklmnop"; // Mot de passe d'application Gmail
 ```
 
-### Option 3: Serveur SMTP personnalisé
+### ✅ Test de la Configuration
 
-```csharp
-var emailService = new EmailService();
-// Configurez d'abord les paramètres SMTP personnalisés
-var config = new EmailConfig
-{
-    SmtpServer = "votre-serveur-smtp.com",
-    SmtpPort = 587,
-    Provider = EmailProvider.Custom
-};
-emailService.ConfigureEmail("email@votredomaine.com", "votre-mot-de-passe", EmailProvider.Custom);
-```
+1. Lancez l'application
+2. Tentez de vous connecter
+3. Si configuré correctement, vous recevrez un email avec le code de vérification
+4. Sinon, vérifiez la console pour les messages d'erreur
 
-## Test de la Configuration
+### 🔧 Dépannage
 
-Pour tester la configuration email :
+- **"Configuration email manquante"** : Vous n'avez pas remplacé les valeurs par défaut
+- **"Authentication Required"** : Vérifiez que vous utilisez un mot de passe d'application, pas votre mot de passe Gmail
+- **"SMTP Error"** : Vérifiez votre connexion internet et les informations d'identification
 
-1. Lancez l'application en mode debug
-2. Tentez une connexion
-3. Vérifiez la console pour voir si l'email est envoyé ou simulé
-4. Si configuré correctement, l'email devrait être reçu dans la boîte de réception
+### 🛡️ Sécurité
 
-## Dépannage
-
-- **Erreur "Authentication Required"** : Vérifiez que vous utilisez un mot de passe d'application pour Gmail
-- **Erreur de connexion SSL** : Vérifiez les paramètres de port et SSL
-- **Email non reçu** : Vérifiez les dossiers spam/courrier indésirable
-
-## Sécurité
-
-⚠️ **Important** : Ne jamais commiter les vraies informations d'identification dans le code source. Utilisez des variables d'environnement ou un système de configuration sécurisé en production.
+⚠️ **Important** : Ne partagez jamais votre mot de passe d'application. Si compromis, révoque-le dans les paramètres Google et créez-en un nouveau.
