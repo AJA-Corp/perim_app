@@ -48,7 +48,7 @@ Ce code expire dans 5 minutes.
 Si vous n'êtes pas à l'origine de cette connexion, veuillez ignorer ce message.
 
 Cordialement,
-L'équipe Perim'App
+L'équipe AJA Corp
 ",
                     IsBodyHtml = false
                 };
