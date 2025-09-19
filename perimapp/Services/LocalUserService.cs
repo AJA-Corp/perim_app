@@ -68,7 +68,10 @@ namespace perimapp.Services
 
         public void DeleteUser()
         {
-            throw new NotImplementedException();
+            if (File.Exists(_filePath))
+            {
+                File.Delete(_filePath);
+            }
         }
     }
 }
