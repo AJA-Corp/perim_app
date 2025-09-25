@@ -1,56 +1,62 @@
 using ZXing.Net.Maui;
+using ZXing.Net.Maui.Controls;
 
 namespace perimapp.Pages;
 
 public partial class BarcodeScannerPage : ContentPage
 {
-    public BarcodeScannerPage()
+    private readonly Action<string> _onDetected;
+    private bool _isScanning = false;
+
+    public BarcodeScannerPage(Action<string> onDetected)
     {
         InitializeComponent();
+        _onDetected = onDetected;
     }
 
-    private bool _barcodeDetected = false;
-    private bool isScanning = false;
-
-    private void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
+    private async void OnBarcodesDetected(object? sender, BarcodeDetectionEventArgs e)
     {
-        if (isScanning)
-            return; // ignore les détections suivantes
+        if (_isScanning)
+            return;
 
         var result = e.Results?.FirstOrDefault()?.Value;
         if (string.IsNullOrEmpty(result))
             return;
 
-        isScanning = true;
+        _isScanning = true;
 
+        
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             try
             {
-                // stoppe la détection
+                // 🔍 Stopper la détection pour éviter des doublons
                 cameraView.IsDetecting = false;
 
-                // mise à jour de l'UI
-                ResultLabel.Text = $"✅ Détecté : {result}";
+                // ✅ Transmettre le code-barres détecté à la page précédente
+                _onDetected?.Invoke(result);
 
-                // envoie le code-barres à la page précédente
-                MessagingCenter.Send(this, "BarcodeScanned", result);
-
-                // courte pause pour s'assurer que le message est envoyé
+                // ⏱️ Petit délai pour s’assurer que l’UI s’actualise
                 await Task.Delay(200);
 
-                // fermer la page scanner
+                // 🔙 Fermer la page scanner proprement
                 await Navigation.PopModalAsync();
             }
             catch (Exception ex)
             {
-                // log si crash
-                System.Diagnostics.Debug.WriteLine("Erreur scanner: " + ex);
-            }
-            finally
-            {
-                isScanning = false;
+                // 📛 Gestion d’erreurs pour éviter les crashs silencieux
+                await DisplayAlert("Erreur Scanner", $"Une erreur est survenue : {ex.Message}", "OK");
+                await Navigation.PopModalAsync();
             }
         });
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        // 🧹 Libération propre pour éviter les fuites mémoire
+        cameraView.IsDetecting = true;
+        _isScanning = false;
     }
 }

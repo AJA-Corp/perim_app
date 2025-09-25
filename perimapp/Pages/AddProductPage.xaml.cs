@@ -173,15 +173,14 @@ public partial class AddProductPage : ContentPage // ou Popup
 
     private async void OnScanButtonClicked(object sender, EventArgs e)
     {
-        var scanPage = new BarcodeScannerPage();
-
-        MessagingCenter.Subscribe < BarcodeScannerPage, string>(this, "BarcodeScanned", (senderPage, barcode) =>
-        
+        var scanPage = new BarcodeScannerPage(barcode =>
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 //Remplit le champ BarcodeEntry
                 BarcodeEntry.Text = barcode;
-                MessagingCenter.Unsubscribe<BarcodeScannerPage, string>(this, "BarcodeScanned");
             });
+        });
 
 
             await Navigation.PushModalAsync(scanPage);

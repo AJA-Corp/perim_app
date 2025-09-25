@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
 using perimapp.Services;
+using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls; // Scanner
 
 namespace perimapp;
