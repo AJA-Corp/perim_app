@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI"
+             xmlns:controls="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+             xmlns:maui="clr-namespace:ZXing.Net.Maui;assembly=ZXing.Net.MAUI"
+             x:Class="perimapp.Pages.BarcodeScannerPage"
+             BackgroundColor="Black">
+
+    <Grid>
+        <!-- Caméra -->
+        <controls:CameraBarcodeReaderView x:Name="cameraView"
+                                       IsDetecting="True"
+                                       BarcodesDetected="OnBarcodesDetected"
+                                       HorizontalOptions="FillAndExpand"
+                                       VerticalOptions="FillAndExpand">
+            <controls:CameraBarcodeReaderView.Options>
+                <maui:BarcodeReaderOptions
+                    Formats="Ean13,UpcA,Code128,QrCode"
+                    AutoRotate="True"
+                    TryInverted="True"/>
+            </controls:CameraBarcodeReaderView.Options>
+        </controls:CameraBarcodeReaderView>
+
+        <!-- Overlay : cadre vert -->
+        <Border Stroke="LimeGreen"
+                StrokeThickness="3"
+                StrokeShape="{RoundRectangle CornerRadius=8}"
+                WidthRequest="250"
+                HeightRequest="100"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                BackgroundColor="Transparent"/>
+
+        <!-- Label résultat -->
+        <Label x:Name="ResultLabel"
+               Text="Scannez un code-barres..."
+               FontSize="18"
+               TextColor="White"
+               BackgroundColor="#80000000"
+               Padding="10"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,20"/>
+    </Grid>
+</ContentPage>

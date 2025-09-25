@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
 using perimapp.Services;
+using ZXing.Net.Maui.Controls; // Scanner
 
 namespace perimapp;
 
@@ -13,6 +14,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseBarcodeReader() //Scanner 
             .UseMauiCommunityToolkit()
             .UseMauiCommunityToolkitCore()
             .UseLocalNotification()

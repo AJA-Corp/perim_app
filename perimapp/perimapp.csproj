@@ -54,6 +54,8 @@
     <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="Plugin.LocalNotification" Version="12.0.2" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="ZXing.Net.Maui" Version="0.5.2" />
+    <PackageReference Include="ZXing.Net.Maui.Controls" Version="0.5.2" />
   </ItemGroup>
   <ItemGroup>
     <MauiXaml Update="Pages/MainPage.xaml">
