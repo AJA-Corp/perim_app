@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using perimapp.Data;
 using perimapp.Services;
 using perimapp.Models;
-using ZXing.Net.Maui.Controls;
 
 namespace perimapp.Pages;
 
@@ -170,23 +169,7 @@ public partial class AddProductPage : ContentPage // ou Popup
             await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
         }
     }
-
-    private async void OnScanButtonClicked(object sender, EventArgs e)
-    {
-        var scanPage = new BarcodeScannerPage(barcode =>
-        {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                //Remplit le champ BarcodeEntry
-                BarcodeEntry.Text = barcode;
-            });
-        });
-
-
-            await Navigation.PushModalAsync(scanPage);
-        }
-
-
+    
         private async void BarcodeEntry_OnCompleted(object sender, EventArgs e)
     {
         if (!long.TryParse(BarcodeEntry.Text, out long barcode))
