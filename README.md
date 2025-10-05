@@ -89,8 +89,8 @@ git clone https://github.com/AJA-Corp/perim_app.git
 ## 🗺️ Roadmap
 
 - [x] Affichage de produit (localement)
-- [ ] Saisie manuelle des produits
-- [ ] Système de rappels/notifications
+- [x] Saisie manuelle des produits
+- [x] Système de rappels/notifications
 - [ ] Scanner de code-barres
 - [ ] Reconnaissance d’image (OCR des dates ?)
 - [ ] Mode "famille"
