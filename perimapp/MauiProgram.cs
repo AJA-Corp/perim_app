@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
+using perimapp.Pages; // Ajouté pour les pages
 using perimapp.Services;
 
 namespace perimapp;
@@ -25,7 +27,15 @@ public static class MauiProgram
                 fonts.AddFont("InterThin.ttf", "InterThin");
             });
 
+        // --- ENREGISTREMENT DES SERVICES ---
         builder.Services.AddSingleton<NeonProductService>();
+        // Enregistrement du service local
+        builder.Services.AddSingleton<LocalProductService>();
+
+        // --- ENREGISTREMENT DES PAGES ---
+        // Enregistrement de MainPage et DeletedProductPage pour la DI
+        builder.Services.AddSingleton<MainPage>(); 
+        builder.Services.AddTransient<DeletedProductPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

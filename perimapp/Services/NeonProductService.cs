@@ -23,7 +23,7 @@ namespace perimapp.Services
                 string query =
                     @"
                     SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
-                           pu.dlc, pu.quantity, pu.added_at
+                           pu.dlc, pu.quantity, pu.added_at, pu.state
                     FROM products_users pu
                     JOIN products_data pd ON pu.barcode = pd.barcode
                     WHERE pu.user_id = @userId;
@@ -47,6 +47,7 @@ namespace perimapp.Services
                         Dlc = reader.GetDateTime(6),
                         Quantity = reader.GetInt32(7),
                         AddedAt = reader.GetDateTime(8),
+                        State = reader.GetString(9),
                     };
 
                     products.Add(product);
