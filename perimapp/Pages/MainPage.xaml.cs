@@ -100,11 +100,10 @@ namespace perimapp.Pages
                 if (selectedProduct != null)
                 {
                     ((CollectionView)sender).SelectedItem = null;
-
-                    // Assurez-vous que DetailsPage est défini dans AppShell
-                    // await Shell.Current.GoToAsync(
-                    //     $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
-                    // );
+                    
+                     await Shell.Current.GoToAsync(
+                         $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
+                    );
                 }
             }
         }
