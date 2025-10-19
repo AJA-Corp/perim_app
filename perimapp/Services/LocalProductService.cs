@@ -96,5 +96,38 @@ namespace perimapp.Services
                 await SaveProductsAsync(products);
             }
         }
+        public async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
+        {
+            try
+            {
+                var products = await LoadProductsAsync();
+                var productToUpdate = products.FirstOrDefault(p => p.ProductUniqueId == productUniqueId);
+
+                if (productToUpdate == null)
+                {
+                    return false;
+                }
+
+                productToUpdate.State = newState;
+        
+                // Gérer le champ DeletedAt pour la cohérence
+                if (newState == "Deleted")
+                {
+                    productToUpdate.DeletedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    productToUpdate.DeletedAt = null;
+                }
+
+                await SaveProductsAsync(products);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur mise à jour état : {ex.Message}");
+                return false;
+            }
+        }
     }
 }

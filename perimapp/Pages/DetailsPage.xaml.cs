@@ -1,20 +1,27 @@
-using System.Diagnostics; // Pour Debug.WriteLine
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks; // Pour Task.Delay
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
 using perimapp.Pages; // Assurez-vous d'avoir ceci pour nameof(ModifyProductPage)
+using perimapp.Services;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace perimapp.Pages
 {
+    // MODIFICATION : Implémentation de INotifyPropertyChanged
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
-    public partial class DetailsPage : ContentPage
+    public partial class DetailsPage : ContentPage, INotifyPropertyChanged
     {
+        private readonly NeonProductService _neonService;
+        private readonly LocalProductService _localService;
+
         private string _productUniqueId;
         public string ProductUniqueId
         {
-            get => _productUniqueId;//.ToString();//
+            get => _productUniqueId;
             set
             {
                 _productUniqueId = value;
@@ -32,13 +39,21 @@ namespace perimapp.Pages
                 OnPropertyChanged();
             }
         }
-
-        public DetailsPage()
+        
+        // Constructeur avec injection des services
+        public DetailsPage(NeonProductService neonService, LocalProductService localService)
         {
             InitializeComponent();
+            _neonService = neonService;
+            _localService = localService;
             BindingContext = this;
-            // N'appelez pas ProductDetail = null; ici, car ProductUniqueId n'est pas encore set.
-            // Laissez OnAppearing gérer la récupération initiale.
+        }
+
+        // Implémentation de INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private async void LoadProductDetail()
@@ -47,8 +62,16 @@ namespace perimapp.Pages
             ProductDetail = AppData.CurrentProducts.FirstOrDefault(p =>
                 p.ProductUniqueId == _productUniqueId
             );
+            
+            // Vérification de sécurité supplémentaire : Le produit doit être "Active" pour voir les détails
+            if (ProductDetail != null && ProductDetail.State != "Active")
+            {
+                Debug.WriteLine($"DetailsPage: Tentative d'accès à un produit non actif ({ProductDetail.State}). Redirection.");
+                await DisplayAlert("Erreur", "Ce produit n'est plus actif.", "OK");
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
 
-            // S'assure que le ProductUniqueId est bien défini AVANT de tenter de charger le produit
             if (
                 !string.IsNullOrEmpty(ProductUniqueId)
                 && ProductDetail?.ProductUniqueId != ProductUniqueId
@@ -67,12 +90,23 @@ namespace perimapp.Pages
                     await DisplayAlert("Erreur", "Produit non trouvé.", "OK");
                     await Shell.Current.GoToAsync("..");
                 }
-                ;
             }
-            else
+            
+            if (ProductDetail != null)
             {
                 Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.Name}");
                 CheckImageUrlAsync(ProductDetail.UrlImage);
+            }
+            else
+            {
+                Debug.WriteLine(
+                    "DetailsPage: Aucun ProductUniqueId fourni ou produit non trouvé."
+                );
+                if (string.IsNullOrEmpty(ProductUniqueId))
+                {
+                    await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
+                    await Shell.Current.GoToAsync("..");
+                }
             }
         }
 
@@ -92,13 +126,9 @@ namespace perimapp.Pages
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"DetailsPage: Produit chargé : {ProductDetail.Name}");
-                    Debug.WriteLine(
-                        $"DetailsPage: URL de l'image (du modèle) : {ProductDetail.UrlImage}"
-                    );
-
-                    // Testez si l'URL est réellement accessible sur Internet (votre code existant)
-                    if (!string.IsNullOrEmpty(ProductDetail.UrlImage))
+                    Debug.WriteLine($"DetailsPage: Erreur de connexion/timeout lors de la vérification de l'image : {ex.Message}");
+                    
+                    if (!string.IsNullOrEmpty(ProductDetail?.UrlImage))
                     {
                         try
                         {
@@ -133,11 +163,7 @@ namespace perimapp.Pages
             }
             else
             {
-                Debug.WriteLine(
-                    "DetailsPage: Aucun ProductUniqueId fourni dans les paramètres de la requête."
-                );
-                await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
-                await Shell.Current.GoToAsync("..");
+                 Debug.WriteLine("DetailsPage: url_image est nulle ou vide.");
             }
         }
 
@@ -174,7 +200,6 @@ namespace perimapp.Pages
         {
             if (ProductDetail != null)
             {
-                // Construit la chaîne de requête avec l'ID
                 string route =
                     $"{nameof(ModifyProductPage)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
                 Debug.WriteLine($"DetailsPage: Navigating to {route}");
@@ -182,12 +207,61 @@ namespace perimapp.Pages
             }
             else
             {
-                // Gérer le cas où le ProductDetail n'est pas disponible (normalement, cela ne devrait pas arriver si OnAppearing fonctionne bien)
                 await DisplayAlert(
                     "Erreur",
                     "Impossible de modifier le produit. ID manquant.",
                     "OK"
                 );
+            }
+        }
+
+        // Bouton SUPPRIMER
+        private async void DeleteButton_Clicked(object sender, EventArgs e)
+        {
+            if (ProductDetail == null) return;
+
+            bool confirmed = await DisplayAlert(
+                "Supprimer le produit",
+                $"Êtes-vous sûr de vouloir supprimer {ProductDetail.Name}? Il sera archivé temporairement.",
+                "Oui",
+                "Non"
+            );
+
+            if (confirmed)
+            {
+                string idToPass = ProductDetail.Id.ToString();
+                
+                // 1. Mettre à jour les deux bases (cette partie est asynchrone et peut se faire hors du Main Thread)
+                bool localSuccess = await _localService.UpdateProductStateAsync(idToPass, "Deleted");
+                bool neonSuccess = await _neonService.UpdateProductStateAsync(idToPass, "Deleted");
+                
+                if (localSuccess || neonSuccess)
+                {
+                    // Encapsuler la logique d'UI et de navigation dans MainThread
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        // Mettre à jour l'objet dans la liste globale 
+                        var productInList = AppData.CurrentProducts.FirstOrDefault(p => p.Id == ProductDetail.Id);
+                        if (productInList != null)
+                        {
+                            // La modification de ces propriétés sur la liste globale déclenche 
+                            // potentiellement des événements d'UI sur la MainPage.
+                            productInList.State = "Deleted";
+                            productInList.DeletedAt = DateTime.UtcNow;
+                        }
+                        
+                        // Mettre à jour l'objet local de la page (moins critique, mais plus sûr)
+                        ProductDetail.State = "Deleted";
+                        ProductDetail.DeletedAt = DateTime.UtcNow;
+
+                        // Navigation (doit toujours se faire sur le Main Thread)
+                        await Shell.Current.GoToAsync(nameof(MainPage)); 
+                    });
+                }
+                else
+                {
+                    await DisplayAlert("Erreur", "Impossible de supprimer le produit.", "OK");
+                }
             }
         }
     }

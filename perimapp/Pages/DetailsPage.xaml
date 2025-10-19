@@ -25,6 +25,18 @@
                         VerticalOptions="FillAndExpand">
                  <VerticalStackLayout Spacing="10"
                                       HorizontalOptions="FillAndExpand">
+                     <Button ImageSource="bin_white.png" 
+                             Clicked="DeleteButton_Clicked" 
+                             BackgroundColor="Crimson"
+                             TextColor="White"
+                             CornerRadius="20"
+                             WidthRequest="60"
+                             HeightRequest="60"
+                             Margin="0,0,0,-75"
+                             Padding="10"
+                             HorizontalOptions="End"
+                             VerticalOptions="Start"/>
+                     
                      <Border WidthRequest="150"
                              HeightRequest="150"
                              HorizontalOptions="Center"
@@ -104,7 +116,7 @@
                  </VerticalStackLayout>
             </ScrollView>
 
-            <!-- Pied de page avec le bord arrondi -->
+            <!-- Footer avec le bord arrondi -->
             <Grid Grid.Row="2">
                 <Rectangle
                     Fill="{Binding ProductDetail.DaysRemaining, Converter={StaticResource dlcColorConverter}}"

@@ -36,6 +36,7 @@ public static class MauiProgram
         // Enregistrement de MainPage et DeletedProductPage pour la DI
         builder.Services.AddSingleton<MainPage>(); 
         builder.Services.AddTransient<DeletedProductPage>();
+        builder.Services.AddTransient<DetailsPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();
