@@ -11,24 +11,19 @@ namespace perimapp.Converters
         // Ajout des '?' aux paramètres pour correspondre à l'interface IValueConverter
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value is int daysRemaining)
+            if (value is not int days)
+                return Color.FromArgb("#808080");
+
+            return days switch
             {
-                if (daysRemaining < 0)
-                    return Colors.DimGray;
-                if (daysRemaining <= 1)
-                    return Colors.DarkRed;
-                if (daysRemaining <= 2)
-                    return Color.FromArgb("#F94144"); // Red
-                if (daysRemaining <= 3)
-                    return Color.FromArgb("#F8961E"); // Orange
-                if (daysRemaining <= 5)
-                    return Color.FromArgb("#F9C74F"); // Yellow
-                if (daysRemaining <= 7)
-                    return Color.FromArgb("#8CD6BF"); // Green
-                
-                return Color.FromArgb("#30C2FF");     // Blue
-            }
-            return Colors.Gray;
+                < 0 => Color.FromArgb("#696969"),
+                <= 1 => Color.FromArgb("#FF0000"),
+                <= 2 => Color.FromArgb("#F94144"),
+                <= 3 => Color.FromArgb("#F8961E"),
+                <= 5 => Color.FromArgb("#F9C74F"),
+                <= 7 => Color.FromArgb("#8CD6BF"),
+                _ => Color.FromArgb("#30C2FF")
+            };
         }
 
         // Ajout des '?' aux paramètres pour correspondre à l'interface IValueConverter

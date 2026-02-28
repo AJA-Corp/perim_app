@@ -330,7 +330,7 @@ namespace perimapp.Pages
             {
                 if (DlcPicker != null)
                 {
-                    CurrentProduct.Dlc = DlcPicker.Date;
+                    CurrentProduct.Dlc = DlcPicker.Date ?? DateTime.Now;
                     Debug.WriteLine($"[DEBUG] Synced DLC from DatePicker: {CurrentProduct.Dlc:dd/MM/yyyy}");
                 }
                 

@@ -37,7 +37,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         string format = string.IsNullOrWhiteSpace(DlcPicker.Format)
             ? "dd/MM/yyyy"
             : DlcPicker.Format;
-        string sample = DlcPicker.Date.ToString(format, CultureInfo.CurrentCulture);
+        string sample = ((DateTime)DlcPicker.Date).ToString(format, CultureInfo.CurrentCulture);
 
         double fontSize = DlcPicker.FontSize > 0 ? DlcPicker.FontSize : 18;
         var probe = new Label
@@ -147,7 +147,7 @@ public partial class AddProductPage : ContentPage // ou Popup
             product = apiProduct;
         }
 
-        product.Dlc = DlcPicker.Date;
+        product.Dlc = DlcPicker.Date ?? DateTime.Now;
         product.Quantity = _currentQuantity;
         product.AddedAt = DateTime.Now;
 

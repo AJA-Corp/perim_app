@@ -2,12 +2,14 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls;
 using perimapp.Models;
 using perimapp.PopUp;
 using perimapp.Services;
 using System.Diagnostics;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.Pages
 {

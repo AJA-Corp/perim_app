@@ -8,7 +8,7 @@
 
         <!-- En-tête vert avec le titre -->
         <Grid Padding="20">
-            <Label Text="PerimApp"
+            <Label Text="Perim'App"
                    FontSize="40"
                    FontAttributes="Bold"
                    TextColor="White"

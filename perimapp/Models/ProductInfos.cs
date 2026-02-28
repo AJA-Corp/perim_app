@@ -98,7 +98,7 @@ namespace perimapp.Models
         [Ignore] // Not stored in SQLite
         public string DisplayName => !string.IsNullOrWhiteSpace(CustomName) ? CustomName : Name;
         
-        public int DaysRemaining => (Dlc - DateTime.Today).Days;
+        public int DaysRemaining => (Dlc.Date - DateTime.Today).Days;
 
         
         public string DaysRemainingTextMainPage
