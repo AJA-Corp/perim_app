@@ -6,6 +6,8 @@ namespace perimapp.Pages;
 public partial class LogInPage : ContentPage
 {
     private readonly NeonUserService _userService = new();
+    private readonly EmailService _emailService = new();
+    private readonly LoginVerificationService _verificationService = new();
 
     public LogInPage()
     {
@@ -19,11 +21,15 @@ public partial class LogInPage : ContentPage
         string email = EmailEntry.Text?.Trim() ?? "";
         string password = PasswordEntry.Text ?? "";
         string homeCodeText = CodeFoyerEntry.Text?.Trim() ?? "";
+        string userEmail = "";
+        string loginMethod = "";
 
         // Tentative 1 : Connexion avec email et mot de passe
         if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(password))
         {
             userId = await _userService.AuthenticateUserAsync(email, password);
+            userEmail = email;
+            loginMethod = "email";
         }
         // Tentative 2 : Si email/password ne sont pas remplis, on essaie le code foyer
         else if (!string.IsNullOrWhiteSpace(homeCodeText))
@@ -32,6 +38,12 @@ public partial class LogInPage : ContentPage
             if (int.TryParse(homeCodeText, out int homeCode))
             {
                 userId = await _userService.AuthenticateByHomeCodeAsync(homeCode);
+                if (userId > 0)
+                {
+                    // Get user email for verification
+                    userEmail = await _userService.GetUserEmailAsync(userId);
+                }
+                loginMethod = "homecode";
             }
             else
             {
@@ -48,12 +60,24 @@ public partial class LogInPage : ContentPage
         }
 
         // Gérer le résultat de la connexion, quelle que soit la méthode utilisée
-        if (userId > 0)
+        if (userId > 0 && !string.IsNullOrWhiteSpace(userEmail))
         {
-            await SecureStorage.SetAsync("user_id", userId.ToString());
+            // Create verification session
+            var sessionId = await _verificationService.CreateVerificationSessionAsync(userId, userEmail, loginMethod);
+            var session = _verificationService.GetSession(sessionId);
             
-            Console.WriteLine($"[DEBUG] Navigation vers route : {nameof(MainPage)}");
-            await Shell.Current.GoToAsync(nameof(MainPage));
+            // Send confirmation email
+            var emailSent = await _emailService.SendLoginConfirmationEmailAsync(userEmail, session.VerificationCode);
+            
+            if (emailSent)
+            {
+                // Navigate to email verification page
+                await Shell.Current.GoToAsync($"{nameof(EmailVerificationPage)}?sessionId={sessionId}");
+            }
+            else
+            {
+                await DisplayAlert("Erreur", "Impossible d'envoyer l'email de confirmation. Vérifiez votre configuration email dans EmailConfig.cs", "OK");
+            }
         }
         else
         {

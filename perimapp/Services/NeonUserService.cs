@@ -155,6 +155,7 @@ namespace perimapp.Services
             SELECT
                 first_name,
                 last_name,
+                email,
                 home_code
             FROM
                 users
@@ -173,6 +174,7 @@ namespace perimapp.Services
                     {
                         FirstName = reader.GetString(reader.GetOrdinal("first_name")),
                         LastName = reader.GetString(reader.GetOrdinal("last_name")),
+                        Email = reader.GetString(reader.GetOrdinal("email")),
                         HomeCode = reader.GetInt32(reader.GetOrdinal("home_code")),
                         RegisteredProductsCount = 0 // Laisser à 0 ici, nous l'obtiendrons séparément
                     };
@@ -243,6 +245,33 @@ namespace perimapp.Services
             {
                 Console.WriteLine($"[UpdateUserProfileAsync] Erreur : {ex.Message}");
                 return false;
+            }
+        }
+
+        // Get user email by user ID
+        public async Task<string> GetUserEmailAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+            SELECT email
+            FROM users
+            WHERE id = @UserId;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                object? result = await cmd.ExecuteScalarAsync();
+                return result?.ToString() ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetUserEmailAsync] Erreur : {ex.Message}");
+                return string.Empty;
             }
         }
 
