@@ -92,8 +92,9 @@
                 
                 <CollectionView ItemsSource="{Binding Products}"
                                 SelectionMode="Single"
-                                SelectionChanged="OnProductSelectionChanged">
-                <CollectionView.ItemTemplate>
+                                SelectionChanged="OnProductSelectionChanged"
+                                Scrolled="OnCollectionViewScrolled">
+                    <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
                                 Stroke="DarkGray"
@@ -168,7 +169,8 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
                 </RefreshView>
-            <Button Grid.Row="2"
+            <Button x:Name="FloatingBinButton"
+                    Grid.Row="2"
                     ImageSource="bin_white.png"
                     Clicked="OnLostProductsClicked"
                     BackgroundColor="#58BF7F"

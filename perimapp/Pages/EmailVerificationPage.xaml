@@ -6,9 +6,8 @@
 
     <VerticalStackLayout Spacing="20" VerticalOptions="CenterAndExpand">
 
-        <!-- En-tête vert avec le titre -->
         <Grid Padding="20">
-            <Label Text="PerimApp"
+            <Label Text="Perim'App"
                    FontSize="40"
                    FontAttributes="Bold"
                    TextColor="White"
@@ -16,7 +15,6 @@
                    VerticalOptions="Center"/>
         </Grid>
 
-        <!-- Sous-titre -->
         <Label Text="Vérification email"
                FontSize="24"
                FontAttributes="Bold"
@@ -24,7 +22,6 @@
                HorizontalOptions="Center"
                Margin="0,20,0,0"/>
 
-        <!-- Message d'information -->
         <Label x:Name="InfoLabel"
                Text="Un code de vérification a été envoyé à votre adresse email."
                FontSize="16"
@@ -33,10 +30,8 @@
                HorizontalTextAlignment="Center"
                Margin="20,0,20,20"/>
 
-        <!-- Champs de vérification -->
         <VerticalStackLayout Padding="20, 20, 20, 20" Spacing="20" VerticalOptions="CenterAndExpand">
 
-            <!-- Code de vérification -->
             <Grid>
                 <Entry Placeholder="Code de vérification (6 chiffres)"
                        TextColor="White"
@@ -52,7 +47,6 @@
                          VerticalOptions="End"/>
             </Grid>
 
-            <!-- Timer -->
             <Label x:Name="TimerLabel"
                    Text="Code expire dans : 5:00"
                    FontSize="14"
@@ -61,7 +55,6 @@
 
         </VerticalStackLayout>
 
-        <!-- Boutons -->
         <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
             <Button Text="Vérifier"
                     Clicked="OnVerifyClicked"

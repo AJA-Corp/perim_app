@@ -271,5 +271,29 @@ namespace perimapp.Pages
                 Products.Add(product);
             }
         }
+
+        private double _lastScrollY = 0;
+        private bool _isButtonVisible = true;
+
+        private async void OnCollectionViewScrolled(object sender, ItemsViewScrolledEventArgs e)
+        {
+            double currentY = e.VerticalOffset;
+            double delta = currentY - _lastScrollY;
+
+            if (Math.Abs(delta) < 5) return;
+
+            if (delta > 0 && _isButtonVisible)
+            {
+                _isButtonVisible = false;
+                await FloatingBinButton.TranslateToAsync(0, 100, 250, Easing.CubicIn);
+            }
+            else if (delta < 0 && !_isButtonVisible)
+            {
+                _isButtonVisible = true;
+                await FloatingBinButton.TranslateToAsync(0, 0, 250, Easing.CubicOut);
+            }
+
+            _lastScrollY = currentY;
+        }
     }
 }

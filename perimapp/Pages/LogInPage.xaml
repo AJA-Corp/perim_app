@@ -6,7 +6,6 @@
 
     <VerticalStackLayout Spacing="20" VerticalOptions="CenterAndExpand">
 
-        <!-- En-tête vert avec le titre -->
         <Grid Padding="20">
             <Label Text="Perim'App"
                    FontSize="40"
@@ -16,7 +15,6 @@
                    VerticalOptions="Center"/>
         </Grid>
 
-        <!-- Sous-titre -->
         <Label Text="Se connecter"
                FontSize="24"
                FontAttributes="Bold"
@@ -24,10 +22,8 @@
                HorizontalOptions="Center"
                Margin="0,20,0,0"/>
 
-        <!-- Champs de connexion -->
         <VerticalStackLayout Padding="20, 20, 20, 20" Spacing="20" VerticalOptions="CenterAndExpand">
 
-            <!-- Email -->
             <Grid>
                 <Entry Placeholder="Adresse mail"
                        TextColor="White"
@@ -41,7 +37,6 @@
                          VerticalOptions="End"/>
             </Grid>
 
-            <!-- Mot de passe -->
             <Grid>
                 <Entry Placeholder="Mot de passe"
                        IsPassword="True"
@@ -63,7 +58,6 @@
                    HorizontalOptions="Center"
                    Margin="0,0,0,0"/>
 
-            <!-- Code foyer -->
             <Grid>
                 <Entry Placeholder="Code foyer ?"
                        TextColor="White"
@@ -79,7 +73,6 @@
             </Grid>
         </VerticalStackLayout>
 
-        <!-- Boutons -->
         <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
             <Button Text="Suivant"
                     Clicked="OnNextLogInClicked"

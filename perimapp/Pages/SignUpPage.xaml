@@ -5,10 +5,9 @@
              x:Class="perimapp.Pages.SignUpPage"
              BackgroundColor="White">
 
-        <VerticalStackLayout Spacing="20" VerticalOptions="FillAndExpand">
-            <!-- Titre plein écran sur fond vert -->
-            <Grid BackgroundColor="#58BF7F" Padding="20,20,20,20" VerticalOptions="StartAndExpand">
-                <Label Text="PerimApp"
+    <VerticalStackLayout Spacing="20" VerticalOptions="FillAndExpand">
+        <Grid BackgroundColor="#58BF7F" Padding="20,20,20,20" VerticalOptions="StartAndExpand">
+                <Label Text="Perim'App"
                        FontSize="40"
                        FontAttributes="Bold"
                        TextColor="White"
@@ -16,7 +15,6 @@
                        VerticalOptions="Center"/>
             </Grid>
 
-            <!-- Sous-titre -->
             <Label Text="Inscription"
                    FontSize="24"
                    FontAttributes="Bold"
@@ -24,8 +22,6 @@
                    HorizontalOptions="Center"
                    Margin="0,20,0,20"/>
 
-                
-                <!-- Code foyer -->
                 <Grid>
                     <Button Text="Avez-vous un code foyer ?"
                             Clicked="HomeCodeButton"
@@ -37,10 +33,8 @@
                             x:Name="CodeFoyerButton" />
                 </Grid>
 
-            <!-- Entrées personnalisées -->
-            <VerticalStackLayout Padding="20" Spacing="25" VerticalOptions="CenterAndExpand">
-                <!-- Email -->
-                <Grid>
+        <VerticalStackLayout Padding="20" Spacing="25" VerticalOptions="CenterAndExpand">
+            <Grid>
                     <Entry Placeholder="Email"
                            TextColor="Black"
                            PlaceholderColor="Gray"
@@ -53,7 +47,6 @@
                              VerticalOptions="End"/>
                 </Grid>
 
-                <!-- Mot de passe -->
                 <Grid>
                     <Entry Placeholder="Mot de passe"
                            IsPassword="True"
@@ -68,7 +61,6 @@
                              VerticalOptions="End"/>
                 </Grid>
 
-                <!-- Confirmer mot de passe -->
                 <Grid>
                     <Entry Placeholder="Confirmer mot de passe"
                            IsPassword="True"
@@ -84,7 +76,6 @@
                 </Grid>
             </VerticalStackLayout>
 
-            <!-- Boutons -->
             <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
                 <Button Text="Suivant"
                         Clicked="OnNextSignUpClicked"
