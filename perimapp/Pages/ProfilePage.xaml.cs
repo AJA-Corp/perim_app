@@ -176,7 +176,8 @@ namespace perimapp.Pages
 
             // 2. Nettoyer l'état de l'utilisateur (supprimer les informations de session) et supprime ID de lutilisateur et le profile en local 
             SecureStorage.Remove("user_id");
-            _localUserService.DeleteUser();
+            //_localUserService.DeleteUser();
+            _localUserService.ClearUser();
             Debug.WriteLine("Déconnexion de l'utilisateur. Suppression de l'ID utilisateur.");
 
             // 3. Rediriger l'utilisateur vers la page de connexion
