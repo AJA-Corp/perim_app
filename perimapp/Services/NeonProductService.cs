@@ -255,5 +255,58 @@ namespace perimapp.Services
                 return false;
             }
         }
+
+        public async Task<bool> DeleteAllDeletedProductsAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query =
+                    @"DELETE FROM products_users
+              WHERE user_id = @userId
+              AND state = 'Deleted';";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("userId", userId);
+
+                return await cmd.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur suppression définitive : {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Supprime définitivement de la base de données distante les produits de l'utilisateur qui sont marqués comme supprimés.
+        /// </summary>
+        public async Task<bool> EmptyTrashOnlineAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                // On supprime physiquement les produits qui ont l'état 'Deleted' ou 'HardDeleted' pour cet utilisateur
+                string query = @"
+            DELETE FROM products_users 
+            WHERE user_id = @userId AND (state = 'Deleted' OR state = 'HardDeleted');
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("userId", userId);
+
+                await cmd.ExecuteNonQueryAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[NeonProductService] Erreur lors de la suppression définitive : {ex.Message}");
+                return false;
+            }
+        }
     }
 }

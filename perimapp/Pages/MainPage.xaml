@@ -89,7 +89,7 @@
                             SelectionMode="Single"
                             SelectionChanged="OnProductSelectionChanged">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="localModels:ProductInfos"> 
+                    <DataTemplate x:DataType="localModels:ProductInfos">
                         <Border Padding="0"
                                 Stroke="DarkGray"
                                 StrokeThickness="0.1"
@@ -97,7 +97,7 @@
                             <Border.Shadow>
                                 <Shadow Brush="LightGray" Offset="0,0" Radius="5" Opacity="0.5" />
                             </Border.Shadow>
-                            
+
                             <Grid HeightRequest="100">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>

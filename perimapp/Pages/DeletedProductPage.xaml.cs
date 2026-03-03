@@ -1,25 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace perimapp.Pages;
-
-public partial class DeletedProductPage : ContentPage
-{
-    public DeletedProductPage()
-    {
-        InitializeComponent();
-    }
-}
-
-//j'ai commencer à faire regarde si ca peut t'aider 
-
-/*
 using perimapp.Models;
 using perimapp.Services;
 using Microsoft.Maui.Controls;
+using System.Collections.ObjectModel;
 
 namespace perimapp.Pages
 {
@@ -42,7 +24,7 @@ namespace perimapp.Pages
             var products = await _localProductService.LoadProductsAsync();
             Products.Clear();
 
-            foreach (var product in products)
+            foreach (var product in products.Where(p => p.State == "Deleted"))
             {
                 Products.Add(product);
             }
@@ -50,24 +32,42 @@ namespace perimapp.Pages
 
         private async void OnDeleteClicked(object sender, EventArgs e)
         {
-            if (sender is Button button && button.BindingContext is ProductInfos product)
+            bool confirm = await DisplayAlert(
+                "Confirmation",
+                "Voulez-vous supprimer tous les produits de la corbeille ?",
+                "Oui",
+                "Non"
+            );
+
+            if (confirm)
+            {
+                await _localProductService.DeleteAllDeletedProductsAsync();
+
+                Products.Clear();
+            }
+        }
+
+        private async void OnRestoreClicked(object sender, EventArgs e)
+        {
+            if (sender is ImageButton imageButton && imageButton.BindingContext is ProductInfos product)
             {
                 bool confirm = await DisplayAlert(
                     "Confirmation",
-                    $"Voulez-vous supprimer {product.Name} ?",
+                    $"Voulez-vous restaurer {product.Name} ?",
                     "Oui",
                     "Non"
                 );
 
                 if (confirm)
                 {
-                    // On passe directement la string ProductUniqueId
-                    await _localProductService.RemoveProductAsync(product.ProductUniqueId);
+                    bool success = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
-                    // Mise à jour de la liste visible
-                    Products.Remove(product);
+                    if (success)
+                    {
+                        Products.Remove(product);
+                    }
                 }
             }
         }
     }
-}*/
+}

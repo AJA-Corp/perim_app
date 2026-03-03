@@ -15,7 +15,7 @@
     <ContentPage.Content>
         <Grid RowDefinitions="Auto, *, Auto">
             <!-- Header -->
-            <headers:SharedHeader Grid.Row="0" HeaderText="Perim'APP">
+            <headers:SharedHeader Grid.Row="0" HeaderText="Perim'App">
             </headers:SharedHeader>
 
             <!-- Contenu principal -->

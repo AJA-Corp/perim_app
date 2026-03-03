@@ -170,8 +170,6 @@ public partial class AddProductPage : ContentPage // ou Popup
         }
     }
 
-
-
     private async void BarcodeEntry_OnCompleted(object sender, EventArgs e)
     {
         if (!long.TryParse(BarcodeEntry.Text, out long barcode))
