@@ -2,18 +2,21 @@ using perimapp.Models;
 using perimapp.Services;
 using Microsoft.Maui.Controls;
 using System.Collections.ObjectModel;
+using Microsoft.Maui.Networking;
 
 namespace perimapp.Pages
 {
     public partial class DeletedProductPage : ContentPage
     {
         private readonly LocalProductService _localProductService;
+        private readonly NeonProductService _neonProductService;
         public ObservableCollection<ProductInfos> Products { get; set; }
 
-        public DeletedProductPage()
+        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService)
         {
             InitializeComponent();
-            _localProductService = new LocalProductService();
+            _neonProductService = neonProductService;
+            _localProductService = localProductService;
             Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
         }
@@ -32,16 +35,28 @@ namespace perimapp.Pages
 
         private async void OnDeleteClicked(object sender, EventArgs e)
         {
-            bool confirm = await DisplayAlert(
+            bool confirm = await DisplayAlertAsync(
                 "Confirmation",
-                "Voulez-vous supprimer tous les produits de la corbeille ?",
+                "Voulez-vous supprimer définitivement tous les produits de la corbeille ?",
                 "Oui",
                 "Non"
             );
 
             if (confirm)
             {
+                // Suppression locale
                 await _localProductService.DeleteAllDeletedProductsAsync();
+
+                // Synchronisation avec le serveur si connecté
+                bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+                if (hasInternet)
+                {
+                    string? userIdString = await SecureStorage.GetAsync("user_id");
+                    if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                    {
+                        await _neonProductService.EmptyTrashOnlineAsync(userId);
+                    }
+                }
 
                 Products.Clear();
             }
@@ -51,20 +66,34 @@ namespace perimapp.Pages
         {
             if (sender is ImageButton imageButton && imageButton.BindingContext is ProductInfos product)
             {
-                bool confirm = await DisplayAlert(
+                bool confirm = await DisplayAlertAsync(
                     "Confirmation",
-                    $"Voulez-vous restaurer {product.Name} ?",
+                    $"Voulez-vous restaurer {product.DisplayName} ?",
                     "Oui",
                     "Non"
                 );
 
                 if (confirm)
                 {
-                    bool success = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
+                    // Mise à jour locale (State = "Active", DeletedAt = null)
+                    bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
-                    if (success)
+                    if (localSuccess)
                     {
+                        // Synchronisation avec le serveur si connecté
+                        bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+                        if (hasInternet)
+                        {
+                            // Utilise product.Id (l'ID entier de la DB) pour la mise à jour serveur
+                            await _neonProductService.UpdateProductStateAsync(product.Id.ToString(), "Active");
+                        }
+
+                        // Retire le produit de la liste affichée
                         Products.Remove(product);
+                    }
+                    else
+                    {
+                        await DisplayAlertAsync("Erreur", "Impossible de restaurer le produit.", "OK");
                     }
                 }
             }

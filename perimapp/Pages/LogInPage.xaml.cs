@@ -48,14 +48,14 @@ public partial class LogInPage : ContentPage
             else
             {
                 // Le texte du code foyer n'est pas un nombre
-                await DisplayAlert("Erreur", "Le code foyer est invalide. Veuillez entrer un nombre.", "OK");
+                await DisplayAlertAsync("Erreur", "Le code foyer est invalide. Veuillez entrer un nombre.", "OK");
                 return;
             }
         }
         else
         {
             // Aucun champ de connexion n'est rempli
-            await DisplayAlert("Erreur", "Email ou mot de passe incorrect.", "OK");
+            await DisplayAlertAsync("Erreur", "Email ou mot de passe incorrect.", "OK");
             return;
         }
 
@@ -76,13 +76,13 @@ public partial class LogInPage : ContentPage
             }
             else
             {
-                await DisplayAlert("Erreur", "Impossible d'envoyer l'email de confirmation. Vérifiez votre configuration email dans EmailConfig.cs", "OK");
+                await DisplayAlertAsync("Erreur", "Impossible d'envoyer l'email de confirmation. Vérifiez votre configuration email dans EmailConfig.cs", "OK");
             }
         }
         else
         {
             // Si l'ID est -1, la connexion a échoué (mauvais identifiants ou code)
-            await DisplayAlert("Erreur", "Identifiants ou code foyer incorrect.", "OK");
+            await DisplayAlertAsync("Erreur", "Identifiants ou code foyer incorrect.", "OK");
         }
     }
 

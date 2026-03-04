@@ -115,7 +115,7 @@ namespace perimapp.Pages
                     Debug.WriteLine(
                         "ModifyProductPage: Produit non trouvé avec ProductUniqueId : " + uniqueId
                     );
-                    await DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
+                    await DisplayAlertAsync("Erreur", "Produit à modifier non trouvé.", "OK");
                     //await Shell.Current.GoToAsync("..");
                     await Shell.Current.GoToAsync(nameof(MainPage));
                 }
@@ -125,7 +125,7 @@ namespace perimapp.Pages
                 Debug.WriteLine(
                     "ModifyProductPage: Aucun ProductUniqueId fourni pour la modification."
                 );
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur",
                     "Impossible de modifier. Aucun ID de produit fourni.",
                     "OK"
@@ -212,7 +212,7 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur de format",
                     "Veuillez entrer la date au format JJ/MM/AAAA. (Ex: 01/01/2025)",
                     "OK"
@@ -263,7 +263,7 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Saisie invalide",
                     "Veuillez entrer une quantité numérique valide (minimum 1).",
                     "OK"
@@ -342,14 +342,14 @@ namespace perimapp.Pages
                 // Validate product name
                 if (string.IsNullOrWhiteSpace(_currentCustomName))
                 {
-                    await DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
+                    await DisplayAlertAsync("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
                     return;
                 }
 
                 // Vérifie la quantité directement sur le modèle
                 if (CurrentProduct.Quantity < 1) // UTILISE .Quantity
                 {
-                    await DisplayAlert(
+                    await DisplayAlertAsync(
                         "Erreur",
                         "La quantité doit être supérieure ou égale à 1.",
                         "OK"
@@ -396,7 +396,7 @@ namespace perimapp.Pages
                 bool updated = await _productService.UpdateUserProductAsync(CurrentProduct);
                 if (!updated)
                 {
-                    await DisplayAlert(
+                    await DisplayAlertAsync(
                         "Erreur",
                         "Impossible de sauvegarder le produit en base.",
                         "OK"
@@ -404,7 +404,7 @@ namespace perimapp.Pages
                     return;
                 }
 
-                await DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
+                await DisplayAlertAsync("Succès", "Produit modifié avec succès !", "OK");
 
                 Debug.WriteLine(
                     $"Produit {CurrentProduct.DisplayName} ({CurrentProduct.ProductUniqueId}) sauvegardé avec : "
@@ -430,7 +430,7 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert("Erreur", "Aucun produit à sauvegarder.", "OK");
+                await DisplayAlertAsync("Erreur", "Aucun produit à sauvegarder.", "OK");
             }
         }
 

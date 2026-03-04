@@ -105,8 +105,6 @@ namespace perimapp.Pages
             
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
-            
-
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -190,14 +188,15 @@ namespace perimapp.Pages
                         AppData.CurrentProducts.Add(product);
 
                     DisplayedProductsCount = AppData.CurrentProducts.Count;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
-                }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlertAsync("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
             }
         }
+        
         
         private async Task OnRefresh()
         {
@@ -209,7 +208,7 @@ namespace perimapp.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
+                await DisplayAlertAsync("Erreur", "Impossible d'actualiser les produits.", "OK");
             }
             finally
             {    
@@ -236,7 +235,8 @@ namespace perimapp.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                await DisplayAlertAsync("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                return new List<ProductInfos>(); // Retourne une liste vide en cas d'erreur
             }
         }
         

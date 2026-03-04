@@ -118,14 +118,14 @@ public partial class AddProductPage : ContentPage // ou Popup
 
         if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
         {
-            await DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+            await DisplayAlertAsync("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
             await Shell.Current.GoToAsync(nameof(StartingPage));
             return;
         }
 
         if (!long.TryParse(BarcodeEntry.Text, out long barcode))
         {
-            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            await DisplayAlertAsync("Erreur", "Code-barres invalide.", "OK");
             return;
         }
 
@@ -139,7 +139,7 @@ public partial class AddProductPage : ContentPage // ou Popup
 
             if (apiProduct == null)
             {
-                await DisplayAlert("Erreur", "Produit introuvable dans la base et API.", "OK");
+                await DisplayAlertAsync("Erreur", "Produit introuvable dans la base et API.", "OK");
                 return;
             }
 
@@ -161,12 +161,12 @@ public partial class AddProductPage : ContentPage // ou Popup
 
         if (ok)
         {
-            await DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
+            await DisplayAlertAsync("Succès", "Produit ajouté avec succès.", "OK");
             await Shell.Current.GoToAsync(nameof(MainPage));
         }
         else
         {
-            await DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
+            await DisplayAlertAsync("Erreur", "Impossible d'ajouter le produit.", "OK");
         }
     }
 
@@ -174,7 +174,7 @@ public partial class AddProductPage : ContentPage // ou Popup
     {
         if (!long.TryParse(BarcodeEntry.Text, out long barcode))
         {
-            await DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+            await DisplayAlertAsync("Erreur", "Code-barres invalide.", "OK");
             return;
         }
 
@@ -182,7 +182,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         string userIdString = await SecureStorage.GetAsync("user_id");
         if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
         {
-            await DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+            await DisplayAlertAsync("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
             await Shell.Current.GoToAsync(nameof(StartingPage));
             return;
         }
@@ -212,7 +212,7 @@ public partial class AddProductPage : ContentPage // ou Popup
 
             if (product == null)
             {
-                bool reponse = await DisplayAlert(
+                bool reponse = await DisplayAlertAsync(
                     "Erreur",
                     "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
                     "Oui",

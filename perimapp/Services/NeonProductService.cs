@@ -82,7 +82,7 @@ namespace perimapp.Services
 
                 while (await reader.ReadAsync())
                 {
-                    // LECTURE SÉCURISÉE JUSQU'À L'INDEX 9 (state)
+                    // LECTURE SÉCURISÉE JUSQU'À L'INDEX 10 (custom_name)
                     var product = new ProductInfos
                     {
                         Id = reader.GetInt32(0),
@@ -95,12 +95,12 @@ namespace perimapp.Services
                         Quantity = reader.GetInt32(7),
                         AddedAt = reader.GetDateTime(8),
                         State = reader.GetString(9), 
-                        
+
                         // ProductUniqueId et DeletedAt ne sont pas lus ici car non confirmés par la DB
-                        CustomName = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        CustomName = reader.IsDBNull(10) ? null : reader.GetString(10),
                         // HomeCode = homeCode
                     };
-                    
+
                     products.Add(product);
                 }
 

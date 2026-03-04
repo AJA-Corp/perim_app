@@ -67,7 +67,7 @@ namespace perimapp.Pages
             if (ProductDetail != null && ProductDetail.State != "Active")
             {
                 Debug.WriteLine($"DetailsPage: Tentative d'accès à un produit non actif ({ProductDetail.State}). Redirection.");
-                await DisplayAlert("Erreur", "Ce produit n'est plus actif.", "OK");
+                await DisplayAlertAsync("Erreur", "Ce produit n'est plus actif.", "OK");
                 await Shell.Current.GoToAsync("..");
                 return;
             }
@@ -87,7 +87,7 @@ namespace perimapp.Pages
                     Debug.WriteLine(
                         "DetailsPage: Produit non trouvé avec ProductUniqueId : " + ProductUniqueId
                     );
-                    await DisplayAlert("Erreur", "Produit non trouvé.", "OK");
+                    await DisplayAlertAsync("Erreur", "Produit non trouvé.", "OK");
                     await Shell.Current.GoToAsync("..");
                 }
             }
@@ -104,7 +104,7 @@ namespace perimapp.Pages
                 );
                 if (string.IsNullOrEmpty(ProductUniqueId))
                 {
-                    await DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
+                    await DisplayAlertAsync("Erreur", "Aucun ID de produit fourni.", "OK");
                     await Shell.Current.GoToAsync("..");
                 }
             }
@@ -183,7 +183,7 @@ namespace perimapp.Pages
                     Debug.WriteLine(
                         $"DetailsPage: Erreur lors de l'ouverture de l'URL de l'image : {ex.Message}"
                     );
-                    await DisplayAlert(
+                    await DisplayAlertAsync(
                         "Erreur",
                         "Impossible d'ouvrir l'image dans le navigateur.",
                         "OK"
@@ -192,7 +192,7 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert("Info", "Pas d'image à afficher ou URL manquante.", "OK");
+                await DisplayAlertAsync("Info", "Pas d'image à afficher ou URL manquante.", "OK");
             }
         }
 
@@ -207,7 +207,7 @@ namespace perimapp.Pages
             }
             else
             {
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur",
                     "Impossible de modifier le produit. ID manquant.",
                     "OK"
@@ -220,7 +220,7 @@ namespace perimapp.Pages
         {
             if (ProductDetail == null) return;
 
-            bool confirmed = await DisplayAlert(
+            bool confirmed = await DisplayAlertAsync(
                 "Supprimer le produit",
                 $"Êtes-vous sûr de vouloir supprimer {ProductDetail.Name}? Il sera archivé temporairement.",
                 "Oui",
@@ -260,7 +260,7 @@ namespace perimapp.Pages
                 }
                 else
                 {
-                    await DisplayAlert("Erreur", "Impossible de supprimer le produit.", "OK");
+                    await DisplayAlertAsync("Erreur", "Impossible de supprimer le produit.", "OK");
                 }
             }
         }

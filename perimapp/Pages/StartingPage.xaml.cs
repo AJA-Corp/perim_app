@@ -23,7 +23,7 @@ namespace perimapp.Pages
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur",
                     "Une erreur est survenue lors de la navigation.",
                     "OK"
@@ -40,7 +40,7 @@ namespace perimapp.Pages
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur",
                     "Une erreur est survenue lors de la navigation.",
                     "OK"
