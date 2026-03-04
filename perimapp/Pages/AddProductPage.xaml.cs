@@ -37,7 +37,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         string format = string.IsNullOrWhiteSpace(DlcPicker.Format)
             ? "dd/MM/yyyy"
             : DlcPicker.Format;
-        string sample = DlcPicker.Date.ToString(format, CultureInfo.CurrentCulture);
+        string sample = ((DateTime)DlcPicker.Date).ToString(format, CultureInfo.CurrentCulture);
 
         double fontSize = DlcPicker.FontSize > 0 ? DlcPicker.FontSize : 18;
         var probe = new Label
@@ -147,7 +147,7 @@ public partial class AddProductPage : ContentPage // ou Popup
             product = apiProduct;
         }
 
-        product.Dlc = DlcPicker.Date;
+        product.Dlc = DlcPicker.Date ?? DateTime.Now;
         product.Quantity = _currentQuantity;
         product.AddedAt = DateTime.Now;
 
@@ -178,8 +178,32 @@ public partial class AddProductPage : ContentPage // ou Popup
             return;
         }
 
+        // Get user's home code for custom name lookup
+        string userIdString = await SecureStorage.GetAsync("user_id");
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+        {
+            await DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+            await Shell.Current.GoToAsync(nameof(StartingPage));
+            return;
+        }
+
+        var userService = new NeonUserService();
+        var user = await userService.GetUserProfileAsync(userId);
+        
         var service = new NeonProductService();
-        var product = await service.GetProductDataAsync(barcode);
+        ProductInfos? product = null;
+
+        // Try to get product with custom name if user has home code
+        if (user?.HomeCode != null)
+        {
+            product = await service.GetProductDataWithCustomNameAsync(barcode, user.HomeCode);
+        }
+        
+        // Fallback to regular product data if no custom name version found
+        if (product == null)
+        {
+            product = await service.GetProductDataAsync(barcode);
+        }
 
         if (product == null)
         {
@@ -218,7 +242,8 @@ public partial class AddProductPage : ContentPage // ou Popup
             }
         }
 
-        ProductName.Text = product.Name;
+        // Display the appropriate name (custom name if available, otherwise original name)
+        ProductName.Text = product.DisplayName;
         ProductImage.Source = product.UrlImage;
     }
 }

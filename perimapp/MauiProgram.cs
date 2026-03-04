@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
 using perimapp.Pages; // Ajouté pour les pages
 using perimapp.Services;
+using DotNet.Meteor.HotReload.Plugin;
 
 namespace perimapp;
 
@@ -40,6 +41,7 @@ public static class MauiProgram
 
 #if DEBUG
         builder.Logging.AddDebug();
+        builder.EnableHotReload();
 #endif
 
         return builder.Build();

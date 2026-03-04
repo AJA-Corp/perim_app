@@ -21,9 +21,18 @@ namespace perimapp.Models
         public string State { get; set; }
         public DateTime? DeletedAt { get; set; } // Utilisé pour l'étape de purge (48h)
         public DateTime? ExpiredAt { get; set; } // Utilisé pour l'étape 6 (état expired)
+
+        // Custom name support for home code groups
+        public string? CustomName { get; set; }
+        public int? HomeCode { get; set; }
+
         // pas stocké sur la DB
         
-        public int DaysRemaining => (Dlc - DateTime.Today).Days;
+        // Property to get the display name (custom name if available, otherwise original name)
+        [Ignore] // Not stored in SQLite
+        public string DisplayName => !string.IsNullOrWhiteSpace(CustomName) ? CustomName : Name;
+        
+        public int DaysRemaining => (Dlc.Date - DateTime.Today).Days;
 
         
         public string DaysRemainingTextMainPage

@@ -96,6 +96,7 @@ namespace perimapp.Services
                 await SaveProductsAsync(products);
             }
         }
+
         public async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
         {
             try
@@ -131,6 +132,40 @@ namespace perimapp.Services
         }
 
         /// <summary>
+        /// Sauvegarde ou met à jour un nom personnalisé pour un produit et un code foyer
+        /// </summary>
+        public async Task SaveCustomProductNameAsync(long barcode, int homeCode, string customName)
+        {
+            try
+            {
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                var customNames = new Dictionary<string, string>();
+
+                // Charger les noms personnalisés existants
+                if (File.Exists(customNamesPath))
+                {
+                    using var stream = File.OpenRead(customNamesPath);
+                    customNames = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream) ?? new Dictionary<string, string>();
+                }
+
+                // Clé unique: barcode_homeCode
+                string key = $"{barcode}_{homeCode}";
+                customNames[key] = customName;
+
+                // Sauvegarder
+                using var writeStream = File.Create(customNamesPath);
+                await JsonSerializer.SerializeAsync(writeStream, customNames, new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur sauvegarde nom personnalisé : {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Supprime définitivement tous les produits dont le State est "Deleted"
         /// </summary>
         public async Task DeleteAllDeletedProductsAsync()
@@ -143,9 +178,9 @@ namespace perimapp.Services
          * pour que la synchronisation puisse les purger du serveur ensuite.
         */
 
-        ///// <summary>
-        ///// Marque tous les produits de la corbeille comme "HardDeleted" (prêts à être purgés sur le serveur)
-        ///// </summary>
+        /// <summary>
+        /// Marque tous les produits de la corbeille comme "HardDeleted" (prêts à être purgés sur le serveur)
+        /// </summary>
         //public async Task<bool> EmptyTrashLocallyAsync()
         //{
         //    try
@@ -175,5 +210,34 @@ namespace perimapp.Services
         //        return false;
         //    }
         //}
+
+        /// <summary>
+        /// Récupère un nom personnalisé pour un produit et un code foyer
+        /// </summary>
+        public async Task<string?> GetCustomProductNameAsync(long barcode, int homeCode)
+        {
+            try
+            {
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                
+                if (!File.Exists(customNamesPath))
+                    return null;
+
+                using var stream = File.OpenRead(customNamesPath);
+                var customNames = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream);
+
+                if (customNames == null)
+                    return null;
+
+                // Clé unique: barcode_homeCode
+                string key = $"{barcode}_{homeCode}";
+                return customNames.TryGetValue(key, out string? customName) ? customName : null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur lecture nom personnalisé : {ex.Message}");
+                return null;
+            }
+        }
     }
 }

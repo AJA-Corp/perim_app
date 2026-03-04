@@ -84,12 +84,18 @@
             </Grid>
             
             <!-- Product Cards -->
-            <CollectionView Grid.Row="2" 
-                            ItemsSource="{Binding Products}"
-                            SelectionMode="Single"
-                            SelectionChanged="OnProductSelectionChanged">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="localModels:ProductInfos">
+            <RefreshView Grid.Row="2"
+                         x:Name= "ProductRefreshView"
+                         IsRefreshing="{Binding IsRefreshing}"
+                         Command="{Binding RefreshCommand}" 
+                         RefreshColor="#58BF7F">
+                
+                <CollectionView ItemsSource="{Binding Products}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnProductSelectionChanged"
+                                Scrolled="OnCollectionViewScrolled">
+                    <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="localModels:ProductInfos"> 
                         <Border Padding="0"
                                 Stroke="DarkGray"
                                 StrokeThickness="0.1"
@@ -127,7 +133,7 @@
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Padding="10,0">
-                                    <Label Text="{Binding Name}"
+                                    <Label Text="{Binding DisplayName}"
                                            FontSize="18"
                                            FontAttributes="Bold"
                                            LineBreakMode="TailTruncation"  MaxLines="2"
@@ -162,7 +168,9 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <Button Grid.Row="2"
+                </RefreshView>
+            <Button x:Name="FloatingBinButton"
+                    Grid.Row="2"
                     ImageSource="bin_white.png"
                     Clicked="OnLostProductsClicked"
                     BackgroundColor="#58BF7F"

@@ -5,7 +5,7 @@
     BackgroundColor="#58BF7F">
 
     <Grid Padding="20 ">
-        <Label Text="Perim'APP"
+        <Label Text="Perim'App"
                FontSize="50"
                FontAttributes="Bold"
                FontFamily="InterBold"

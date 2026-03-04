@@ -42,7 +42,7 @@ public partial class NotificationPopUp : Popup
         SevenDaysEntry.IsToggled = notificationDays.Contains(7);
     }
 
-    private void OnValidateClicked(object sender, EventArgs e)
+    private async Task OnValidateClicked(object sender, EventArgs e)
     {
         var daysToNotify = new List<int>();
 
@@ -59,6 +59,6 @@ public partial class NotificationPopUp : Popup
         Preferences.Set("NotificationDays", settingsJson);
 
         // On ferme le pop-up
-        Close();
+        await CloseAsync();
     }
 }

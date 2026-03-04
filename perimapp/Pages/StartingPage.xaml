@@ -4,7 +4,7 @@
              BackgroundColor="#58BF7F">
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="20">
-            <Label Text="Perim'APP"
+            <Label Text="Perim'App"
                    FontSize="50"
                    FontAttributes="Bold"
                    FontFamily="InterBold"

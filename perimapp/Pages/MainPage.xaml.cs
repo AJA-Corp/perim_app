@@ -11,6 +11,7 @@ using perimapp.Models;
 using perimapp.Services; 
 using Microsoft.Maui.Storage;
 using Microsoft.Maui.Networking;
+using System.Windows.Input;
 
 namespace perimapp.Pages
 {
@@ -33,7 +34,24 @@ namespace perimapp.Pages
                 }
             }
         }
+        //Propriété pour le pull to refresh 
+        private bool _isRefreshing;
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                if (_isRefreshing != value)
+                {
+                    _isRefreshing = value;
+                    OnPropertyChanged(nameof(IsRefreshing));
+                }
+            }
+        }
+        public ICommand RefreshCommand { get; }
+
         
+        // La collection de produits est une référence à AppData.CurrentProducts
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
         // Propriété pour le nombre de produits affichés, liée à l'interface utilisateur
@@ -62,6 +80,8 @@ namespace perimapp.Pages
 
             // L'ID utilisateur devrait maintenant être géré par l'authentification/le service utilisateur
             int savedUserId = Preferences.Default.Get("UserId", -1);
+            //Refresh la MainPage
+            RefreshCommand = new Command(async () => await OnRefresh());
             Console.WriteLine(
                 $"[DEBUG] ID utilisateur récupéré depuis Preferences : {savedUserId}"
             );
@@ -70,6 +90,8 @@ namespace perimapp.Pages
 
             // Initialiser la propriété avec une valeur par défaut
             SortButtonText = "Tri: DLC (proche)";
+            
+
         }
 
         // Chargement des produits lors de l'apparition de la page
@@ -77,8 +99,14 @@ namespace perimapp.Pages
         {
             base.OnAppearing();
             
+            //rafraichissement auto
+             // IsRefreshing = true;
+             // await OnRefresh();
+            
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
+            
+
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -107,6 +135,7 @@ namespace perimapp.Pages
                 }
             }
         }
+
 
         private async Task LoadProductsAsync()
         {
@@ -161,7 +190,48 @@ namespace perimapp.Pages
                         AppData.CurrentProducts.Add(product);
 
                     DisplayedProductsCount = AppData.CurrentProducts.Count;
-                });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                }
+            }
+        }
+        
+        private async Task OnRefresh()
+        {
+            try
+            {
+                // Recharge la liste des produits
+                await LoadProductsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
+                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
+            }
+            finally
+            {    
+                // Arrête l'animation du RefreshView
+                IsRefreshing = false;
+            }
+        }
+        
+        private async Task<List<ProductInfos>> LoadProductsFromJsonAsync()
+        {
+            try
+            {
+                using Stream fileStream = await FileSystem.OpenAppPackageFileAsync(
+                    "responseProductInfos.json"
+                );
+                using StreamReader reader = new StreamReader(fileStream);
+                string jsonContent = await reader.ReadToEndAsync();
+
+                var products = System.Text.Json.JsonSerializer.Deserialize<List<ProductInfos>>(
+                    jsonContent
+                );
+                return products;
             }
             catch (Exception ex)
             {
@@ -213,6 +283,30 @@ namespace perimapp.Pages
             {
                 Products.Add(product);
             }
+        }
+
+        private double _lastScrollY = 0;
+        private bool _isButtonVisible = true;
+
+        private async void OnCollectionViewScrolled(object sender, ItemsViewScrolledEventArgs e)
+        {
+            double currentY = e.VerticalOffset;
+            double delta = currentY - _lastScrollY;
+
+            if (Math.Abs(delta) < 5) return;
+
+            if (delta > 0 && _isButtonVisible)
+            {
+                _isButtonVisible = false;
+                await FloatingBinButton.TranslateToAsync(0, 100, 250, Easing.CubicIn);
+            }
+            else if (delta < 0 && !_isButtonVisible)
+            {
+                _isButtonVisible = true;
+                await FloatingBinButton.TranslateToAsync(0, 0, 250, Easing.CubicOut);
+            }
+
+            _lastScrollY = currentY;
         }
     }
 }

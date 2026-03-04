@@ -2,11 +2,15 @@ using System;
 using System.Threading.Tasks;
 using Npgsql;
 using perimapp.Models;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace perimapp.Services
 {
     public class NeonUserService
     {
+
         private const string ConnectionString =
             "Host=ep-little-bread-abqvwscs-pooler.eu-west-2.aws.neon.tech;Username=perimapp_owner;Password=npg_5KTFGrlNZ0Ao;Database=perimapp;SSL Mode=Require;Trust Server Certificate=true";
 
@@ -64,7 +68,7 @@ namespace perimapp.Services
             var result = await cmd.ExecuteScalarAsync();
             return Convert.ToInt32(result) > 0;
         }
-        
+
         public async Task<int> AuthenticateByHomeCodeAsync(int homeCode)
         {
             try
@@ -129,6 +133,7 @@ namespace perimapp.Services
                     bool isPasswordValid = PasswordHasher.VerifyPassword(hashedPassword, password);
                     return isPasswordValid ? userId : -1;
                 }
+
                 Console.WriteLine("[DEBUG]: Email non trouvé ou mot de passe incorrect");
                 return -1; // Email non trouvé
             }
@@ -150,16 +155,17 @@ namespace perimapp.Services
             SELECT
                 first_name,
                 last_name,
+                email,
                 home_code
             FROM
                 users
             WHERE
                 id = @UserId;
         ";
-        
+
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
-        
+
                 await using var reader = await cmd.ExecuteReaderAsync();
 
                 if (await reader.ReadAsync())
@@ -168,6 +174,7 @@ namespace perimapp.Services
                     {
                         FirstName = reader.GetString(reader.GetOrdinal("first_name")),
                         LastName = reader.GetString(reader.GetOrdinal("last_name")),
+                        Email = reader.GetString(reader.GetOrdinal("email")),
                         HomeCode = reader.GetInt32(reader.GetOrdinal("home_code")),
                         RegisteredProductsCount = 0 // Laisser à 0 ici, nous l'obtiendrons séparément
                     };
@@ -181,26 +188,26 @@ namespace perimapp.Services
                 return null;
             }
         }
-        
+
         public async Task<int> GetRegisteredProductsCountAsync(int userId)
         {
             try
             {
                 await using var conn = new NpgsqlConnection(ConnectionString);
                 await conn.OpenAsync();
-        
+
                 // Requête simple pour compter les produits
                 string query = @"
             SELECT COUNT(*) 
             FROM products_users 
             WHERE user_id = @UserId;
         ";
-        
+
                 await using var cmd = new NpgsqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
-        
+
                 object? result = await cmd.ExecuteScalarAsync();
-        
+
                 return result != null ? Convert.ToInt32(result) : 0;
             }
             catch (Exception ex)
@@ -209,5 +216,64 @@ namespace perimapp.Services
                 return 0;
             }
         }
+
+        // Update neon db NOM Utilisateur(requete) 
+        public async Task<bool> UpdateUserProfileAsync(int userId, UserProfileDetails updatedProfile)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+            UPDATE users
+            SET first_name = @FirstName,
+                last_name = @LastName
+            WHERE id = @UserId;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@FirstName", updatedProfile.FirstName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@LastName", updatedProfile.LastName ?? string.Empty);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[UpdateUserProfileAsync] Erreur : {ex.Message}");
+                return false;
+            }
+        }
+
+        // Get user email by user ID
+        public async Task<string> GetUserEmailAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+            SELECT email
+            FROM users
+            WHERE id = @UserId;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                object? result = await cmd.ExecuteScalarAsync();
+                return result?.ToString() ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetUserEmailAsync] Erreur : {ex.Message}");
+                return string.Empty;
+            }
+        }
+
     }
 }
