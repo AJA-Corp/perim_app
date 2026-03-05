@@ -3,12 +3,81 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="perimapp.Pages.DeletedProductPage"
              xmlns:localModels="clr-namespace:perimapp.Models"
-             xmlns:localConverters="clr-namespace:perimapp.Converters"  
+             xmlns:localConverters="clr-namespace:perimapp.Converters"
              xmlns:headers="clr-namespace:perimapp.Headers" 
              BackgroundColor="White">
-    
+
     <ContentPage.Content>
-        <headers:SharedHeader Grid.Row="0" HeaderText="Produits Supprimés">
-        </headers:SharedHeader>
+        <Grid RowDefinitions="Auto, *, Auto">
+
+            <headers:SharedHeader Grid.Row="0" HeaderText="Produits Supprimés" />
+
+            <CollectionView Grid.Row="1" 
+                            ItemsSource="{Binding Products}"
+                            SelectionMode="None"
+                            Margin="10">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="localModels:ProductInfos">
+                        <Border Padding="0"
+                                Margin="0,0,0,10"
+                                Stroke="DarkGray"
+                                StrokeThickness="0.1"
+                                BackgroundColor="White"
+                                StrokeShape="{RoundRectangle CornerRadius='5'}">
+                            <Border.Shadow>
+                                <Shadow Brush="LightGray" Offset="0,0" Radius="5" Opacity="0.5" />
+                            </Border.Shadow>
+
+                            <Grid HeightRequest="100">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" WidthRequest="80" HeightRequest="80"
+                                        HorizontalOptions="Center" VerticalOptions="Center" Margin="10,0,0,0"
+                                        StrokeShape="{RoundRectangle CornerRadius='3'}" StrokeThickness="0">
+                                    <Image Source="{Binding UrlImage}" Aspect="AspectFill" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Padding="10,0">
+                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" LineBreakMode="TailTruncation" MaxLines="2" TextColor="Black"/>
+                                    <Label Text="{Binding Quantity, StringFormat='Quantité: {0}'}" FontSize="14" TextColor="Gray"/>
+                                    <Label Text="{Binding Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}" FontSize="12" TextColor="DarkGray"/>
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout Grid.Column="2" 
+                                                       Spacing="10" 
+                                                       VerticalOptions="Center" 
+                                                       Margin="0,0,15,0">
+
+                                    <ImageButton Source="arrows.png"
+                                                 Clicked="OnRestoreClicked"
+                                                 BackgroundColor="#58BF7F"
+                                                 WidthRequest="50"
+                                                 HeightRequest="50"
+                                                 CornerRadius="25"
+                                                 Padding="3"
+                                                 Aspect="AspectFit"
+                                                 VerticalOptions="Center"
+                                                 HorizontalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <Button Grid.Row="2"
+                    Clicked="OnDeleteClicked"
+                    BackgroundColor="#FF5252"
+                    HeightRequest="70"
+                    HorizontalOptions="Fill"
+                    ImageSource="bin_white.png"
+                    Padding="8"
+                    CornerRadius="5"
+                    VerticalOptions="End"
+                    Margin="0, 0, 0, -4"/>
+        </Grid>
     </ContentPage.Content>
 </ContentPage>

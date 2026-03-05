@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
@@ -17,6 +18,9 @@ namespace perimapp.Pages
     public partial class MainPage : ContentPage
     
     {
+        private readonly NeonProductService _neonProductService;
+        private readonly LocalProductService _localProductService;
+
         private string _sortButtonText;
         public string SortButtonText
         {
@@ -60,17 +64,21 @@ namespace perimapp.Pages
                 if (_displayedProductsCount != value)
                 {
                     _displayedProductsCount = value;
-                    OnPropertyChanged(nameof(DisplayedProductsCount)); // Notifie l'UI du changement
+                    OnPropertyChanged(nameof(DisplayedProductsCount)); 
                 }
             }
         }
 
-        private readonly NeonProductService _productService = new NeonProductService();
-
-
-        public MainPage()
+        // Constructeur avec Injection de Dépendances (DI)
+        public MainPage(NeonProductService neonProductService, LocalProductService localProductService)
         {
             InitializeComponent();
+            
+            // Initialisation des champs readonly
+            _neonProductService = neonProductService;
+            _localProductService = localProductService;
+
+            // L'ID utilisateur devrait maintenant être géré par l'authentification/le service utilisateur
             int savedUserId = Preferences.Default.Get("UserId", -1);
             //Refresh la MainPage
             RefreshCommand = new Command(async () => await OnRefresh());
@@ -97,8 +105,6 @@ namespace perimapp.Pages
             
             // CODE MODIFIÉ : Assurez-vous que cette ligne est le seul point de chargement
             await LoadProductsAsync();
-            
-
         }
 
         private async void OnProfileIconClicked(object sender, EventArgs e)
@@ -120,10 +126,9 @@ namespace perimapp.Pages
                 if (selectedProduct != null)
                 {
                     ((CollectionView)sender).SelectedItem = null;
-
-                    // Utilise Id pour la navigation (car ProductUniqueId n'existe pas)
-                    await Shell.Current.GoToAsync(
-                        $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
+                    
+                     await Shell.Current.GoToAsync(
+                         $"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}"
                     );
                 }
             }
@@ -131,11 +136,10 @@ namespace perimapp.Pages
 
 
         private async Task LoadProductsAsync()
+        {
+            try
             {
-                try
-                {
-                    var localService = new LocalProductService();
-                    List<ProductInfos> products;
+                List<ProductInfos> allProducts;
 
                     // Récupérer l'ID utilisateur
                     string userIdString = await SecureStorage.GetAsync("user_id");
@@ -143,46 +147,56 @@ namespace perimapp.Pages
                     // Vérifie si Internet est dispo
                     bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
 
-                    if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                if (hasInternet && !string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                {
+                    try
                     {
-                        try
-                        {
-                            // Charger les produits depuis le serveur
-                            var serveurProducts = await _productService.GetUserProductsAsync(userId);
+                        var serveurProducts = await _neonProductService.GetUserProductsAsync(userId);
 
-                            //  Remplacer le cache local par les produits en ligne
-                            await localService.SaveProductsAsync(serveurProducts);
-
-                            //  Utiliser ces produits pour l'affichage
-                            products = serveurProducts;
-                        }
-                        catch
-                        {
-                            // Si le serveur ne répond pas, on retombe sur le local
-                            products = await localService.LoadProductsAsync();
-                        }
+                        await _localProductService.SaveProductsAsync(serveurProducts);
+                        allProducts = serveurProducts;
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //  Pas de connexion → produits locaux uniquement
-                        products = await localService.LoadProductsAsync();
+                        Console.WriteLine($"Erreur de récupération serveur : {ex.Message}. Chargement local...");
+                        allProducts = await _localProductService.LoadProductsAsync();
                     }
+                }
+                else
+                {
+                    // Pas de connexion → produits locaux uniquement
+                    allProducts = await _localProductService.LoadProductsAsync();
+                }
+                // Sérialise la liste pour voir le contenu complet, y compris les champs 'State'.
+                var jsonDebug = JsonSerializer.Serialize(allProducts, new JsonSerializerOptions { WriteIndented = true });
+                Console.WriteLine($"[DEBUG-JSON] Liste complète des produits chargée ({allProducts.Count} éléments) :");
+                Console.WriteLine(jsonDebug);
 
-                    // Mise à jour de la liste globale et de l'UI
+                // ÉTAPE 1 : Filtrer pour afficher UNIQUEMENT les produits 'Active'
+                var activeProducts = allProducts
+                                        .Where(p => p.State == "Active") // FILTRE ESSENTIEL
+                                        .OrderBy(p => p.DaysRemaining) // Tri par défaut
+                                        .ToList();
+
+                // Mise à jour de la liste globale et de l'UI
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
                     AppData.CurrentProducts.Clear();
 
-                    // NOUVEAU CODE : S'assurer que les produits sont triés à l'affichage initial
-                    foreach (var product in products.OrderBy(p => p.DaysRemaining))
+                    // Remplir avec la liste filtrée et triée
+                    foreach (var product in activeProducts)
                         AppData.CurrentProducts.Add(product);
 
                     DisplayedProductsCount = AppData.CurrentProducts.Count;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                    await DisplayAlert("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
-                }
+                });
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlertAsync("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+            }
+        }
+        
         
         private async Task OnRefresh()
         {
@@ -194,14 +208,12 @@ namespace perimapp.Pages
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
-                await DisplayAlert("Erreur", "Impossible d'actualiser les produits.", "OK");
+                await DisplayAlertAsync("Erreur", "Impossible d'actualiser les produits.", "OK");
             }
             finally
-            {
-                        
+            {    
                 // Arrête l'animation du RefreshView
                 IsRefreshing = false;
-                
             }
         }
         
@@ -222,11 +234,12 @@ namespace perimapp.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erreur lors du chargement JSON local : {ex.Message}");
-                return new List<ProductInfos>();
+                Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                await DisplayAlertAsync("Erreur", "Impossible de charger les produits. " + ex.Message, "OK");
+                return new List<ProductInfos>(); // Retourne une liste vide en cas d'erreur
             }
         }
-
+        
         private async void OnLostProductsClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(DeletedProductPage));

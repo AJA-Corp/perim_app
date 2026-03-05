@@ -77,13 +77,13 @@ namespace perimapp.Pages
             
             if (string.IsNullOrWhiteSpace(enteredCode))
             {
-                await DisplayAlert("Erreur", "Veuillez entrer le code de vérification.", "OK");
+                await DisplayAlertAsync("Erreur", "Veuillez entrer le code de vérification.", "OK");
                 return;
             }
 
             if (enteredCode.Length != 6)
             {
-                await DisplayAlert("Erreur", "Le code doit contenir 6 chiffres.", "OK");
+                await DisplayAlertAsync("Erreur", "Le code doit contenir 6 chiffres.", "OK");
                 return;
             }
 
@@ -108,13 +108,13 @@ namespace perimapp.Pages
                 }
                 else
                 {
-                    await DisplayAlert("Erreur", "Session expirée. Veuillez vous reconnecter.", "OK");
+                    await DisplayAlertAsync("Erreur", "Session expirée. Veuillez vous reconnecter.", "OK");
                     await Shell.Current.GoToAsync(nameof(LogInPage));
                 }
             }
             else
             {
-                await DisplayAlert("Erreur", "Code de vérification incorrect ou expiré.", "OK");
+                await DisplayAlertAsync("Erreur", "Code de vérification incorrect ou expiré.", "OK");
             }
         }
 
@@ -123,7 +123,7 @@ namespace perimapp.Pages
             var session = _verificationService.GetSession(_sessionId);
             if (session == null)
             {
-                await DisplayAlert("Erreur", "Session expirée. Veuillez vous reconnecter.", "OK");
+                await DisplayAlertAsync("Erreur", "Session expirée. Veuillez vous reconnecter.", "OK");
                 await Shell.Current.GoToAsync(nameof(LogInPage));
                 return;
             }
@@ -132,7 +132,7 @@ namespace perimapp.Pages
             var userProfile = await _userService.GetUserProfileAsync(session.UserId);
             if (userProfile == null)
             {
-                await DisplayAlert("Erreur", "Utilisateur introuvable.", "OK");
+                await DisplayAlertAsync("Erreur", "Utilisateur introuvable.", "OK");
                 return;
             }
 
@@ -151,11 +151,11 @@ namespace perimapp.Pages
             {
                 _sessionId = newSessionId;
                 _remainingSeconds = 300; // Reset timer
-                await DisplayAlert("Succès", "Un nouveau code a été envoyé à votre email.", "OK");
+                await DisplayAlertAsync("Succès", "Un nouveau code a été envoyé à votre email.", "OK");
             }
             else
             {
-                await DisplayAlert("Erreur", "Impossible d'envoyer l'email. Vérifiez votre configuration email.", "OK");
+                await DisplayAlertAsync("Erreur", "Impossible d'envoyer l'email. Vérifiez votre configuration email.", "OK");
             }
         }
 

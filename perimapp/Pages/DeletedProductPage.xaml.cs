@@ -1,37 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace perimapp.Pages;
-
-public partial class DeletedProductPage : ContentPage
-{
-    public DeletedProductPage()
-    {
-        InitializeComponent();
-    }
-}
-
-//j'ai commencer à faire regarde si ca peut t'aider 
-
-/*
 using perimapp.Models;
 using perimapp.Services;
 using Microsoft.Maui.Controls;
+using System.Collections.ObjectModel;
+using Microsoft.Maui.Networking;
 
 namespace perimapp.Pages
 {
     public partial class DeletedProductPage : ContentPage
     {
         private readonly LocalProductService _localProductService;
+        private readonly NeonProductService _neonProductService;
         public ObservableCollection<ProductInfos> Products { get; set; }
 
-        public DeletedProductPage()
+        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService)
         {
             InitializeComponent();
-            _localProductService = new LocalProductService();
+            _neonProductService = neonProductService;
+            _localProductService = localProductService;
             Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
         }
@@ -42,7 +27,7 @@ namespace perimapp.Pages
             var products = await _localProductService.LoadProductsAsync();
             Products.Clear();
 
-            foreach (var product in products)
+            foreach (var product in products.Where(p => p.State == "Deleted"))
             {
                 Products.Add(product);
             }
@@ -50,24 +35,68 @@ namespace perimapp.Pages
 
         private async void OnDeleteClicked(object sender, EventArgs e)
         {
-            if (sender is Button button && button.BindingContext is ProductInfos product)
+            bool confirm = await DisplayAlertAsync(
+                "Confirmation",
+                "Voulez-vous supprimer définitivement tous les produits de la corbeille ?",
+                "Oui",
+                "Non"
+            );
+
+            if (confirm)
             {
-                bool confirm = await DisplayAlert(
+                // Suppression locale
+                await _localProductService.DeleteAllDeletedProductsAsync();
+
+                // Synchronisation avec le serveur si connecté
+                bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+                if (hasInternet)
+                {
+                    string? userIdString = await SecureStorage.GetAsync("user_id");
+                    if (!string.IsNullOrEmpty(userIdString) && int.TryParse(userIdString, out int userId))
+                    {
+                        await _neonProductService.EmptyTrashOnlineAsync(userId);
+                    }
+                }
+
+                Products.Clear();
+            }
+        }
+
+        private async void OnRestoreClicked(object sender, EventArgs e)
+        {
+            if (sender is ImageButton imageButton && imageButton.BindingContext is ProductInfos product)
+            {
+                bool confirm = await DisplayAlertAsync(
                     "Confirmation",
-                    $"Voulez-vous supprimer {product.Name} ?",
+                    $"Voulez-vous restaurer {product.DisplayName} ?",
                     "Oui",
                     "Non"
                 );
 
                 if (confirm)
                 {
-                    // On passe directement la string ProductUniqueId
-                    await _localProductService.RemoveProductAsync(product.ProductUniqueId);
+                    // Mise à jour locale (State = "Active", DeletedAt = null)
+                    bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
-                    // Mise à jour de la liste visible
-                    Products.Remove(product);
+                    if (localSuccess)
+                    {
+                        // Synchronisation avec le serveur si connecté
+                        bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+                        if (hasInternet)
+                        {
+                            // Utilise product.Id (l'ID entier de la DB) pour la mise à jour serveur
+                            await _neonProductService.UpdateProductStateAsync(product.Id.ToString(), "Active");
+                        }
+
+                        // Retire le produit de la liste affichée
+                        Products.Remove(product);
+                    }
+                    else
+                    {
+                        await DisplayAlertAsync("Erreur", "Impossible de restaurer le produit.", "OK");
+                    }
                 }
             }
         }
     }
-}*/
+}

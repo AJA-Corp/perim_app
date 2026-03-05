@@ -97,6 +97,40 @@ namespace perimapp.Services
             }
         }
 
+        public async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
+        {
+            try
+            {
+                var products = await LoadProductsAsync();
+                var productToUpdate = products.FirstOrDefault(p => p.ProductUniqueId == productUniqueId);
+
+                if (productToUpdate == null)
+                {
+                    return false;
+                }
+
+                productToUpdate.State = newState;
+
+                // Gérer le champ DeletedAt pour la cohérence
+                if (newState == "Deleted")
+                {
+                    productToUpdate.DeletedAt = DateTime.UtcNow;
+                }
+                else
+                {
+                    productToUpdate.DeletedAt = null;
+                }
+
+                await SaveProductsAsync(products);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur mise à jour état : {ex.Message}");
+                return false;
+            }
+        }
+
         /// <summary>
         /// Sauvegarde ou met à jour un nom personnalisé pour un produit et un code foyer
         /// </summary>
@@ -130,6 +164,52 @@ namespace perimapp.Services
                 Console.WriteLine($"[LocalProductService] Erreur sauvegarde nom personnalisé : {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Supprime définitivement tous les produits dont le State est "Deleted"
+        /// </summary>
+        public async Task DeleteAllDeletedProductsAsync()
+        {
+            var products = await LoadProductsAsync();
+            products.RemoveAll(p => p.State == "Deleted");
+            await SaveProductsAsync(products);
+        }
+        /* Modifier cette fonction de sorte à ce que les produits soient marqués "HardDeleted" au lieu d'être supprimés, 
+         * pour que la synchronisation puisse les purger du serveur ensuite.
+        */
+
+        /// <summary>
+        /// Marque tous les produits de la corbeille comme "HardDeleted" (prêts à être purgés sur le serveur)
+        /// </summary>
+        //public async Task<bool> EmptyTrashLocallyAsync()
+        //{
+        //    try
+        //    {
+        //        var products = await LoadProductsAsync();
+        //        bool hasChanges = false;
+
+        //        foreach (var product in products)
+        //        {
+        //            if (product.State == "Deleted")
+        //            {
+        //                product.State = "HardDeleted";
+        //                product.LastModified = DateTime.UtcNow;
+        //                hasChanges = true;
+        //            }
+        //        }
+
+        //        if (hasChanges)
+        //        {
+        //            await SaveProductsAsync(products);
+        //        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"[LocalProductService] Erreur vidage corbeille : {ex.Message}");
+        //        return false;
+        //    }
+        //}
 
         /// <summary>
         /// Récupère un nom personnalisé pour un produit et un code foyer

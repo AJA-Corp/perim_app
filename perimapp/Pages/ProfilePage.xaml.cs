@@ -198,7 +198,7 @@ namespace perimapp.Pages
 
             if (_currentUser == null)
             {
-                await DisplayAlert("Erreur", "Impossible de charger votre profil.", "OK");
+                await DisplayAlertAsync("Erreur", "Impossible de charger votre profil.", "OK");
                 return;
             }
 
@@ -225,7 +225,7 @@ namespace perimapp.Pages
                 var userIdStr = await SecureStorage.GetAsync("user_id");
                 if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 {
-                    await DisplayAlert("Erreur", "Impossible de retrouver votre profil.", "OK");
+                    await DisplayAlertAsync("Erreur", "Impossible de retrouver votre profil.", "OK");
                     return;
                 }
 
@@ -238,7 +238,7 @@ namespace perimapp.Pages
 
                 if (!success)
                 {
-                    await DisplayAlert("Erreur", "La mise à jour du profil a échoué." ,"OK");
+                    await DisplayAlertAsync("Erreur", "La mise à jour du profil a échoué." ,"OK");
                     return;
                 }
 
@@ -250,11 +250,11 @@ namespace perimapp.Pages
                 // Fermer la popup
                 EditProfilePopup.IsVisible = false;
 
-                await DisplayAlert("Succès", "Votre profil a été mis à jour.", "OK");
+                await DisplayAlertAsync("Succès", "Votre profil a été mis à jour.", "OK");
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
+                await DisplayAlertAsync("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
             }
         }
         

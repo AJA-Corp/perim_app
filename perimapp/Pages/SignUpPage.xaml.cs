@@ -28,13 +28,13 @@ namespace perimapp.Pages
                 || string.IsNullOrWhiteSpace(confirmPassword)
             )
             {
-                await DisplayAlert("Erreur", "Tous les champs doivent être remplis.", "OK");
+                await DisplayAlertAsync("Erreur", "Tous les champs doivent être remplis.", "OK");
                 return;
             }
 
             if (password != confirmPassword)
             {
-                await DisplayAlert("Erreur", "Les mots de passe ne correspondent pas.", "OK");
+                await DisplayAlertAsync("Erreur", "Les mots de passe ne correspondent pas.", "OK");
                 return;
             }
 
@@ -52,16 +52,16 @@ namespace perimapp.Pages
                 // On remplace le stockage dans AppData et Preferences par SecureStorage
                 await SecureStorage.SetAsync("user_id", userId.ToString());
 
-                await DisplayAlert("Succès", "Inscription réussie !", "OK");
+                await DisplayAlertAsync("Succès", "Inscription réussie !", "OK");
                 await Shell.Current.GoToAsync(nameof(MainPage));
             }
             else if (userId == -2)
             {
-                await DisplayAlert("Erreur", "Cet email est déjà utilisé.", "OK");
+                await DisplayAlertAsync("Erreur", "Cet email est déjà utilisé.", "OK");
             }
             else
             {
-                await DisplayAlert(
+                await DisplayAlertAsync(
                     "Erreur",
                     "Une erreur s'est produite lors de l'inscription.",
                     "OK"
