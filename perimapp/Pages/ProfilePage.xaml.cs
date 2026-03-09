@@ -115,6 +115,9 @@ namespace perimapp.Pages
                 // On met à jour le profil
                 userProfile.RegisteredProductsCount = productCount;
                 await _localUserService.SaveUserAsync(userProfile);
+
+                await SyncLostProductCountAsync(userId, userProfile);
+
                 UpdateUI(userProfile);
                 Debug.WriteLine("Profil mis à jour depuis Neon");
 
@@ -146,6 +149,38 @@ namespace perimapp.Pages
             FamilyCode = user.HomeCode.ToString();
             RegisteredProductsCount = user.RegisteredProductsCount;
             LostProductsCount = user.LostProductCount;
+        }
+
+        private async Task SyncLostProductCountAsync(int userId, UserProfileDetails serverProfile)
+        {
+            try
+            {
+                var localUser = await _localUserService.LoadUserAsync();
+                if (localUser == null) return;
+
+                int localCount = localUser.LostProductCount;
+                int serverCount = serverProfile.LostProductCount;
+
+                if (localCount != serverCount)
+                {
+                    Debug.WriteLine($"ProfilePage: Différence détectée - Local: {localCount}, Serveur: {serverCount}");
+                    Debug.WriteLine("ProfilePage: Synchronisation du compteur avec le serveur (serveur fait autorité).");
+
+                    localUser.LostProductCount = serverCount;
+                    await _localUserService.SaveUserAsync(localUser);
+                    LostProductsCount = serverCount;
+
+                    Debug.WriteLine($"ProfilePage: Compteur local mis à jour: {serverCount}");
+                }
+                else
+                {
+                    Debug.WriteLine("ProfilePage: Compteurs local et serveur déjà synchronisés.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"ProfilePage [SyncLostProductCount] Erreur: {ex.Message}");
+            }
         }
 
         private void SetDefaultProfileValues(string defaultName)

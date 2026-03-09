@@ -33,6 +33,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<NeonUserService>();
         // Enregistrement du service local
         builder.Services.AddSingleton<LocalProductService>();
+        builder.Services.AddSingleton<LocalUserService>();
 
         // --- ENREGISTREMENT DES PAGES ---
         // Enregistrement de MainPage et DeletedProductPage pour la DI

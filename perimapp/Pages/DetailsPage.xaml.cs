@@ -18,6 +18,7 @@ namespace perimapp.Pages
         private readonly NeonProductService _neonService;
         private readonly LocalProductService _localService;
         private readonly NeonUserService _userService;
+        private readonly LocalUserService _localUserService;
 
         private string _productUniqueId;
         public string ProductUniqueId
@@ -42,12 +43,13 @@ namespace perimapp.Pages
         }
         
         // Constructeur avec injection des services
-        public DetailsPage(NeonProductService neonService, LocalProductService localService, NeonUserService userService)
+        public DetailsPage(NeonProductService neonService, LocalProductService localService, NeonUserService userService, LocalUserService localUserService)
         {
             InitializeComponent();
             _neonService = neonService;
             _localService = localService;
             _userService = userService;
+            _localUserService = localUserService;
             BindingContext = this;
         }
 
@@ -242,11 +244,30 @@ namespace perimapp.Pages
 
                     if (isExpired)
                     {
-                        string? userIdStr = await SecureStorage.GetAsync("user_id");
-                        if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+                        bool hasInternet = Microsoft.Maui.Networking.Connectivity.Current.NetworkAccess == Microsoft.Maui.Networking.NetworkAccess.Internet;
+
+                        await _localUserService.IncrementLostProductCountAsync();
+                        Debug.WriteLine("DetailsPage: Compteur de produits perdus incrémenté localement.");
+
+                        if (hasInternet)
                         {
-                            await _userService.IncrementLostProductCountAsync(userId);
-                            Debug.WriteLine($"DetailsPage: Produit périmé supprimé, compteur incrémenté pour user {userId}");
+                            string? userIdStr = await SecureStorage.GetAsync("user_id");
+                            if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+                            {
+                                bool neonUpdateSuccess = await _userService.IncrementLostProductCountAsync(userId);
+                                if (neonUpdateSuccess)
+                                {
+                                    Debug.WriteLine($"DetailsPage: Compteur synchronisé avec Neon pour user {userId}");
+                                }
+                                else
+                                {
+                                    Debug.WriteLine("DetailsPage: Échec de la synchronisation avec Neon, les données locales seront synchronisées plus tard.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Debug.WriteLine("DetailsPage: Mode hors ligne, synchronisation Neon reportée.");
                         }
                     }
 

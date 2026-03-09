@@ -70,5 +70,51 @@ namespace perimapp.Services
         {
             throw new NotImplementedException();
         }
+
+        public async Task<bool> IncrementLostProductCountAsync()
+        {
+            try
+            {
+                var user = await LoadUserAsync();
+                if (user == null)
+                {
+                    Console.WriteLine("[LocalUserService] Impossible d'incrémenter: utilisateur non trouvé localement.");
+                    return false;
+                }
+
+                user.LostProductCount++;
+                await SaveUserAsync(user);
+                Console.WriteLine($"[LocalUserService] lost_product_count incrémenté localement: {user.LostProductCount}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalUserService] Erreur lors de l'incrémentation: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DecrementLostProductCountAsync()
+        {
+            try
+            {
+                var user = await LoadUserAsync();
+                if (user == null)
+                {
+                    Console.WriteLine("[LocalUserService] Impossible de décrémenter: utilisateur non trouvé localement.");
+                    return false;
+                }
+
+                user.LostProductCount = Math.Max(0, user.LostProductCount - 1);
+                await SaveUserAsync(user);
+                Console.WriteLine($"[LocalUserService] lost_product_count décrémenté localement: {user.LostProductCount}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalUserService] Erreur lors de la décrémentation: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
