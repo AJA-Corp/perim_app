@@ -140,13 +140,12 @@ namespace perimapp.Pages
     }
 }
 
-        //pour le localUser
         private void UpdateUI(UserProfileDetails user)
         {
             UserName = $"{user.FirstName} {user.LastName}";
             FamilyCode = user.HomeCode.ToString();
             RegisteredProductsCount = user.RegisteredProductsCount;
-            LostProductsCount = string.IsNullOrEmpty(user.LostProducts) ? 0 : user.LostProducts.Split(',').Length;
+            LostProductsCount = user.LostProductCount;
         }
 
         private void SetDefaultProfileValues(string defaultName)

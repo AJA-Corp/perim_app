@@ -156,7 +156,8 @@ namespace perimapp.Services
                 first_name,
                 last_name,
                 email,
-                home_code
+                home_code,
+                lost_product_count
             FROM
                 users
             WHERE
@@ -176,7 +177,8 @@ namespace perimapp.Services
                         LastName = reader.GetString(reader.GetOrdinal("last_name")),
                         Email = reader.GetString(reader.GetOrdinal("email")),
                         HomeCode = reader.GetInt32(reader.GetOrdinal("home_code")),
-                        RegisteredProductsCount = 0 // Laisser à 0 ici, nous l'obtiendrons séparément
+                        LostProductCount = reader.IsDBNull(reader.GetOrdinal("lost_product_count")) ? 0 : reader.GetInt32(reader.GetOrdinal("lost_product_count")),
+                        RegisteredProductsCount = 0
                     };
                 }
 
@@ -272,6 +274,58 @@ namespace perimapp.Services
             {
                 Console.WriteLine($"[GetUserEmailAsync] Erreur : {ex.Message}");
                 return string.Empty;
+            }
+        }
+
+        public async Task<bool> IncrementLostProductCountAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+            UPDATE users
+            SET lost_product_count = COALESCE(lost_product_count, 0) + 1
+            WHERE id = @UserId;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[IncrementLostProductCountAsync] Erreur : {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DecrementLostProductCountAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                string query = @"
+            UPDATE users
+            SET lost_product_count = GREATEST(COALESCE(lost_product_count, 0) - 1, 0)
+            WHERE id = @UserId;
+        ";
+
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DecrementLostProductCountAsync] Erreur : {ex.Message}");
+                return false;
             }
         }
 

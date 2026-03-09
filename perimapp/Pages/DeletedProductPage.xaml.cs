@@ -10,13 +10,15 @@ namespace perimapp.Pages
     {
         private readonly LocalProductService _localProductService;
         private readonly NeonProductService _neonProductService;
+        private readonly NeonUserService _userService;
         public ObservableCollection<ProductInfos> Products { get; set; }
 
-        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService)
+        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService, NeonUserService userService)
         {
             InitializeComponent();
             _neonProductService = neonProductService;
             _localProductService = localProductService;
+            _userService = userService;
             Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
         }
@@ -75,20 +77,50 @@ namespace perimapp.Pages
 
                 if (confirm)
                 {
-                    // Mise à jour locale (State = "Active", DeletedAt = null)
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: Tentative de restauration du produit {product.DisplayName}");
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - DLC: {product.Dlc:yyyy-MM-dd}");
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - DeletedAt: {(product.DeletedAt.HasValue ? product.DeletedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "NULL")}");
+
                     bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
                     if (localSuccess)
                     {
-                        // Synchronisation avec le serveur si connecté
+                        if (product.DeletedAt.HasValue)
+                        {
+                            bool wasExpiredAtDeletion = product.Dlc.Date < product.DeletedAt.Value.Date;
+
+                            System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - Produit était périmé à la suppression: {wasExpiredAtDeletion}");
+
+                            if (wasExpiredAtDeletion)
+                            {
+                                string? userIdStr = await SecureStorage.GetAsync("user_id");
+                                if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+                                {
+                                    await _userService.DecrementLostProductCountAsync(userId);
+                                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: Produit périmé restauré, compteur décrémenté pour user {userId}");
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine("DeletedProductPage: Impossible de décrémenter le compteur, ID utilisateur introuvable.");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("DeletedProductPage: Produit restauré avant la date de péremption, aucun changement de compteur nécessaire.");
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("DeletedProductPage: Date de suppression non disponible, impossible de déterminer si le produit était périmé ou non.");
+                        }
+
+
                         bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
                         if (hasInternet)
                         {
-                            // Utilise product.Id (l'ID entier de la DB) pour la mise à jour serveur
                             await _neonProductService.UpdateProductStateAsync(product.Id.ToString(), "Active");
                         }
 
-                        // Retire le produit de la liste affichée
                         Products.Remove(product);
                     }
                     else

@@ -17,6 +17,7 @@ namespace perimapp.Pages
     {
         private readonly NeonProductService _neonService;
         private readonly LocalProductService _localService;
+        private readonly NeonUserService _userService;
 
         private string _productUniqueId;
         public string ProductUniqueId
@@ -41,11 +42,12 @@ namespace perimapp.Pages
         }
         
         // Constructeur avec injection des services
-        public DetailsPage(NeonProductService neonService, LocalProductService localService)
+        public DetailsPage(NeonProductService neonService, LocalProductService localService, NeonUserService userService)
         {
             InitializeComponent();
             _neonService = neonService;
             _localService = localService;
+            _userService = userService;
             BindingContext = this;
         }
 
@@ -230,31 +232,36 @@ namespace perimapp.Pages
             if (confirmed)
             {
                 string idToPass = ProductDetail.Id.ToString();
-                
-                // 1. Mettre à jour les deux bases (cette partie est asynchrone et peut se faire hors du Main Thread)
+
                 bool localSuccess = await _localService.UpdateProductStateAsync(idToPass, "Deleted");
                 bool neonSuccess = await _neonService.UpdateProductStateAsync(idToPass, "Deleted");
-                
+
                 if (localSuccess || neonSuccess)
                 {
-                    // Encapsuler la logique d'UI et de navigation dans MainThread
+                    bool isExpired = ProductDetail.Dlc.Date < DateTime.Today;
+
+                    if (isExpired)
+                    {
+                        string? userIdStr = await SecureStorage.GetAsync("user_id");
+                        if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+                        {
+                            await _userService.IncrementLostProductCountAsync(userId);
+                            Debug.WriteLine($"DetailsPage: Produit périmé supprimé, compteur incrémenté pour user {userId}");
+                        }
+                    }
+
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        // Mettre à jour l'objet dans la liste globale 
                         var productInList = AppData.CurrentProducts.FirstOrDefault(p => p.Id == ProductDetail.Id);
                         if (productInList != null)
                         {
-                            // La modification de ces propriétés sur la liste globale déclenche 
-                            // potentiellement des événements d'UI sur la MainPage.
                             productInList.State = "Deleted";
                             productInList.DeletedAt = DateTime.UtcNow;
                         }
-                        
-                        // Mettre à jour l'objet local de la page (moins critique, mais plus sûr)
+
                         ProductDetail.State = "Deleted";
                         ProductDetail.DeletedAt = DateTime.UtcNow;
 
-                        // Navigation (doit toujours se faire sur le Main Thread)
                         await Shell.Current.GoToAsync(nameof(MainPage)); 
                     });
                 }
