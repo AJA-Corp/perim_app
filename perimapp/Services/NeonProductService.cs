@@ -50,10 +50,9 @@ namespace perimapp.Services
                     //     WHERE pu.user_id = @userId;
                     // ";
 
-                    // REQUÊTE AJUSTÉE aux 10 colonnes que le LOG a confirmées (Index 0 à 9)
                     query = @"
                             SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, pd.conservation,
-                                   pu.dlc, pu.quantity, pu.added_at, pu.state, cpn.custom_name
+                                   pu.dlc, pu.quantity, pu.added_at, pu.state, cpn.custom_name, pu.deleted_at
                             FROM products_users pu
                             JOIN products_data pd ON pu.barcode = pd.barcode
                             LEFT JOIN custom_product_names cpn ON pd.barcode = cpn.barcode AND cpn.home_code = @homeCode
@@ -64,7 +63,7 @@ namespace perimapp.Services
                 {
                     query = @"
                         SELECT pu.id, pu.barcode, pd.name, pd.url_image, pd.category, conservation,
-                               pu.dlc, pu.quantity, pu.added_at, pu.state, NULL as custom_name
+                               pu.dlc, pu.quantity, pu.added_at, pu.state, NULL as custom_name, pu.deleted_at
                         FROM products_users pu
                         JOIN products_data pd ON pu.barcode = pd.barcode
                         WHERE pu.user_id = @userId;
@@ -94,11 +93,9 @@ namespace perimapp.Services
                         Dlc = reader.GetDateTime(6),
                         Quantity = reader.GetInt32(7),
                         AddedAt = reader.GetDateTime(8),
-                        State = reader.GetString(9), 
-
-                        // ProductUniqueId et DeletedAt ne sont pas lus ici car non confirmés par la DB
+                        State = reader.GetString(9),
                         CustomName = reader.IsDBNull(10) ? null : reader.GetString(10),
-                        // HomeCode = homeCode
+                        DeletedAt = reader.IsDBNull(11) ? null : reader.GetDateTime(11)
                     };
 
                     products.Add(product);

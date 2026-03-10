@@ -19,8 +19,8 @@ namespace perimapp.Models
         [JsonPropertyName("home_code")]
         public int HomeCode { get; set; }
 
-        [JsonPropertyName("lost_products")]
-        public string LostProducts { get; set; }
+        [JsonPropertyName("lost_product_count")]
+        public int LostProductCount { get; set; }
 
         // AJOUT DE CETTE PROPRIÉTÉ
         [JsonIgnore] // Cet attribut est utile : il indique au sérialiseur JSON d'ignorer ce champ.

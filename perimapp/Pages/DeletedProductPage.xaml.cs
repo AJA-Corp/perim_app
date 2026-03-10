@@ -10,13 +10,17 @@ namespace perimapp.Pages
     {
         private readonly LocalProductService _localProductService;
         private readonly NeonProductService _neonProductService;
+        private readonly NeonUserService _userService;
+        private readonly LocalUserService _localUserService;
         public ObservableCollection<ProductInfos> Products { get; set; }
 
-        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService)
+        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService, NeonUserService userService, LocalUserService localUserService)
         {
             InitializeComponent();
             _neonProductService = neonProductService;
             _localProductService = localProductService;
+            _userService = userService;
+            _localUserService = localUserService;
             Products = new ObservableCollection<ProductInfos>();
             BindingContext = this;
         }
@@ -75,20 +79,63 @@ namespace perimapp.Pages
 
                 if (confirm)
                 {
-                    // Mise à jour locale (State = "Active", DeletedAt = null)
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: Tentative de restauration du produit {product.DisplayName}");
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - DLC: {product.Dlc:yyyy-MM-dd}");
+                    System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - DeletedAt: {(product.DeletedAt.HasValue ? product.DeletedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "NULL")}");
+
                     bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
                     if (localSuccess)
                     {
-                        // Synchronisation avec le serveur si connecté
                         bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
+
+                        if (product.DeletedAt.HasValue)
+                        {
+                            bool wasExpiredAtDeletion = product.Dlc.Date < product.DeletedAt.Value.Date;
+
+                            System.Diagnostics.Debug.WriteLine($"DeletedProductPage: - Produit était périmé à la suppression: {wasExpiredAtDeletion}");
+
+                            if (wasExpiredAtDeletion)
+                            {
+                                await _localUserService.DecrementLostProductCountAsync();
+                                System.Diagnostics.Debug.WriteLine("DeletedProductPage: Compteur de produits perdus décrémenté localement.");
+
+                                if (hasInternet)
+                                {
+                                    string? userIdStr = await SecureStorage.GetAsync("user_id");
+                                    if (!string.IsNullOrEmpty(userIdStr) && int.TryParse(userIdStr, out int userId))
+                                    {
+                                        bool neonUpdateSuccess = await _userService.DecrementLostProductCountAsync(userId);
+                                        if (neonUpdateSuccess)
+                                        {
+                                            System.Diagnostics.Debug.WriteLine($"DeletedProductPage: Compteur synchronisé avec Neon pour user {userId}");
+                                        }
+                                        else
+                                        {
+                                            System.Diagnostics.Debug.WriteLine("DeletedProductPage: Échec de la synchronisation avec Neon, les données locales seront synchronisées plus tard.");
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    System.Diagnostics.Debug.WriteLine("DeletedProductPage: Mode hors ligne, synchronisation Neon reportée.");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("DeletedProductPage: Produit restauré avant la date de péremption, aucun changement de compteur nécessaire.");
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("DeletedProductPage: Date de suppression non disponible, impossible de déterminer si le produit était périmé ou non.");
+                        }
+
                         if (hasInternet)
                         {
-                            // Utilise product.Id (l'ID entier de la DB) pour la mise à jour serveur
                             await _neonProductService.UpdateProductStateAsync(product.Id.ToString(), "Active");
                         }
 
-                        // Retire le produit de la liste affichée
                         Products.Remove(product);
                     }
                     else
