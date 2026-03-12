@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:bv="clr-namespace:BarcodeScanning;assembly=BarcodeScanning.Native.Maui"
+             x:Class="perimapp.Pages.ScannerPage"
+             Title="Scanner un produit"
+             BackgroundColor="Black">
+
+    <Grid>
+        <bv:CameraView x:Name="Camera"
+                       CameraFacing="Back"
+                       VibrationOnDetected="True"
+                       OnDetectionFinished="Camera_OnDetectionFinished" />
+
+        <Button Text="Annuler"
+                BackgroundColor="#58BF7F"
+                TextColor="White"
+                CornerRadius="20"
+                WidthRequest="150"
+                VerticalOptions="End"
+                HorizontalOptions="Center"
+                Margin="0, 0, 0, 40"
+                Clicked="OnCancelClicked" />
+    </Grid>
+
+</ContentPage>

@@ -11,18 +11,20 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // ENREGISTREZ TOUTES VOS ROUTES ICI
+        // Note: LoadingPage est déjà définie comme ShellContent dans AppShell.xaml, ne pas la réenregistrer ici
         Routing.RegisterRoute(nameof(AddProductPage), typeof(AddProductPage));
+        Routing.RegisterRoute(nameof(DeletedProductPage), typeof(DeletedProductPage));
         Routing.RegisterRoute(nameof(DetailsPage), typeof(DetailsPage));
         Routing.RegisterRoute(nameof(EmailVerificationPage), typeof(EmailVerificationPage));
-        Routing.RegisterRoute(nameof(LoadingPage), typeof(LoadingPage));
+        // Routing.RegisterRoute(nameof(LoadingPage), typeof(LoadingPage)); // ❌ SUPPRIMÉ - déjà dans XAML
         Routing.RegisterRoute(nameof(LogInPage), typeof(LogInPage));
         Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
         Routing.RegisterRoute(nameof(ModifyProductPage), typeof(ModifyProductPage));
         Routing.RegisterRoute(nameof(NotificationPopUp), typeof(NotificationPopUp));
         Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
+        Routing.RegisterRoute(nameof(ScannerPage), typeof(ScannerPage));
         Routing.RegisterRoute(nameof(SignUpPage), typeof(SignUpPage));
         Routing.RegisterRoute(nameof(StartingPage), typeof(StartingPage));
-        Routing.RegisterRoute(nameof(DeletedProductPage), typeof(DeletedProductPage));
 
         CurrentItem = new ShellContent { Content = new LoadingPage() };
     }
