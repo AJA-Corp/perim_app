@@ -12,6 +12,28 @@
                        VibrationOnDetected="True"
                        OnDetectionFinished="Camera_OnDetectionFinished" />
 
+        <Label Text="Placez le code-barres au centre"
+               TextColor="White"
+               FontSize="16"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"
+               Margin="0, -320, 0, 0"
+               BackgroundColor="#80000000"
+               Padding="15, 8" />
+        <Border Stroke="Red"
+                StrokeThickness="3"
+                BackgroundColor="Transparent"
+                WidthRequest="250"
+                HeightRequest="250"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                Opacity="0.8">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="15" />
+            </Border.StrokeShape>
+        </Border>
+
         <Button Text="Annuler"
                 BackgroundColor="#58BF7F"
                 TextColor="White"
@@ -21,6 +43,18 @@
                 HorizontalOptions="Center"
                 Margin="0, 0, 0, 40"
                 Clicked="OnCancelClicked" />
+
+        <Button x:Name="FlashButton"
+                ImageSource="flash.png"
+                BackgroundColor="#80000000"
+                CornerRadius="20"
+                WidthRequest="40"
+                HeightRequest="40"
+                Padding="8"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0, 40, 20, 0"
+                Clicked="OnToggleFlashClicked" />
     </Grid>
 
 </ContentPage>
