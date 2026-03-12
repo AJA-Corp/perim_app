@@ -1,12 +1,14 @@
 using BarcodeScanning;
-using System.Linq;
+using System.Linq; // Nécessaire pour FirstOrDefault()
 
 namespace perimapp.Pages;
 
 public partial class ScannerPage : ContentPage
 {
-    // Action (callback) pour renvoyer le résultat à AddProductPage
     public Action<string> OnBarcodeScanned { get; set; }
+
+    // Ce verrou empêche la caméra de déclencher 15 fois le même scan
+    private bool _isProcessing = false;
 
     public ScannerPage()
     {
@@ -16,37 +18,49 @@ public partial class ScannerPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        Camera.CameraEnabled = true; // Allume la caméra quand la page s'affiche
+        _isProcessing = false; // On déverrouille quand la page s'ouvre
+        Camera.CameraEnabled = true;
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        Camera.CameraEnabled = false; // Éteint la caméra quand on quitte
+        // C'est ici et UNIQUEMENT ici qu'on coupe la caméra pour éviter les conflits
+        Camera.CameraEnabled = false;
     }
 
     private void Camera_OnDetectionFinished(object sender, OnDetectionFinishedEventArg e)
     {
+        // Si on est déjà en train de traiter un code, on ignore les suivants
+        if (_isProcessing) return;
+
         if (e.BarcodeResults.Count > 0)
         {
-            // Récupère le premier code-barres trouvé
             var barcode = e.BarcodeResults.FirstOrDefault()?.DisplayValue;
 
-            // Coupe la caméra immédiatement pour éviter les scans multiples
-            Camera.CameraEnabled = false;
-
-            // On doit retourner sur le Thread principal pour fermer la page et modifier l'UI
-            MainThread.BeginInvokeOnMainThread(async () =>
+            if (!string.IsNullOrEmpty(barcode))
             {
-                OnBarcodeScanned?.Invoke(barcode);
-                await Navigation.PopModalAsync();
-            });
+                _isProcessing = true; // On verrouille immédiatement !
+
+                // On retourne sur le fil principal de l'interface (MainThread)
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    // 1. On ferme d'abord la page proprement (ce qui déclenchera OnDisappearing)
+                    await Navigation.PopModalAsync();
+
+                    // 2. Ensuite on envoie le code à la page précédente
+                    OnBarcodeScanned?.Invoke(barcode);
+                });
+            }
         }
     }
 
     private async void OnCancelClicked(object sender, EventArgs e)
     {
-        Camera.CameraEnabled = false;
+        if (_isProcessing) return;
+        _isProcessing = true; // On verrouille pour éviter les doubles clics
+
+        // On ferme juste la page, OnDisappearing s'occupera d'éteindre la caméra
         await Navigation.PopModalAsync();
     }
 }
