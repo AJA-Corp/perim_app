@@ -291,6 +291,81 @@ namespace perimapp.Pages
                 await DisplayAlertAsync("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
             }
         }
-        
+
+        private async void OnDeleteAccountClicked(object sender, EventArgs e)
+        {
+            IsMenuVisible = false;
+
+            // Afficher une confirmation de sécurité
+            bool confirm = await DisplayAlert(
+                "Supprimer le compte",
+                "⚠️ ATTENTION ⚠️\n\nCette action est irréversible et supprimera définitivement :\n\n" +
+                "• Votre profil utilisateur\n" +
+                "• Tous vos produits enregistrés\n" +
+                "• Votre code foyer et ses données associées\n" +
+                "• Toutes vos données locales\n\n" +
+                "Voulez-vous vraiment continuer ?",
+                "Supprimer définitivement",
+                "Annuler"
+            );
+
+            if (!confirm)
+                return;
+
+            // Deuxième confirmation pour être sûr
+            bool finalConfirm = await DisplayAlert(
+                "Dernière confirmation",
+                "Êtes-vous absolument certain(e) de vouloir supprimer votre compte ?",
+                "Oui, supprimer",
+                "Non, annuler"
+            );
+
+            if (!finalConfirm)
+                return;
+
+            try
+            {
+                // Récupérer l'ID utilisateur
+                var userIdStr = await SecureStorage.GetAsync("user_id");
+                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                {
+                    await DisplayAlertAsync("Erreur", "Impossible de retrouver votre profil.", "OK");
+                    return;
+                }
+
+                // Afficher un indicateur de chargement
+                Debug.WriteLine($"[ProfilePage] Début de la suppression du compte {userId}...");
+
+                // 1. Supprimer les données de la BDD en ligne
+                bool deletedFromServer = await _userService.DeleteUserAccountAsync(userId);
+
+                if (!deletedFromServer)
+                {
+                    await DisplayAlertAsync("Erreur", "Une erreur est survenue lors de la suppression du compte sur le serveur.", "OK");
+                    return;
+                }
+
+                Debug.WriteLine("[ProfilePage] Données serveur supprimées ✅");
+
+                // 2. Nettoyer toutes les données locales
+                _localUserService.ClearUser();
+                _localProductService.ClearAllProducts();
+                SecureStorage.Remove("user_id");
+
+                Debug.WriteLine("[ProfilePage] Données locales supprimées ✅");
+
+                // 3. Afficher un message de confirmation
+                await DisplayAlertAsync("Compte supprimé", "Votre compte a été définitivement supprimé.", "OK");
+
+                // 4. Rediriger vers la page de démarrage
+                await Shell.Current.GoToAsync(nameof(StartingPage));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ProfilePage] Erreur lors de la suppression du compte : {ex.Message}");
+                await DisplayAlertAsync("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
+            }
+        }
+
     }
 }

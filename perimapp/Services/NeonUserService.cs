@@ -329,5 +329,102 @@ namespace perimapp.Services
             }
         }
 
+        public async Task<bool> DeleteUserAccountAsync(int userId)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(ConnectionString);
+                await conn.OpenAsync();
+
+                await using var transaction = await conn.BeginTransactionAsync();
+
+                try
+                {
+                    // 1. Supprimer les produits de l'utilisateur
+                    string deleteProductsQuery = @"
+                        DELETE FROM products_users 
+                        WHERE user_id = @UserId;
+                    ";
+                    await using var cmdProducts = new NpgsqlCommand(deleteProductsQuery, conn, transaction);
+                    cmdProducts.Parameters.AddWithValue("@UserId", userId);
+                    await cmdProducts.ExecuteNonQueryAsync();
+
+                    // 2. Récupérer le home_code de l'utilisateur avant de le supprimer
+                    string getHomeCodeQuery = @"
+                        SELECT home_code 
+                        FROM users 
+                        WHERE id = @UserId;
+                    ";
+                    await using var cmdGetHomeCode = new NpgsqlCommand(getHomeCodeQuery, conn, transaction);
+                    cmdGetHomeCode.Parameters.AddWithValue("@UserId", userId);
+                    object? homeCodeResult = await cmdGetHomeCode.ExecuteScalarAsync();
+
+                    if (homeCodeResult != null)
+                    {
+                        int homeCode = Convert.ToInt32(homeCodeResult);
+
+                        // 3. Supprimer les noms personnalisés liés au foyer (si la table existe)
+                        bool customNamesTableExists = await TableExistsAsync(conn, "custom_product_names");
+                        if (customNamesTableExists)
+                        {
+                            string deleteCustomNamesQuery = @"
+                                DELETE FROM custom_product_names 
+                                WHERE home_code = @HomeCode;
+                            ";
+                            await using var cmdCustomNames = new NpgsqlCommand(deleteCustomNamesQuery, conn, transaction);
+                            cmdCustomNames.Parameters.AddWithValue("@HomeCode", homeCode);
+                            await cmdCustomNames.ExecuteNonQueryAsync();
+                        }
+                    }
+
+                    // 4. Supprimer l'utilisateur
+                    string deleteUserQuery = @"
+                        DELETE FROM users 
+                        WHERE id = @UserId;
+                    ";
+                    await using var cmdUser = new NpgsqlCommand(deleteUserQuery, conn, transaction);
+                    cmdUser.Parameters.AddWithValue("@UserId", userId);
+                    int rowsAffected = await cmdUser.ExecuteNonQueryAsync();
+
+                    await transaction.CommitAsync();
+
+                    Console.WriteLine($"[DeleteUserAccountAsync] Compte utilisateur {userId} supprimé avec succès.");
+                    return rowsAffected > 0;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"[DeleteUserAccountAsync] Erreur lors de la transaction : {ex.Message}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DeleteUserAccountAsync] Erreur : {ex.Message}");
+                return false;
+            }
+        }
+
+        private async Task<bool> TableExistsAsync(NpgsqlConnection conn, string tableName)
+        {
+            try
+            {
+                string query = @"
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables 
+                        WHERE table_name = @tableName
+                    );
+                ";
+                await using var cmd = new NpgsqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@tableName", tableName);
+                var result = await cmd.ExecuteScalarAsync();
+                return result != null && (bool)result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }

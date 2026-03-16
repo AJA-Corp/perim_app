@@ -239,5 +239,33 @@ namespace perimapp.Services
                 return null;
             }
         }
+
+        /// <summary>
+        /// Supprime tous les produits locaux et les noms personnalisés
+        /// </summary>
+        public void ClearAllProducts()
+        {
+            try
+            {
+                // Supprimer le fichier de produits
+                if (File.Exists(_filePath))
+                {
+                    File.Delete(_filePath);
+                    Console.WriteLine("[LocalProductService] Fichier de produits supprimé.");
+                }
+
+                // Supprimer le fichier de noms personnalisés
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                if (File.Exists(customNamesPath))
+                {
+                    File.Delete(customNamesPath);
+                    Console.WriteLine("[LocalProductService] Fichier de noms personnalisés supprimé.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur suppression des données : {ex.Message}");
+            }
+        }
     }
 }
