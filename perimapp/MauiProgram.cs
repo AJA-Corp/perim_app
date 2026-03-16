@@ -6,6 +6,7 @@ using Plugin.LocalNotification;
 using perimapp.Pages; // Ajouté pour les pages
 using perimapp.Services;
 using DotNet.Meteor.HotReload.Plugin;
+using BarcodeScanning;
 
 namespace perimapp;
 
@@ -19,6 +20,7 @@ public static class MauiProgram
             .UseMauiCommunityToolkit()
             .UseMauiCommunityToolkitCore()
             .UseLocalNotification()
+            .UseBarcodeScanning()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("InterBold.ttf", "InterBold");
@@ -36,10 +38,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<LocalUserService>();
 
         // --- ENREGISTREMENT DES PAGES ---
-        // Enregistrement de MainPage et DeletedProductPage pour la DI
         builder.Services.AddSingleton<MainPage>(); 
         builder.Services.AddTransient<DeletedProductPage>();
         builder.Services.AddTransient<DetailsPage>();
+        builder.Services.AddTransient<ScannerPage>();
 
 #if DEBUG
         builder.Logging.AddDebug();

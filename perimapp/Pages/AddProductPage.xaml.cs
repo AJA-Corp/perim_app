@@ -246,4 +246,36 @@ public partial class AddProductPage : ContentPage // ou Popup
         ProductName.Text = product.DisplayName;
         ProductImage.Source = product.UrlImage;
     }
+
+    private async void OnScanButtonClicked(object sender, EventArgs e)
+    {
+        // 1. Vérifier et demander la permission d'utiliser la caméra
+        var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (status != PermissionStatus.Granted)
+        {
+            status = await Permissions.RequestAsync<Permissions.Camera>();
+        }
+
+        if (status == PermissionStatus.Granted)
+        {
+            // 2. Ouvrir la page de scanner
+            var scannerPage = new ScannerPage();
+
+            // 3. Définir ce qui se passe quand un code est trouvé
+            scannerPage.OnBarcodeScanned = (scannedCode) =>
+            {
+                BarcodeEntry.Text = scannedCode;
+
+                // Optionnel : Lance automatiquement la recherche du produit 
+                // pour faire gagner un clic à l'utilisateur
+                BarcodeEntry_OnCompleted(this, EventArgs.Empty);
+            };
+
+            await Navigation.PushModalAsync(scannerPage);
+        }
+        else
+        {
+            await DisplayAlertAsync("Erreur", "La permission de la caméra est requise pour scanner un produit.", "OK");
+        }
+    }
 }
