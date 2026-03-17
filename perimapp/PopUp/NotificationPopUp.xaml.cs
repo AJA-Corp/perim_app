@@ -10,7 +10,9 @@ public partial class NotificationPopUp : Popup
         InitializeComponent();
         
         // Limiter la hauteur du popup sur les petits écrans
-        double screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
+        var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
+        double density = displayInfo.Density > 0 ? displayInfo.Density : 1;
+        double screenHeight = displayInfo.Height / density;
         MainScroll.MaximumHeightRequest = screenHeight * 0.7;
 
         LoadSettings();
@@ -23,8 +25,16 @@ public partial class NotificationPopUp : Popup
 
         if (!string.IsNullOrEmpty(settingsJson))
         {
-            // Si des paramètres existent, on les charge
-            notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson);
+            try
+            {
+                // Si des paramètres existent, on les charge
+                notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson) ?? new List<int> { 1, 3, 7 };
+            }
+            catch
+            {
+                // En cas d'erreur de désérialisation, on utilise les valeurs par défaut
+                notificationDays = new List<int> { 1, 3, 7 };
+            }
         }
         else
         {
@@ -42,7 +52,7 @@ public partial class NotificationPopUp : Popup
         SevenDaysEntry.IsToggled = notificationDays.Contains(7);
     }
 
-    private async Task OnValidateClicked(object sender, EventArgs e)
+    private async void OnValidateClicked(object sender, EventArgs e)
     {
         var daysToNotify = new List<int>();
 
