@@ -1,5 +1,6 @@
 ﻿using Foundation;
 using UIKit;
+using Plugin.LocalNotification;
 
 namespace perimapp;
 
@@ -10,6 +11,12 @@ public class AppDelegate : MauiUIApplicationDelegate
     
     public static UIInterfaceOrientationMask GetSupportedInterfaceOrientations(UIApplication application, UIWindow forWindow)
     {
-        return UIInterfaceOrientationMask.Portrait; // 🔥 Bloque en mode portrait
+        return UIInterfaceOrientationMask.Portrait;
+    }
+
+    [Export("application:didRegisterUserNotificationSettings:")]
+    public void DidRegisterUserNotificationSettings(UIApplication application, UIUserNotificationSettings notificationSettings)
+    {
+        application.RegisterForRemoteNotifications();
     }
 }

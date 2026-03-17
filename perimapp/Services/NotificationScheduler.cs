@@ -12,7 +12,12 @@ namespace perimapp.Services
     public static class NotificationScheduler
     {
         private static readonly List<int> defaultNotificationDays = new List<int> { 1, 3, 7 };
-        private static readonly List<int> notificationHours = new List<int> { 7, 11, 18 };
+        private static readonly List<TimeSpan> notificationTimes = new List<TimeSpan> 
+        { 
+            new TimeSpan(7, 0, 0),   // 7h00
+            new TimeSpan(11, 0, 0),  // 11h00
+            new TimeSpan(18, 00, 0)  // 18h00
+        };
 
         public static void UpdateSchedules()
         {
@@ -28,63 +33,55 @@ namespace perimapp.Services
 
             int notificationId = 1000;
 
-            // Generate schedules for the next 30 days
+            // Generate schedules for the next 15 days (pour éviter la limite des 64 notifications d'iOS et la limite Android)
             var startDay = DateTime.Today;
-            var endDay = DateTime.Today.AddDays(30);
+            var endDay = DateTime.Today.AddDays(15);
 
             for (var date = startDay; date <= endDay; date = date.AddDays(1))
             {
-                // Vérifier les produits qui périment aujourd'hui
+                // -- 1ère NOTIFICATION : Les produits qui périment AUJOURD'HUI --
                 var dlcTodayProducts = allProducts.Where(p => p.Dlc.Date == date.Date).ToList();
                 if (dlcTodayProducts.Any())
                 {
-                    string title = "Alerte de péremption aujourd'hui";
-                    string description = dlcTodayProducts.Count > 3
-                        ? $"{dlcTodayProducts.Count} produits périment aujourd'hui."
-                        : (dlcTodayProducts.Count == 1
-                            ? $"Le produit '{dlcTodayProducts.First().Name}' périme aujourd'hui."
-                            : $"{dlcTodayProducts.Count} produits périment aujourd'hui : {string.Join(", ", dlcTodayProducts.Select(p => p.Name))}.");
+                    string title = "Péremption aujourd'hui ⚠️";
+                    string description = dlcTodayProducts.Count == 1 
+                        ? $"Le produit '{dlcTodayProducts.First().Name}' périme aujourd'hui !"
+                        : $"{dlcTodayProducts.Count} produits périment aujourd'hui !";
 
-                    ScheduleForDate(date, title, description, ref notificationId);
+                    ScheduleNotification(title, description, date, notificationTimes, ref notificationId);
                 }
 
-                // Pour chaque jour de notification configuré
-                foreach (var days in notificationDays)
+                // -- 2ème NOTIFICATION : Les autres jours (à venir) --
+                var upcomingMessages = new List<string>();
+
+                // On trie les jours pour les afficher dans l'ordre (ex: 1 jour, 2 jours...)
+                foreach (var days in notificationDays.OrderBy(d => d))
                 {
                     var expiringProducts = allProducts.Where(p => p.Dlc.Date == date.AddDays(days).Date).ToList();
                     if (expiringProducts.Any())
                     {
-                        string title;
-                        string description;
-
-                        if (expiringProducts.Count == 1)
-                        {
-                            var product = expiringProducts.First();
-                            title = $"Alerte de péremption dans {days} jour" + (days > 1 ? "s" : "");
-                            description = $"Le produit '{product.Name}' périme dans {days} jour" + (days > 1 ? "s" : "") + ".";
-                        }
-                        else if (expiringProducts.Count <= 3)
-                        {
-                            title = $"Alerte de péremption dans {days} jour" + (days > 1 ? "s" : "");
-                            description = $"Les produits suivants vont périmer dans {days} jour(s) : {string.Join(", ", expiringProducts.Select(p => p.Name))}.";
-                        }
-                        else
-                        {
-                            title = $"Alerte de péremption dans {days} jour" + (days > 1 ? "s" : "");
-                            description = $"{expiringProducts.Count} produits vont périmer dans {days} jour(s).";
-                        }
-
-                        ScheduleForDate(date, title, description, ref notificationId);
+                        string dayText = days > 1 ? "jours" : "jour";
+                        upcomingMessages.Add(expiringProducts.Count == 1
+                            ? $"Dans {days} {dayText} : 1 produit ({expiringProducts.First().Name})"
+                            : $"Dans {days} {dayText} : {expiringProducts.Count} produits");
                     }
+                }
+
+                if (upcomingMessages.Any())
+                {
+                    string title = "Péremptions à surveiller 🗓️";
+                    string description = "• " + string.Join("\n• ", upcomingMessages);
+
+                    ScheduleNotification(title, description, date, notificationTimes, ref notificationId);
                 }
             }
         }
 
-        private static void ScheduleForDate(DateTime actionDate, string title, string description, ref int notificationId)
+        private static void ScheduleNotification(string title, string description, DateTime actionDate, List<TimeSpan> times, ref int notificationId)
         {
-            foreach (var hour in notificationHours)
+            foreach (var time in times)
             {
-                var notifyTime = new DateTime(actionDate.Year, actionDate.Month, actionDate.Day, hour, 0, 0);
+                var notifyTime = actionDate.Date.Add(time);
                 if (notifyTime <= DateTime.Now) continue;
 
                 var request = new NotificationRequest
