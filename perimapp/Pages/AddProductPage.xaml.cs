@@ -158,6 +158,7 @@ public partial class AddProductPage : ContentPage // ou Popup
         await localService.AddProductAsync(product);
 
         AppData.CurrentProducts.Add(product);
+        perimapp.Services.NotificationScheduler.UpdateSchedules();
 
         if (ok)
         {

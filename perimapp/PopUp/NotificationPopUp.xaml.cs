@@ -68,6 +68,9 @@ public partial class NotificationPopUp : Popup
         var settingsJson = JsonSerializer.Serialize(daysToNotify);
         Preferences.Set("NotificationDays", settingsJson);
 
+        // Met à jour les planifications de notifications
+        perimapp.Services.NotificationScheduler.UpdateSchedules();
+
         // On ferme le pop-up
         await CloseAsync();
     }
