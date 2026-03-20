@@ -4,10 +4,10 @@ using System.ComponentModel;
 using perimapp.ViewModels;
 using System.Threading.Tasks;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
-    public partial class DetailsPage : ContentPage
+    public partial class DetailsView : ContentPage
     {
         private DetailsViewModel _viewModel;
 
@@ -23,7 +23,7 @@ namespace perimapp.Pages
             }
         }
         
-        public DetailsPage(NeonProductService neonService, LocalProductService localService, NeonUserService userService, LocalUserService localUserService)
+        public DetailsView(NeonProductService neonService, LocalProductService localService, NeonUserService userService, LocalUserService localUserService)
         {
             InitializeComponent();
             _viewModel = new DetailsViewModel(this, neonService, localService, userService, localUserService);

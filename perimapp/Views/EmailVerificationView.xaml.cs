@@ -4,10 +4,10 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
     [QueryProperty(nameof(SessionId), "sessionId")]
-    public partial class EmailVerificationPage : ContentPage
+    public partial class EmailVerificationView : ContentPage
     {
         private EmailVerificationViewModel _viewModel;
 
@@ -23,7 +23,7 @@ namespace perimapp.Pages
             }
         }
 
-        public EmailVerificationPage()
+        public EmailVerificationView()
         {
             InitializeComponent();
             _viewModel = new EmailVerificationViewModel(this);

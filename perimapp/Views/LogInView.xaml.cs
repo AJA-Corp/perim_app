@@ -3,11 +3,11 @@ using perimapp.Services;
 using perimapp.ViewModels;
 using Microsoft.Maui.Controls;
 
-namespace perimapp.Pages;
+namespace perimapp.Views;
 
-public partial class LogInPage : ContentPage
+public partial class LogInView : ContentPage
 {
-    public LogInPage()
+    public LogInView()
     {
         InitializeComponent();
         BindingContext = new LogInViewModel(this);

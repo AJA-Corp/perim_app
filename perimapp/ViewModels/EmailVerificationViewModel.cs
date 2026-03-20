@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
-using perimapp.Pages;
+using perimapp.Views;
 using perimapp.Services;
 
 namespace perimapp.ViewModels
@@ -114,12 +114,12 @@ namespace perimapp.ViewModels
                     
                     _timer?.Stop();
                     
-                    await Shell.Current.GoToAsync(nameof(MainPage));
+                    await Shell.Current.GoToAsync(nameof(MainView));
                 }
                 else
                 {
                     await _page.DisplayAlert("Erreur", "Session expir\u00e9e. Veuillez vous reconnecter.", "OK");
-                    await Shell.Current.GoToAsync(nameof(LogInPage));
+                    await Shell.Current.GoToAsync(nameof(LogInView));
                 }
             }
             else
@@ -135,7 +135,7 @@ namespace perimapp.ViewModels
             if (session == null)
             {
                 await _page.DisplayAlert("Erreur", "Session expir\u00e9e. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(LogInPage));
+                await Shell.Current.GoToAsync(nameof(LogInView));
                 return;
             }
 
@@ -173,7 +173,7 @@ namespace perimapp.ViewModels
         private async Task GoBackAsync()
         {
             _timer?.Stop();
-            await Shell.Current.GoToAsync(nameof(LogInPage));
+            await Shell.Current.GoToAsync(nameof(LogInView));
         }
 
         private string MaskEmail(string email)

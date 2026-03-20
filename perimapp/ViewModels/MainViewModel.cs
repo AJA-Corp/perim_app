@@ -13,7 +13,7 @@ using Microsoft.Maui.Networking;
 using perimapp.Data;
 using perimapp.Models;
 using perimapp.Services;
-using perimapp.Pages;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
@@ -122,13 +122,13 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task ProfileIconClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(ProfilePage));
+            await Shell.Current.GoToAsync(nameof(ProfileView));
         }
 
         [RelayCommand]
         private async Task AddProductClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(AddProductPage));
+            await Shell.Current.GoToAsync(nameof(AddProductView));
         }
 
         [RelayCommand]
@@ -136,14 +136,14 @@ namespace perimapp.ViewModels
         {
             if (selectedProduct != null)
             {
-                await Shell.Current.GoToAsync($"{nameof(DetailsPage)}?ProductUniqueId={selectedProduct.ProductUniqueId}");
+                await Shell.Current.GoToAsync($"{nameof(DetailsView)}?ProductUniqueId={selectedProduct.ProductUniqueId}");
             }
         }
 
         [RelayCommand]
         private async Task LostProductsClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(DeletedProductPage));
+            await Shell.Current.GoToAsync(nameof(DeletedProductView));
         }
 
         [RelayCommand]

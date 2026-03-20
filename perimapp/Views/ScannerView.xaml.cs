@@ -1,9 +1,9 @@
 using BarcodeScanning;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages;
+namespace perimapp.Views;
 
-public partial class ScannerPage : ContentPage
+public partial class ScannerView : ContentPage
 {
     private ScannerViewModel _viewModel;
 
@@ -17,7 +17,7 @@ public partial class ScannerPage : ContentPage
         }
     }
 
-    public ScannerPage()
+    public ScannerView()
     {
         InitializeComponent();
         _viewModel = new ScannerViewModel(this);

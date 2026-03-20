@@ -10,7 +10,7 @@ using perimapp.PopUp;
 using perimapp.Services;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Maui.Extensions;
-using perimapp.Pages;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
@@ -127,7 +127,7 @@ namespace perimapp.ViewModels
                 var userIdStr = await SecureStorage.GetAsync("user_id");
                 if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 {
-                    Debug.WriteLine("ProfilePage [ERREUR] : ID utilisateur non trouvé.");
+                    Debug.WriteLine("ProfileView [ERREUR] : ID utilisateur non trouvé.");
                     return;
                 }
 
@@ -166,7 +166,7 @@ namespace perimapp.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProfilePage [ERREUR] : {ex.Message}");
+                Debug.WriteLine($"ProfileView [ERREUR] : {ex.Message}");
             }
         }
 
@@ -190,23 +190,23 @@ namespace perimapp.ViewModels
 
                 if (localCount != serverCount)
                 {
-                    Debug.WriteLine($"ProfilePage: Différence détectée - Local: {localCount}, Serveur: {serverCount}");
-                    Debug.WriteLine("ProfilePage: Synchronisation du compteur avec le serveur (serveur fait autorité).");
+                    Debug.WriteLine($"ProfileView: Différence détectée - Local: {localCount}, Serveur: {serverCount}");
+                    Debug.WriteLine("ProfileView: Synchronisation du compteur avec le serveur (serveur fait autorité).");
 
                     localUser.LostProductCount = serverCount;
                     await _localUserService.SaveUserAsync(localUser);
                     LostProductsCount = serverCount;
 
-                    Debug.WriteLine($"ProfilePage: Compteur local mis à jour: {serverCount}");
+                    Debug.WriteLine($"ProfileView: Compteur local mis à jour: {serverCount}");
                 }
                 else
                 {
-                    Debug.WriteLine("ProfilePage: Compteurs local et serveur déjà synchronisés.");
+                    Debug.WriteLine("ProfileView: Compteurs local et serveur déjà synchronisés.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"ProfilePage [SyncLostProductCount] Erreur: {ex.Message}");
+                Debug.WriteLine($"ProfileView [SyncLostProductCount] Erreur: {ex.Message}");
             }
         }
 
@@ -320,7 +320,7 @@ namespace perimapp.ViewModels
                     return;
                 }
 
-                Debug.WriteLine($"[ProfilePage] Début de la suppression du compte {userId}...");
+                Debug.WriteLine($"[ProfileView] Début de la suppression du compte {userId}...");
 
                 bool deletedFromServer = await _userService.DeleteUserAccountAsync(userId);
                 if (!deletedFromServer)
@@ -329,21 +329,21 @@ namespace perimapp.ViewModels
                     return;
                 }
 
-                Debug.WriteLine("[ProfilePage] Données serveur supprimées \u2705");
+                Debug.WriteLine("[ProfileView] Données serveur supprimées \u2705");
 
                 _localUserService.ClearUser();
                 _localProductService.ClearAllProducts();
                 SecureStorage.Remove("user_id");
 
-                Debug.WriteLine("[ProfilePage] Données locales supprimées \u2705");
+                Debug.WriteLine("[ProfileView] Données locales supprimées \u2705");
 
                 await _page.DisplayAlert("Compte supprimé", "Votre compte a été définitivement supprimé.", "OK");
 
-                await Shell.Current.GoToAsync(nameof(StartingPage));
+                await Shell.Current.GoToAsync(nameof(StartingView));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ProfilePage] Erreur lors de la suppression du compte : {ex.Message}");
+                Debug.WriteLine($"[ProfileView] Erreur lors de la suppression du compte : {ex.Message}");
                 await _page.DisplayAlert("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
             }
         }
@@ -356,7 +356,7 @@ namespace perimapp.ViewModels
             _localUserService.ClearUser();
             Debug.WriteLine("Déconnexion de l'utilisateur. Suppression de l'ID utilisateur.");
 
-            await Shell.Current.GoToAsync(nameof(StartingPage));
+            await Shell.Current.GoToAsync(nameof(StartingView));
         }
 
         private void ActivateNotifications()

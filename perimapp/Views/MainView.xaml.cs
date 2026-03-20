@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -14,13 +14,13 @@ using Microsoft.Maui.Networking;
 using System.Windows.Input;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
-    public partial class MainPage : ContentPage
+    public partial class MainView : ContentPage
     {
         private MainViewModel _viewModel;
         
-        public MainPage(NeonProductService neonProductService, LocalProductService localProductService)
+        public MainView(NeonProductService neonProductService, LocalProductService localProductService)
         {
             InitializeComponent();
             _viewModel = new MainViewModel(this, neonProductService, localProductService);

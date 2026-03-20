@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Services;
-using perimapp.Pages;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
@@ -78,7 +78,7 @@ namespace perimapp.ViewModels
                 
                 if (emailSent)
                 {
-                    await Shell.Current.GoToAsync($"{nameof(EmailVerificationPage)}?sessionId={sessionId}");
+                    await Shell.Current.GoToAsync($"{nameof(EmailVerificationView)}?sessionId={sessionId}");
                 }
                 else
                 {
@@ -94,7 +94,7 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task BackLogInAsync()
         {
-            await Shell.Current.GoToAsync(nameof(StartingPage));
+            await Shell.Current.GoToAsync(nameof(StartingView));
         }
     }
 }

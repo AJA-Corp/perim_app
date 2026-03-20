@@ -10,13 +10,13 @@ using perimapp.Models;
 using Microsoft.Maui.Controls;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages;
+namespace perimapp.Views;
 
-public partial class AddProductPage : ContentPage 
+public partial class AddProductView : ContentPage 
 {
     private AddProductViewModel _viewModel;
 
-    public AddProductPage()
+    public AddProductView()
     {
         InitializeComponent();
         _viewModel = new AddProductViewModel(this);

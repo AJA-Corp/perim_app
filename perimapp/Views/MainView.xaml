@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="perimapp.Pages.MainPage"
+             x:Class="perimapp.Views.MainView"
              xmlns:localModels="clr-namespace:perimapp.Models"          
              xmlns:localConverters="clr-namespace:perimapp.Converters"  
              BackgroundColor="#FFF"
@@ -156,7 +156,7 @@
                                         Margin="0,0,0,0"           
                                         StrokeShape="{RoundRectangle CornerRadius='15,0,15,0'}"
                                         StrokeThickness="0">
-                                    <Label Text="{Binding DaysRemainingTextMainPage}"
+                                    <Label Text="{Binding DaysRemainingTextMainView}"
                                            TextColor="White"
                                            VerticalOptions="Center" 
                                            HorizontalOptions="Center" 

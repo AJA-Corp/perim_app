@@ -3,10 +3,10 @@ using Microsoft.Maui.Controls;
 using perimapp.Services;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
     [QueryProperty(nameof(ProductUniqueId), "ProductUniqueId")]
-    public partial class ModifyProductPage : ContentPage
+    public partial class ModifyProductView : ContentPage
     {
         private ModifyProductViewModel _viewModel;
 
@@ -22,7 +22,7 @@ namespace perimapp.Pages
             }
         }
 
-        public ModifyProductPage()
+        public ModifyProductView()
         {
             InitializeComponent();
             var productService = App.Services.GetService<NeonProductService>();

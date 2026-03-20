@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using perimapp.Models;
-using perimapp.Pages;
+using perimapp.Views;
 using perimapp.Services;
 
 namespace perimapp.ViewModels
@@ -68,7 +68,7 @@ namespace perimapp.ViewModels
                 await SecureStorage.SetAsync("user_id", userId.ToString());
 
                 await _page.DisplayAlert("Succ\u00e8s", "Inscription r\u00e9ussie !", "OK");
-                await Shell.Current.GoToAsync(nameof(MainPage));
+                await Shell.Current.GoToAsync(nameof(MainView));
             }
             else if (userId == -2)
             {
@@ -87,13 +87,13 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task BackSignUpAsync()
         {
-            await Shell.Current.GoToAsync(nameof(StartingPage));
+            await Shell.Current.GoToAsync(nameof(StartingView));
         }
 
         [RelayCommand]
         private async Task GotoHomeCodeAsync()
         {
-            await Shell.Current.GoToAsync(nameof(LogInPage));
+            await Shell.Current.GoToAsync(nameof(LogInView));
         }
 
         private int GenerateRandomHomeCode()

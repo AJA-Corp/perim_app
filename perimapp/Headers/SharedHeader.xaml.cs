@@ -1,7 +1,7 @@
 // SharedHeader.xaml.cs
 using Microsoft.Maui.Controls;
 using System;
-using perimapp.Pages; // Indispensable pour référencer vos pages
+using perimapp.Views; // Indispensable pour référencer vos pages
 
 namespace perimapp.Headers
 {
@@ -44,29 +44,29 @@ namespace perimapp.Headers
             {
                 var currentPage = Shell.Current.CurrentPage;
 
-                // Case ModifyProductPage
-                if (currentPage is ModifyProductPage)
+                // Case ModifyProductView
+                if (currentPage is ModifyProductView)
                 {
                     // Vérifiez si ProductUniqueId est défini avant de naviguer
                     if (!string.IsNullOrEmpty(ProductUniqueId))
                     {
                         // Construisez l'itinéraire de retour avec l'ID du produit
-                        string route = $"{nameof(DetailsPage)}?ProductUniqueId={ProductUniqueId}";
+                        string route = $"{nameof(DetailsView)}?ProductUniqueId={ProductUniqueId}";
                         await Shell.Current.GoToAsync(route, true); // Le 'true' signifie animation
-                        Console.WriteLine($"SharedHeader [SUCCÈS] : Navigation de ModifyProductPage vers DetailsPage avec ID: {ProductUniqueId}.");
+                        Console.WriteLine($"SharedHeader [SUCCÈS] : Navigation de ModifyProductView vers DetailsView avec ID: {ProductUniqueId}.");
                     }
                     else
                     {
                         // Si l'ID n'est pas disponible, retournez à la page principale ou affichez une erreur
-                        await Shell.Current.GoToAsync(nameof(MainPage), true);
-                        Console.WriteLine("SharedHeader [INFO] : ProductUniqueId non trouvé, navigation vers MainPage.");
+                        await Shell.Current.GoToAsync(nameof(MainView), true);
+                        Console.WriteLine("SharedHeader [INFO] : ProductUniqueId non trouvé, navigation vers MainView.");
                     }
                 }
-                // Majority Case to MainPage
+                // Majority Case to MainView
                 else
                 {
-                    await Shell.Current.GoToAsync(nameof(MainPage), true);
-                    Console.WriteLine("SharedHeader [SUCCÈS] : Navigation vers MainPage.");
+                    await Shell.Current.GoToAsync(nameof(MainView), true);
+                    Console.WriteLine("SharedHeader [SUCCÈS] : Navigation vers MainView.");
                 }
             }
             catch (Exception ex)

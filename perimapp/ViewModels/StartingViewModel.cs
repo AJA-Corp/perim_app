@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using perimapp.Pages;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
@@ -21,7 +21,7 @@ namespace perimapp.ViewModels
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(LogInPage));
+                await Shell.Current.GoToAsync(nameof(LogInView));
             }
             catch (Exception error)
             {
@@ -39,7 +39,7 @@ namespace perimapp.ViewModels
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(SignUpPage));
+                await Shell.Current.GoToAsync(nameof(SignUpView));
             }
             catch (Exception error)
             {

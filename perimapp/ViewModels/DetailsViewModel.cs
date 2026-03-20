@@ -55,7 +55,7 @@ namespace perimapp.ViewModels
 
             if (ProductDetail != null && ProductDetail.State != "Active")
             {
-                Debug.WriteLine($"DetailsPage: Tentative d'acc\u00e8s \u00e0 un produit non actif ({ProductDetail.State}). Redirection.");
+                Debug.WriteLine($"DetailsView: Tentative d'acc\u00e8s \u00e0 un produit non actif ({ProductDetail.State}). Redirection.");
                 await _page.DisplayAlert("Erreur", "Ce produit n'est plus actif.", "OK");
                 await Shell.Current.GoToAsync("..");
                 return;
@@ -63,11 +63,11 @@ namespace perimapp.ViewModels
 
             if (ProductDetail != null)
             {
-                Debug.WriteLine($"DetailsPage: Produit charg\u00e9 : {ProductDetail.Name}");
+                Debug.WriteLine($"DetailsView: Produit charg\u00e9 : {ProductDetail.Name}");
             }
             else
             {
-                Debug.WriteLine("DetailsPage: Aucun ProductUniqueId fourni ou produit non trouv\u00e9.");
+                Debug.WriteLine("DetailsView: Aucun ProductUniqueId fourni ou produit non trouv\u00e9.");
                 if (string.IsNullOrEmpty(ProductUniqueId))
                 {
                     await _page.DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
@@ -81,8 +81,8 @@ namespace perimapp.ViewModels
         {
             if (ProductDetail != null)
             {
-                string route = $"{nameof(perimapp.Pages.ModifyProductPage)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
-                Debug.WriteLine($"DetailsPage: Navigating to {route}");
+                string route = $"{nameof(perimapp.Views.ModifyProductView)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
+                Debug.WriteLine($"DetailsView: Navigating to {route}");
                 await Shell.Current.GoToAsync(route);
             }
             else
@@ -119,7 +119,7 @@ namespace perimapp.ViewModels
                         bool hasInternet = Connectivity.Current.NetworkAccess == NetworkAccess.Internet;
 
                         await _localUserService.IncrementLostProductCountAsync();
-                        Debug.WriteLine("DetailsPage: Compteur de produits perdus incr\u00e9ment\u00e9 localement.");
+                        Debug.WriteLine("DetailsView: Compteur de produits perdus incr\u00e9ment\u00e9 localement.");
 
                         if (hasInternet)
                         {
@@ -129,11 +129,11 @@ namespace perimapp.ViewModels
                                 bool neonUpdateSuccess = await _userService.IncrementLostProductCountAsync(userId);
                                 if (neonUpdateSuccess)
                                 {
-                                    Debug.WriteLine($"DetailsPage: Compteur synchronis\u00e9 avec Neon pour user {userId}");
+                                    Debug.WriteLine($"DetailsView: Compteur synchronis\u00e9 avec Neon pour user {userId}");
                                 }
                                 else
                                 {
-                                    Debug.WriteLine("DetailsPage: \u00c9chec de la synchronisation avec Neon, les donn\u00e9es locales seront synchronis\u00e9es plus tard.");
+                                    Debug.WriteLine("DetailsView: \u00c9chec de la synchronisation avec Neon, les donn\u00e9es locales seront synchronis\u00e9es plus tard.");
                                 }
                             }
                         }
@@ -151,7 +151,7 @@ namespace perimapp.ViewModels
                         ProductDetail.State = "Deleted";
                         ProductDetail.DeletedAt = DateTime.UtcNow;
 
-                        await Shell.Current.GoToAsync(nameof(perimapp.Pages.MainPage));
+                        await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
                     });
                 }
                 else

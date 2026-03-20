@@ -66,7 +66,7 @@ namespace perimapp.ViewModels
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
                 await _page.DisplayAlert("Erreur", "Utilisateur non identifi\u00e9. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Pages.StartingPage));
+                await Shell.Current.GoToAsync(nameof(perimapp.Views.StartingView));
                 return;
             }
 
@@ -110,7 +110,7 @@ namespace perimapp.ViewModels
             if (ok)
             {
                 await _page.DisplayAlert("Succ\u00e8s", "Produit ajout\u00e9 avec succ\u00e8s.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Pages.MainPage));
+                await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
             }
             else
             {
@@ -132,7 +132,7 @@ namespace perimapp.ViewModels
             if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
             {
                 await _page.DisplayAlert("Erreur", "Utilisateur non identifi\u00e9. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Pages.StartingPage));
+                await Shell.Current.GoToAsync(nameof(perimapp.Views.StartingView));
                 return;
             }
 
@@ -220,15 +220,15 @@ namespace perimapp.ViewModels
 
             if (status == PermissionStatus.Granted)
             {
-                var scannerPage = new perimapp.Pages.ScannerPage();
+                var ScannerView = new perimapp.Views.ScannerView();
 
-                scannerPage.OnBarcodeScanned = (scannedCode) =>
+                ScannerView.OnBarcodeScanned = (scannedCode) =>
                 {
                     BarcodeText = scannedCode;
                     SearchBarcodeAsync().ConfigureAwait(false);
                 };
 
-                await _page.Navigation.PushModalAsync(scannerPage);
+                await _page.Navigation.PushModalAsync(ScannerView);
             }
             else
             {

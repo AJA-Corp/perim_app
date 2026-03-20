@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="perimapp.Pages.ModifyProductPage"
+             x:Class="perimapp.Views.ModifyProductView"
              xmlns:localModels="clr-namespace:perimapp.Models"
              xmlns:localConverters="clr-namespace:perimapp.Converters"  
              xmlns:headers="clr-namespace:perimapp.Headers" 
-             xmlns:pages="clr-namespace:perimapp.Pages"
+             xmlns:views="clr-namespace:perimapp.Views"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:sys="clr-namespace:System;assembly=netstandard"
              BackgroundColor="White">
@@ -19,7 +19,7 @@
             <headers:SharedHeader Grid.Row="0" HeaderText="Modifier"
                                   ProductUniqueId="{Binding ProductUniqueId, 
                                   Source={RelativeSource 
-                                  AncestorType={x:Type pages:DetailsPage}}}">
+                                  AncestorType={x:Type views:DetailsView}}}">
             </headers:SharedHeader>
 
             <ScrollView Grid.Row="1" 

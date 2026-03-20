@@ -65,18 +65,18 @@ namespace perimapp.ViewModels
                 if (product != null)
                 {
                     CurrentProduct = product;
-                    Debug.WriteLine($"ModifyProductPage: Produit \u00e0 modifier charg\u00e9 : {CurrentProduct.Name}");
+                    Debug.WriteLine($"ModifyProductView: Produit \u00e0 modifier charg\u00e9 : {CurrentProduct.Name}");
                 }
                 else
                 {
-                    Debug.WriteLine("ModifyProductPage: Produit non trouv\u00e9 avec ProductUniqueId : " + uniqueId);
+                    Debug.WriteLine("ModifyProductView: Produit non trouv\u00e9 avec ProductUniqueId : " + uniqueId);
                     await _page.DisplayAlert("Erreur", "Produit \u00e0 modifier non trouv\u00e9.", "OK");
-                    await Shell.Current.GoToAsync(nameof(perimapp.Pages.MainPage));
+                    await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
                 }
             }
             else
             {
-                Debug.WriteLine("ModifyProductPage: Aucun ProductUniqueId fourni pour la modification.");
+                Debug.WriteLine("ModifyProductView: Aucun ProductUniqueId fourni pour la modification.");
                 await _page.DisplayAlert(
                     "Erreur",
                     "Impossible de modifier. Aucun ID de produit fourni.",
@@ -176,13 +176,13 @@ namespace perimapp.ViewModels
                 try
                 {
                     await Shell.Current.GoToAsync(
-                        $"{nameof(perimapp.Pages.DetailsPage)}?ProductUniqueId={CurrentProduct.ProductUniqueId}"
+                        $"{nameof(perimapp.Views.DetailsView)}?ProductUniqueId={CurrentProduct.ProductUniqueId}"
                     );
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[DEBUG] - Erreur navigation : {ex.Message}");
-                    await Shell.Current.GoToAsync(nameof(perimapp.Pages.MainPage));
+                    await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
                 }
             }
         }

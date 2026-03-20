@@ -89,7 +89,7 @@ namespace perimapp.ViewModels
 
             if (confirm)
             {
-                System.Diagnostics.Debug.WriteLine($"DeletedProductPage: Tentative de restauration du produit {product.DisplayName}");
+                System.Diagnostics.Debug.WriteLine($"DeletedProductView: Tentative de restauration du produit {product.DisplayName}");
 
                 bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 

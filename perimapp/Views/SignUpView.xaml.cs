@@ -5,11 +5,11 @@ using perimapp.Services;
 using perimapp.ViewModels;
 using Microsoft.Maui.Controls;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
-    public partial class SignUpPage : ContentPage
+    public partial class SignUpView : ContentPage
     {
-        public SignUpPage()
+        public SignUpView()
         {
             InitializeComponent();
             BindingContext = new SignUpViewModel(this);

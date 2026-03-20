@@ -12,13 +12,13 @@ using System.Diagnostics;
 using CommunityToolkit.Maui.Extensions;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
-    public partial class ProfilePage : ContentPage
+    public partial class ProfileView : ContentPage
     {
         private ProfileViewModel _viewModel;
 
-        public ProfilePage()
+        public ProfileView()
         {
             InitializeComponent();
             _viewModel = new ProfileViewModel(this);

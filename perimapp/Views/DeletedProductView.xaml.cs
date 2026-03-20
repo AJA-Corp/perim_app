@@ -5,13 +5,13 @@ using System.Collections.ObjectModel;
 using Microsoft.Maui.Networking;
 using perimapp.ViewModels;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
-    public partial class DeletedProductPage : ContentPage
+    public partial class DeletedProductView : ContentPage
     {
         private DeletedProductViewModel _viewModel;
 
-        public DeletedProductPage(NeonProductService neonProductService, LocalProductService localProductService, NeonUserService userService, LocalUserService localUserService)
+        public DeletedProductView(NeonProductService neonProductService, LocalProductService localProductService, NeonUserService userService, LocalUserService localUserService)
         {
             InitializeComponent();
             _viewModel = new DeletedProductViewModel(this, neonProductService, localProductService, userService, localUserService);
