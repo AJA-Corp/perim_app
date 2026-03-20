@@ -188,6 +188,9 @@ namespace perimapp.Pages
                         AppData.CurrentProducts.Add(product);
 
                     DisplayedProductsCount = AppData.CurrentProducts.Count;
+
+                    // Planifie les notifications une fois la liste locale mise à jour
+                    perimapp.Services.NotificationScheduler.UpdateSchedules();
                 });
             }
             catch (Exception ex)

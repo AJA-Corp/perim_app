@@ -21,13 +21,6 @@ namespace perimapp
 
             Services = serviceProvider;
 
-#if ANDROID
-            if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.O)
-            {
-                var intent = new Android.Content.Intent(Android.App.Application.Context, typeof(perimapp.Platforms.Android.NotificationForegroundService));
-                Android.App.Application.Context.StartForegroundService(intent);
-            }
-#endif
             _localUserService = new LocalUserService();
 
             // On initialise la page principale

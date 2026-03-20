@@ -10,6 +10,6 @@ public class AppDelegate : MauiUIApplicationDelegate
     
     public static UIInterfaceOrientationMask GetSupportedInterfaceOrientations(UIApplication application, UIWindow forWindow)
     {
-        return UIInterfaceOrientationMask.Portrait; // 🔥 Bloque en mode portrait
+        return UIInterfaceOrientationMask.Portrait;
     }
 }
