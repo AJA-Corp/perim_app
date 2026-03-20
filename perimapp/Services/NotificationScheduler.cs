@@ -11,8 +11,8 @@ namespace perimapp.Services
 {
     public static class NotificationScheduler
     {
-        private static readonly List<int> defaultNotificationDays = new List<int> { 1, 3, 7 };
-        private static readonly List<TimeSpan> notificationTimes = new List<TimeSpan> 
+        private static readonly List<int> _defaultNotificationDays = new List<int> { 1, 3, 7 };
+        private static readonly List<TimeSpan> _notificationTimes = new List<TimeSpan> 
         { 
             new TimeSpan(7, 0, 0),   // 7h00
             new TimeSpan(11, 0, 0),  // 11h00
@@ -27,9 +27,22 @@ namespace perimapp.Services
             if (!allProducts.Any()) return;
 
             var settingsJson = Preferences.Get("NotificationDays", string.Empty);
-            var notificationDays = string.IsNullOrEmpty(settingsJson)
-                ? defaultNotificationDays
-                : JsonSerializer.Deserialize<List<int>>(settingsJson) ?? defaultNotificationDays;
+            List<int> notificationDays;
+            if (string.IsNullOrEmpty(settingsJson))
+            {
+                notificationDays = _defaultNotificationDays;
+            }
+            else
+            {
+                try
+                {
+                    notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson) ?? _defaultNotificationDays;
+                }
+                catch (JsonException)
+                {
+                    notificationDays = _defaultNotificationDays;
+                }
+            }
 
             int notificationId = 1000;
 
@@ -37,7 +50,7 @@ namespace perimapp.Services
             var startDay = DateTime.Today;
             var endDay = DateTime.Today.AddDays(15);
 
-            for (var date = startDay; date <= endDay; date = date.AddDays(1))
+            for (var date = startDay; date < endDay; date = date.AddDays(1))
             {
                 // -- 1ère NOTIFICATION : Les produits qui périment AUJOURD'HUI --
                 var dlcTodayProducts = allProducts.Where(p => p.Dlc.Date == date.Date).ToList();
@@ -48,7 +61,7 @@ namespace perimapp.Services
                         ? $"Le produit '{dlcTodayProducts.First().Name}' périme aujourd'hui !"
                         : $"{dlcTodayProducts.Count} produits périment aujourd'hui !";
 
-                    ScheduleNotification(title, description, date, notificationTimes, ref notificationId);
+                    ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
                 }
 
                 // -- 2ème NOTIFICATION : Les autres jours (à venir) --
@@ -72,7 +85,7 @@ namespace perimapp.Services
                     string title = "Péremptions à surveiller 🗓️";
                     string description = "• " + string.Join("\n• ", upcomingMessages);
 
-                    ScheduleNotification(title, description, date, notificationTimes, ref notificationId);
+                    ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
                 }
             }
         }
@@ -99,7 +112,9 @@ namespace perimapp.Services
                         NotifyTime = notifyTime
                     }
                 };
-                LocalNotificationCenter.Current.Show(request);
+                LocalNotificationCenter.Current.Show(request).ContinueWith(
+                    t => System.Diagnostics.Debug.WriteLine(t.Exception?.ToString()),
+                    System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
             }
         }
     }
