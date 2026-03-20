@@ -1,23 +1,23 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using perimapp.ViewModels;
+using perimapp.Pages;
 
-namespace perimapp.Pages
+namespace perimapp.ViewModels
 {
-    public partial class StartingPage : ContentPage
+    public partial class StartingViewModel : ObservableObject
     {
-        public StartingPage()
+        private readonly ContentPage _page;
+
+        public StartingViewModel(ContentPage page)
         {
-            InitializeComponent();
-            BindingContext = new StartingViewModel(this);
-            NavigationPage.SetHasNavigationBar(this, false);
+            _page = page;
         }
 
-        private async void OnLogInClicked(object sender, EventArgs e)
+        [RelayCommand]
+        private async Task LogInAsync()
         {
             try
             {
@@ -26,7 +26,7 @@ namespace perimapp.Pages
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await DisplayAlertAsync(
+                await _page.DisplayAlert(
                     "Erreur",
                     "Une erreur est survenue lors de la navigation.",
                     "OK"
@@ -34,7 +34,8 @@ namespace perimapp.Pages
             }
         }
 
-        private async void OnSignUpClicked(object sender, EventArgs e)
+        [RelayCommand]
+        private async Task SignUpAsync()
         {
             try
             {
@@ -43,7 +44,7 @@ namespace perimapp.Pages
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await DisplayAlertAsync(
+                await _page.DisplayAlert(
                     "Erreur",
                     "Une erreur est survenue lors de la navigation.",
                     "OK"

@@ -24,7 +24,7 @@
 
                 <!-- Bouton Profil -->
                 <Button Grid.Column="0"
-                        Clicked="OnProfileIconClicked"
+                        Command="{Binding ProfileIconClickedCommand}"
                         BackgroundColor="LightGray"
                         WidthRequest="45"
                         HeightRequest="45"
@@ -45,7 +45,7 @@
                 <!-- Bouton AddProduct -->
                 <Button Grid.Column="2"
                         Text="+"
-                        Clicked="OnAddProductClicked"
+                        Command="{Binding AddProductClickedCommand}"
                         FontSize="40"
                         TextColor="White"
                         BackgroundColor="#58BF7F"
@@ -74,7 +74,7 @@
 
                 <Button Grid.Column="1"
                         Text="{Binding SortButtonText}"
-                        Clicked="OnSortButtonClicked"
+                        Command="{Binding SortButtonClickedCommand}"
                         BackgroundColor="Transparent"
                         FontSize="14"
                         TextColor="Gray"
@@ -172,7 +172,7 @@
             <Button x:Name="FloatingBinButton"
                     Grid.Row="2"
                     ImageSource="bin_white.png"
-                    Clicked="OnLostProductsClicked"
+                    Command="{Binding LostProductsClickedCommand}"
                     BackgroundColor="#58BF7F"
                     TextColor="White"
                     WidthRequest="60"

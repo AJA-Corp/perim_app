@@ -28,7 +28,7 @@
                                 VerticalOptions="Center"
                                 Margin="0,10, 0, 0"
                                 Padding="0, -3, 0, 0"
-                                Clicked="OnScanButtonClicked"/>
+                                Command="{Binding ScanBarcodeCommand}"/>
                         
                         <Border WidthRequest="180"
                                 HeightRequest="180"
@@ -48,7 +48,7 @@
                                              VerticalOptions="Center"
                                              IsVisible="{Binding HasNoImage, Mode=OneWay}"/> 
                                       <Image x:Name="ProductImage"
-                                             Source="{Binding }" 
+                                             Source="{Binding ProductImageSource}" 
                                              Aspect="AspectFill"     
                                              HorizontalOptions="Center"
                                              VerticalOptions="Center"
@@ -64,10 +64,11 @@
                                WidthRequest="250"
                                HorizontalOptions="Center"
                                HorizontalTextAlignment="Center"
-                               Completed="BarcodeEntry_OnCompleted"/>
+                               Text="{Binding BarcodeText, Mode=TwoWay}"
+                               ReturnCommand="{Binding SearchBarcodeCommand}"/>
 
                         <Label x:Name="ProductName"
-                               Text="Nom du produit"
+                               Text="{Binding ProductNameText}"
                                FontSize="20"
                                TextColor="Black"
                                HorizontalOptions="Center"
@@ -92,6 +93,7 @@
                                 HorizontalOptions="Center">
                                <DatePicker x:Name="DlcPicker"
                                            Format="dd/MM/yyyy"
+                                           Date="{Binding DlcDate, Mode=TwoWay}"
                                            MinimumDate="{x:Static sys:DateTime.Today}"
                                            TextColor="#58BF7F"
                                            HorizontalOptions="Center" />
@@ -126,9 +128,9 @@
                                           Padding="0"
                                           VerticalOptions="FillAndExpand"
                                           HorizontalOptions="FillAndExpand"
-                                          Clicked="OnDecrementQuantityClicked"/>
+                                          Command="{Binding DecrementQuantityCommand}"/>
                               </Border>
-                            
+
                               <Border Grid.Column="1"
                                       WidthRequest="60" 
                                       HeightRequest="50"
@@ -139,7 +141,7 @@
                                       VerticalOptions="Center"
                                       HorizontalOptions="Center">
                                       <Entry x:Name="QuantityEntry"
-                                            Text="1"
+                                            Text="{Binding CurrentQuantity, Mode=TwoWay}"
                                             FontSize="25"
                                             TextColor="Black"
                                             BackgroundColor="White" Keyboard="Numeric"
@@ -147,8 +149,7 @@
                                             VerticalTextAlignment="Center"
                                             Placeholder="1"
                                             ClearButtonVisibility="Never"
-                                            MaxLength="2" 
-                                            Unfocused="QuantityEntry_Unfocused"/>
+                                            MaxLength="2"/>
                               </Border>
 
                               <Border Grid.Column="2"
@@ -160,7 +161,7 @@
                                      BackgroundColor="White"
                                      VerticalOptions="Center"
                                      HorizontalOptions="Center">
-                                     
+
                                      <Button Text="+"
                                              FontSize="25"
                                              TextColor="Black"
@@ -169,7 +170,7 @@
                                              Padding="0"
                                              VerticalOptions="FillAndExpand"
                                              HorizontalOptions="FillAndExpand"
-                                             Clicked="OnIncrementQuantityClicked" />
+                                             Command="{Binding IncrementQuantityCommand}" />
                               </Border>
                         </Grid>
 
@@ -192,7 +193,7 @@
                               WidthRequest="300"
                               HorizontalOptions="FillAndExpand"
                               VerticalOptions="Center"
-                              Clicked="OnValidateClicked"/>
+                              Command="{Binding ValidateProductCommand}"/>
                </Grid>
         </Grid>
 

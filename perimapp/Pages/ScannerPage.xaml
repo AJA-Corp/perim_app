@@ -10,6 +10,8 @@
         <bv:CameraView x:Name="Camera"
                        CameraFacing="Back"
                        VibrationOnDetected="True"
+                       CameraEnabled="{Binding IsCameraEnabled}"
+                       TorchOn="{Binding IsTorchOn}"
                        OnDetectionFinished="Camera_OnDetectionFinished" />
 
         <Label Text="Placez le code-barres au centre"
@@ -42,11 +44,11 @@
                 VerticalOptions="End"
                 HorizontalOptions="Center"
                 Margin="0, 0, 0, 40"
-                Clicked="OnCancelClicked" />
+                Command="{Binding CancelCommand}" />
 
         <Button x:Name="FlashButton"
                 ImageSource="flash.png"
-                BackgroundColor="#80000000"
+                BackgroundColor="{Binding FlashButtonBackgroundColor}"
                 CornerRadius="20"
                 WidthRequest="40"
                 HeightRequest="40"
@@ -54,7 +56,7 @@
                 HorizontalOptions="End"
                 VerticalOptions="Start"
                 Margin="0, 40, 20, 0"
-                Clicked="OnToggleFlashClicked" />
+                Command="{Binding ToggleFlashCommand}" />
     </Grid>
 
 </ContentPage>

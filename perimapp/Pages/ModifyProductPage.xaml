@@ -51,7 +51,8 @@
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center" Margin="0,0,0,10"
                             Placeholder="Nom du produit"
-                            TextChanged="ProductNameEntry_TextChanged"/> 
+                            Text="{Binding CurrentCustomName, Mode=TwoWay}"
+                            TextChanged="ProductNameEntry_TextChanged"/>
 
                      <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
                          <Label Text="DLC: "
@@ -96,7 +97,7 @@
                                            Padding="0"
                                            VerticalOptions="FillAndExpand"
                                            HorizontalOptions="FillAndExpand"
-                                           Clicked="OnDecrementQuantityClicked"/>
+                                           Command="{Binding DecrementQuantityCommand}"/>
                            </Border>
                             
                            <Border Grid.Column="1"
@@ -109,7 +110,7 @@
                                    VerticalOptions="Center"
                                    HorizontalOptions="Center">
                                    <Entry x:Name="QuantityEntry"
-                                          Text="{Binding CurrentProduct.Quantity}"  
+                                          Text="{Binding CurrentQuantity, Mode=TwoWay}"  
                                           FontSize="25"
                                           TextColor="Black"
                                           VerticalTextAlignment="Center"
@@ -138,7 +139,7 @@
                                            Padding="0"
                                            VerticalOptions="FillAndExpand"
                                            HorizontalOptions="FillAndExpand"
-                                           Clicked="OnIncrementQuantityClicked" />
+                                           Command="{Binding IncrementQuantityCommand}" />
                            </Border>
                      </Grid>
                     
@@ -178,7 +179,7 @@
                           WidthRequest="300"
                           HorizontalOptions="FillAndExpand"
                           VerticalOptions="Center"
-                          Clicked="OnSaveButtonClicked"/>
+                          Command="{Binding SaveProductCommand}"/>
             </Grid>
         </Grid>
     </ContentPage.Content>

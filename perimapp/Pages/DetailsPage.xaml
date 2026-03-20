@@ -26,7 +26,7 @@
                  <VerticalStackLayout Spacing="10"
                                       HorizontalOptions="FillAndExpand">
                      <Button ImageSource="bin_white.png" 
-                             Clicked="DeleteButton_Clicked" 
+                             Command="{Binding DeleteProductCommand}" 
                              BackgroundColor="Crimson"
                              TextColor="White"
                              CornerRadius="20"
@@ -99,7 +99,7 @@
                     </Frame>
 
                     <Button Text="Modifier"
-                            Clicked="OnModifyButtonClicked"
+                            Command="{Binding ModifyProductCommand}"
                             BackgroundColor="White" 
                             TextColor="Black"
                             BorderColor="Transparent"

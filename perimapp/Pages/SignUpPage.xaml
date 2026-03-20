@@ -24,7 +24,7 @@
 
                 <Grid>
                     <Button Text="Avez-vous un code foyer ?"
-                            Clicked="HomeCodeButton"
+                            Command="{Binding GotoHomeCodeCommand}"
                             TextColor="Gray"
                             BackgroundColor="Transparent"
                             HeightRequest="50"
@@ -41,6 +41,7 @@
                            BackgroundColor="Transparent"
                            HeightRequest="50"
                            FontSize="20"
+                           Text="{Binding EmailText, Mode=TwoWay}"
                            x:Name="EmailEntry"/>
                     <BoxView HeightRequest="1"
                              BackgroundColor="Black"
@@ -55,6 +56,7 @@
                            BackgroundColor="Transparent"
                            HeightRequest="50"
                            FontSize="20"
+                           Text="{Binding PasswordText, Mode=TwoWay}"
                            x:Name="PasswordEntry"/>
                     <BoxView HeightRequest="1"
                              BackgroundColor="Black"
@@ -69,6 +71,7 @@
                            BackgroundColor="Transparent"
                            HeightRequest="50"
                            FontSize="20"
+                           Text="{Binding ConfirmPasswordText, Mode=TwoWay}"
                            x:Name="ConfirmPasswordEntry"/>
                     <BoxView HeightRequest="1"
                              BackgroundColor="Black"
@@ -78,7 +81,7 @@
 
             <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
                 <Button Text="Suivant"
-                        Clicked="OnNextSignUpClicked"
+                        Command="{Binding NextSignUpCommand}"
                         BackgroundColor="#58BF7F"
                         TextColor="White"
                         FontAttributes="Bold"
@@ -89,7 +92,7 @@
                         WidthRequest="250"/>
 
                 <Button Text="Retour"
-                        Clicked="OnBackSignUpClicked"
+                        Command="{Binding BackSignUpCommand}"
                         BackgroundColor="Black"
                         TextColor="White"
                         FontAttributes="Bold"

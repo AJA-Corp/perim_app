@@ -31,6 +31,7 @@
                        BackgroundColor="Transparent"
                        HeightRequest="50"
                        FontSize="20"
+                       Text="{Binding EmailText, Mode=TwoWay}"
                        x:Name="EmailEntry"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
@@ -45,12 +46,13 @@
                        BackgroundColor="Transparent"
                        HeightRequest="50"
                        FontSize="20"
+                       Text="{Binding PasswordText, Mode=TwoWay}"
                        x:Name="PasswordEntry"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
                          VerticalOptions="End"/>
             </Grid>
-            
+
             <Label Text="Ou"
                    FontSize="24"
                    FontAttributes="Bold"
@@ -66,6 +68,7 @@
                        Keyboard="Numeric"
                        HeightRequest="50"
                        FontSize="20"
+                       Text="{Binding HomeCodeText, Mode=TwoWay}"
                        x:Name="CodeFoyerEntry"/>
                 <BoxView HeightRequest="1"
                          BackgroundColor="White"
@@ -75,7 +78,7 @@
 
         <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
             <Button Text="Suivant"
-                    Clicked="OnNextLogInClicked"
+                    Command="{Binding NextLogInCommand}"
                     BackgroundColor="White"
                     TextColor="#58BF7F"
                     FontAttributes="Bold"
@@ -86,7 +89,7 @@
                     WidthRequest="250"/>
 
             <Button Text="Retour"
-                    Clicked="OnBackLogInClicked"
+                    Command="{Binding BackLogInCommand}"
                     BackgroundColor="Black"
                     TextColor="White"
                     FontAttributes="Bold"
