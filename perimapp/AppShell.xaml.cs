@@ -24,6 +24,5 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(SignUpView), typeof(SignUpView));
         Routing.RegisterRoute(nameof(StartingView), typeof(StartingView));
 
-        CurrentItem = new ShellContent { Content = new LoadingView() };
     }
 }

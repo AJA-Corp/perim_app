@@ -22,9 +22,11 @@ namespace perimapp
             Services = serviceProvider;
 
             _localUserService = new LocalUserService();
+        }
 
-            // On initialise la page principale
-            MainView = new AppShell();
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new AppShell());
         }
 
 

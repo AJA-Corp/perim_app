@@ -10,7 +10,7 @@
 
     <ShellContent
         Title="LoadingView"
-        ContentTemplate="{DataTemplate pages:LoadingView}"
+        ContentTemplate="{DataTemplate views:LoadingView}"
         Route="LoadingView" />
 
 </Shell>
