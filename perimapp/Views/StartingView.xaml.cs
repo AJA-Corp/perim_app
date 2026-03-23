@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Maui.Controls;
+using perimapp.ViewModels;
 
-namespace perimapp.Pages
+namespace perimapp.Views
 {
-    public partial class StartingPage : ContentPage
+    public partial class StartingView : ContentPage
     {
-        public StartingPage()
+        public StartingView()
         {
             InitializeComponent();
+            BindingContext = new StartingViewModel(this);
             NavigationPage.SetHasNavigationBar(this, false);
         }
 
@@ -18,7 +21,7 @@ namespace perimapp.Pages
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(LogInPage));
+                await Shell.Current.GoToAsync(nameof(LogInView));
             }
             catch (Exception error)
             {
@@ -35,7 +38,7 @@ namespace perimapp.Pages
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(SignUpPage));
+                await Shell.Current.GoToAsync(nameof(SignUpView));
             }
             catch (Exception error)
             {

@@ -1,5 +1,5 @@
-﻿// AppShell.xaml.cs
-using perimapp.Pages;
+// AppShell.xaml.cs
+using perimapp.Views;
 using perimapp.PopUp;
 
 namespace perimapp;
@@ -11,19 +11,18 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         // ENREGISTREZ TOUTES VOS ROUTES ICI
-        Routing.RegisterRoute(nameof(AddProductPage), typeof(AddProductPage));
-        Routing.RegisterRoute(nameof(DeletedProductPage), typeof(DeletedProductPage));
-        Routing.RegisterRoute(nameof(DetailsPage), typeof(DetailsPage));
-        Routing.RegisterRoute(nameof(EmailVerificationPage), typeof(EmailVerificationPage));
-        Routing.RegisterRoute(nameof(LogInPage), typeof(LogInPage));
-        Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
-        Routing.RegisterRoute(nameof(ModifyProductPage), typeof(ModifyProductPage));
+        Routing.RegisterRoute(nameof(AddProductView), typeof(AddProductView));
+        Routing.RegisterRoute(nameof(DeletedProductView), typeof(DeletedProductView));
+        Routing.RegisterRoute(nameof(DetailsView), typeof(DetailsView));
+        Routing.RegisterRoute(nameof(EmailVerificationView), typeof(EmailVerificationView));
+        Routing.RegisterRoute(nameof(LogInView), typeof(LogInView));
+        Routing.RegisterRoute(nameof(MainView), typeof(MainView));
+        Routing.RegisterRoute(nameof(ModifyProductView), typeof(ModifyProductView));
         Routing.RegisterRoute(nameof(NotificationPopUp), typeof(NotificationPopUp));
-        Routing.RegisterRoute(nameof(ProfilePage), typeof(ProfilePage));
-        Routing.RegisterRoute(nameof(ScannerPage), typeof(ScannerPage));
-        Routing.RegisterRoute(nameof(SignUpPage), typeof(SignUpPage));
-        Routing.RegisterRoute(nameof(StartingPage), typeof(StartingPage));
+        Routing.RegisterRoute(nameof(ProfileView), typeof(ProfileView));
+        Routing.RegisterRoute(nameof(ScannerView), typeof(ScannerView));
+        Routing.RegisterRoute(nameof(SignUpView), typeof(SignUpView));
+        Routing.RegisterRoute(nameof(StartingView), typeof(StartingView));
 
-        CurrentItem = new ShellContent { Content = new LoadingPage() };
     }
 }

@@ -35,7 +35,7 @@ namespace perimapp.Models
         public int DaysRemaining => (Dlc.Date - DateTime.Today).Days;
 
         
-        public string DaysRemainingTextMainPage
+        public string DaysRemainingTextMainView
         {
             get
             {
@@ -62,7 +62,7 @@ namespace perimapp.Models
         }
 
         
-        public string DaysRemainingTextDetailsPage
+        public string DaysRemainingTextDetailsView
         {
             get
             {

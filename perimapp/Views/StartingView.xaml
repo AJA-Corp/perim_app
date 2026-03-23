@@ -1,6 +1,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="perimapp.Pages.StartingPage"
+             x:Class="perimapp.Views.StartingView"
              BackgroundColor="#58BF7F">
     <ContentPage.Content>
         <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="20">
@@ -22,7 +22,7 @@
                    HeightRequest="300"/>
 
             <Button Text="Se connecter"
-                    Clicked="OnLogInClicked"  
+                    Command="{Binding LogInCommand}"  
                     FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"
@@ -35,7 +35,7 @@
                     Margin="0,10"/>
 
             <Button Text="Créer un compte"
-                    Clicked="OnSignUpClicked"  
+                    Command="{Binding SignUpCommand}"  
                     FontSize="20"
                     BackgroundColor="White"
                     TextColor="Black"

@@ -1,7 +1,7 @@
-﻿using Microsoft.Maui.Storage;
+using Microsoft.Maui.Storage;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.Pages;
+using perimapp.Views;
 using Plugin.LocalNotification;
 using perimapp.Services;
 
@@ -22,9 +22,11 @@ namespace perimapp
             Services = serviceProvider;
 
             _localUserService = new LocalUserService();
+        }
 
-            // On initialise la page principale
-            MainPage = new AppShell();
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new AppShell());
         }
 
 

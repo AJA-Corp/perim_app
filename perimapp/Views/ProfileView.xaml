@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:headers="clr-namespace:perimapp.Headers"
-             x:Class="perimapp.Pages.ProfilePage"
+             x:Class="perimapp.Views.ProfileView"
              BackgroundColor="#FFF">
 
     <ContentPage.Resources>
@@ -40,7 +40,7 @@
             <!-- POPUP MODIFICATION PROFIL -->
         <Grid x:Name="EditProfilePopup"
               BackgroundColor="#80000000"
-              IsVisible="False"
+              IsVisible="{Binding IsEditPopupVisible}"
               VerticalOptions="FillAndExpand"
               HorizontalOptions="FillAndExpand"
               ZIndex="999">
@@ -62,22 +62,24 @@
 
                     <Entry x:Name="FirstNameEntry"
                            TextColor="Black"
+                           Text="{Binding EditFirstName, Mode=TwoWay}"
                            Placeholder="Prénom" />
 
                     <Entry x:Name="LastNameEntry"
                            TextColor="Black"
+                           Text="{Binding EditLastName, Mode=TwoWay}"
                            Placeholder="Nom" />
 
                     <HorizontalStackLayout Spacing="10"
                                            HorizontalOptions="Center">
                         <Button Text="Annuler"
-                                Clicked="OnCancelEditClicked"
+                                Command="{Binding CancelEditCommand}"
                                 BackgroundColor="LightGray"
                                 TextColor="Black"
                                 WidthRequest="120"/>
 
                         <Button Text="Enregistrer"
-                                Clicked="OnSaveEditClicked"
+                                Command="{Binding SaveEditCommand}"
                                 BackgroundColor="#58BF7F"
                                 TextColor="White"
                                 WidthRequest="120"/>
@@ -134,7 +136,7 @@
             </ScrollView>
 
             <ImageButton Source="parameter_button.png"
-                         Clicked="OnSettingsClicked"
+                         Command="{Binding ToggleSettingsCommand}"
                          HeightRequest="20"
                          WidthRequest="20"
                          HorizontalOptions="End"
@@ -156,7 +158,7 @@
                 <VerticalStackLayout Spacing="0">
 
                     <Button Text="Modifier profil"
-                            Clicked="OnEditProfileClicked"
+                            Command="{Binding EditProfileCommand}"
                             TextColor="Black"
                             BackgroundColor="White"
                             BorderColor="Transparent"
@@ -167,7 +169,7 @@
                     <BoxView HeightRequest="1" BackgroundColor="#e0e0e0" />
 
                     <Button Text="Supprimer compte"
-                            Clicked="OnDeleteAccountClicked"
+                            Command="{Binding DeleteAccountCommand}"
                             TextColor="Red"
                             BackgroundColor="White"
                             BorderColor="Transparent"
@@ -178,7 +180,7 @@
                     <BoxView HeightRequest="1" BackgroundColor="#e0e0e0" />
 
                     <Button Text="Déconnexion"
-                            Clicked="OnLogoutClicked"
+                            Command="{Binding LogoutCommand}"
                             TextColor="Black"
                             BackgroundColor="White"
                             BorderColor="Transparent"
@@ -203,7 +205,7 @@
                     Margin="30,10"
                     HorizontalOptions="FillAndExpand"
                     VerticalOptions="Center"
-                    Clicked="OnActivateNotificationsClicked"/>
+                    Command="{Binding ActivateNotificationsCommand}"/>
         </Grid>
     </Grid>
 </ContentPage>

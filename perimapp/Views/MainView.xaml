@@ -1,7 +1,7 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="perimapp.Pages.MainPage"
+             x:Class="perimapp.Views.MainView"
              xmlns:localModels="clr-namespace:perimapp.Models"          
              xmlns:localConverters="clr-namespace:perimapp.Converters"  
              BackgroundColor="#FFF"
@@ -24,7 +24,7 @@
 
                 <!-- Bouton Profil -->
                 <Button Grid.Column="0"
-                        Clicked="OnProfileIconClicked"
+                        Command="{Binding ProfileIconClickedCommand}"
                         BackgroundColor="LightGray"
                         WidthRequest="45"
                         HeightRequest="45"
@@ -45,7 +45,7 @@
                 <!-- Bouton AddProduct -->
                 <Button Grid.Column="2"
                         Text="+"
-                        Clicked="OnAddProductClicked"
+                        Command="{Binding AddProductClickedCommand}"
                         FontSize="40"
                         TextColor="White"
                         BackgroundColor="#58BF7F"
@@ -74,7 +74,7 @@
 
                 <Button Grid.Column="1"
                         Text="{Binding SortButtonText}"
-                        Clicked="OnSortButtonClicked"
+                        Command="{Binding SortButtonClickedCommand}"
                         BackgroundColor="Transparent"
                         FontSize="14"
                         TextColor="Gray"
@@ -156,7 +156,7 @@
                                         Margin="0,0,0,0"           
                                         StrokeShape="{RoundRectangle CornerRadius='15,0,15,0'}"
                                         StrokeThickness="0">
-                                    <Label Text="{Binding DaysRemainingTextMainPage}"
+                                    <Label Text="{Binding DaysRemainingTextMainView}"
                                            TextColor="White"
                                            VerticalOptions="Center" 
                                            HorizontalOptions="Center" 
@@ -172,7 +172,7 @@
             <Button x:Name="FloatingBinButton"
                     Grid.Row="2"
                     ImageSource="bin_white.png"
-                    Clicked="OnLostProductsClicked"
+                    Command="{Binding LostProductsClickedCommand}"
                     BackgroundColor="#58BF7F"
                     TextColor="White"
                     WidthRequest="60"

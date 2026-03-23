@@ -1,9 +1,9 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Plugin.LocalNotification;
-using perimapp.Pages; // Ajouté pour les pages
+using perimapp.Views; // Ajouté pour les pages
 using perimapp.Services;
 using DotNet.Meteor.HotReload.Plugin;
 using BarcodeScanning;
@@ -38,10 +38,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<LocalUserService>();
 
         // --- ENREGISTREMENT DES PAGES ---
-        builder.Services.AddSingleton<MainPage>(); 
-        builder.Services.AddTransient<DeletedProductPage>();
-        builder.Services.AddTransient<DetailsPage>();
-        builder.Services.AddTransient<ScannerPage>();
+        builder.Services.AddSingleton<MainView>(); 
+        builder.Services.AddTransient<DeletedProductView>();
+        builder.Services.AddTransient<DetailsView>();
+        builder.Services.AddTransient<ScannerView>();
 
 #if DEBUG
         builder.Logging.AddDebug();

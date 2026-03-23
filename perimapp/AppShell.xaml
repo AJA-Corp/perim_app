@@ -3,14 +3,14 @@
     x:Class="perimapp.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:pages="clr-namespace:perimapp.Pages"
+    xmlns:views="clr-namespace:perimapp.Views"
     FlyoutBehavior="Disabled"
     Title="perimapp"
     Shell.NavBarIsVisible="False">
 
     <ShellContent
-        Title="LoadingPage"
-        ContentTemplate="{DataTemplate pages:LoadingPage}"
-        Route="LoadingPage" />
+        Title="LoadingView"
+        ContentTemplate="{DataTemplate views:LoadingView}"
+        Route="LoadingView" />
 
 </Shell>
