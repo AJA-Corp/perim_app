@@ -25,10 +25,10 @@
                         VerticalOptions="FillAndExpand">
                  <VerticalStackLayout Spacing="10"
                                       HorizontalOptions="FillAndExpand">
-                     <Button ImageSource="bin_white.png" 
+                     <ImageButton 
+                             Source="bin_white.png" 
                              Command="{Binding DeleteProductCommand}" 
                              BackgroundColor="Crimson"
-                             TextColor="White"
                              CornerRadius="20"
                              WidthRequest="60"
                              HeightRequest="60"

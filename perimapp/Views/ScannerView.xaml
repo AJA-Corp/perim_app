@@ -46,17 +46,17 @@
                 Margin="0, 0, 0, 40"
                 Command="{Binding CancelCommand}" />
 
-        <Button x:Name="FlashButton"
-                ImageSource="flash.png"
-                BackgroundColor="{Binding FlashButtonBackgroundColor}"
-                CornerRadius="20"
-                WidthRequest="40"
-                HeightRequest="40"
-                Padding="8"
-                HorizontalOptions="End"
-                VerticalOptions="Start"
-                Margin="0, 40, 20, 0"
-                Command="{Binding ToggleFlashCommand}" />
+        <ImageButton x:Name="FlashButton"
+                     Source="flash.png"
+                     BackgroundColor="{Binding FlashButtonBackgroundColor}"
+                     CornerRadius="20"
+                     WidthRequest="40"
+                     HeightRequest="40"
+                     Padding="8"
+                     HorizontalOptions="End"
+                     VerticalOptions="Start"
+                     Margin="0, 40, 20, 0"
+                     Command="{Binding ToggleFlashCommand}" />
     </Grid>
 
 </ContentPage>

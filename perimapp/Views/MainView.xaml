@@ -169,19 +169,18 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
                 </RefreshView>
-            <Button x:Name="FloatingBinButton"
-                    Grid.Row="2"
-                    ImageSource="bin_white.png"
-                    Command="{Binding LostProductsClickedCommand}"
-                    BackgroundColor="#58BF7F"
-                    TextColor="White"
-                    WidthRequest="60"
-                    HeightRequest="60"
-                    CornerRadius="20"
-                    VerticalOptions="End"
-                    HorizontalOptions="Start"
-                    Margin="15,0,15,15"
-                    Padding="10"/>
+            <ImageButton x:Name="FloatingBinButton"
+                         Grid.Row="2"
+                         Source="bin_white.png"
+                         Command="{Binding LostProductsClickedCommand}"
+                         BackgroundColor="#58BF7F"
+                         WidthRequest="60"
+                         HeightRequest="60"
+                         CornerRadius="20"
+                         VerticalOptions="End"
+                         HorizontalOptions="Start"
+                         Margin="15,0,15,15"
+                         Padding="10"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>
