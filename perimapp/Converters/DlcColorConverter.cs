@@ -1,4 +1,3 @@
-// Converters/DlcColorConverter.cs
 using System;
 using System.Globalization;
 using Microsoft.Maui.Controls;
@@ -8,7 +7,6 @@ namespace perimapp.Converters
 {
     public class DlcColorConverter : IValueConverter
     {
-        // Ajout des '?' aux paramètres pour correspondre à l'interface IValueConverter
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             if (value is not int days)
@@ -26,7 +24,6 @@ namespace perimapp.Converters
             };
         }
 
-        // Ajout des '?' aux paramètres pour correspondre à l'interface IValueConverter
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();

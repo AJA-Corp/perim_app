@@ -9,11 +9,8 @@ namespace perimapp.ViewModels
 {
     public partial class StartingViewModel : ObservableObject
     {
-        private readonly ContentPage _page;
-
-        public StartingViewModel(ContentPage page)
+        public StartingViewModel()
         {
-            _page = page;
         }
 
         [RelayCommand]
@@ -26,11 +23,7 @@ namespace perimapp.ViewModels
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await _page.DisplayAlert(
-                    "Erreur",
-                    "Une erreur est survenue lors de la navigation.",
-                    "OK"
-                );
+                await Shell.Current.DisplayAlert("Erreur", "Une erreur est survenue lors de la navigation.", "OK");
             }
         }
 
@@ -44,11 +37,7 @@ namespace perimapp.ViewModels
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await _page.DisplayAlert(
-                    "Erreur",
-                    "Une erreur est survenue lors de la navigation.",
-                    "OK"
-                );
+                await Shell.Current.DisplayAlert("Erreur", "Une erreur est survenue lors de la navigation.", "OK");
             }
         }
     }

@@ -22,12 +22,10 @@ namespace perimapp.Views
             }
         }
 
-        public ModifyProductView()
+        public ModifyProductView(LocalProductService localProductService)
         {
             InitializeComponent();
-            var productService = App.Services.GetService<NeonProductService>();
-            var localProductService = new LocalProductService();
-            _viewModel = new ModifyProductViewModel(this, productService, localProductService);
+            _viewModel = new ModifyProductViewModel(this, localProductService);
             BindingContext = _viewModel;
         }
 

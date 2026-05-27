@@ -1,17 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using perimapp.Data;
 using perimapp.Models;
-using perimapp.Services; 
-using Microsoft.Maui.Storage;
-using Microsoft.Maui.Networking;
-using System.Windows.Input;
+using perimapp.Services;
 using perimapp.ViewModels;
 
 namespace perimapp.Views
@@ -19,11 +10,11 @@ namespace perimapp.Views
     public partial class MainView : ContentPage
     {
         private MainViewModel _viewModel;
-        
-        public MainView(NeonProductService neonProductService, LocalProductService localProductService)
+
+        public MainView(LocalProductService localProductService, SyncService syncService)
         {
             InitializeComponent();
-            _viewModel = new MainViewModel(this, neonProductService, localProductService);
+            _viewModel = new MainViewModel(this, localProductService, syncService);
             BindingContext = _viewModel;
             NavigationPage.SetHasNavigationBar(this, false);
         }
@@ -31,7 +22,17 @@ namespace perimapp.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await _viewModel.LoadProductsCommand.ExecuteAsync(null);
+
+            if (perimapp.Data.AppData.NeedsAutoRefresh)
+            {
+                perimapp.Data.AppData.NeedsAutoRefresh = false;
+
+                await _viewModel.RefreshCommand.ExecuteAsync(null);
+            }
+            else
+            {
+                await _viewModel.LoadProductsCommand.ExecuteAsync(null);
+            }
         }
 
         private void OnProductSelectionChanged(object sender, SelectionChangedEventArgs e)

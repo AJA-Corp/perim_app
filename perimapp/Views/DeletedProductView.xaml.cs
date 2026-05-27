@@ -1,8 +1,5 @@
-using perimapp.Models;
 using perimapp.Services;
 using Microsoft.Maui.Controls;
-using System.Collections.ObjectModel;
-using Microsoft.Maui.Networking;
 using perimapp.ViewModels;
 
 namespace perimapp.Views
@@ -11,10 +8,10 @@ namespace perimapp.Views
     {
         private DeletedProductViewModel _viewModel;
 
-        public DeletedProductView(NeonProductService neonProductService, LocalProductService localProductService, NeonUserService userService, LocalUserService localUserService)
+        public DeletedProductView(LocalProductService localProductService)
         {
             InitializeComponent();
-            _viewModel = new DeletedProductViewModel(this, neonProductService, localProductService, userService, localUserService);
+            _viewModel = new DeletedProductViewModel(this, localProductService);
             BindingContext = _viewModel;
         }
 

@@ -1,4 +1,3 @@
-// Pages/LoadingView.xaml.cs
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using perimapp.ViewModels;

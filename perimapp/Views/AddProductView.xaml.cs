@@ -1,31 +1,23 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using perimapp.Data;
-using perimapp.Services;
-using perimapp.Models;
 using Microsoft.Maui.Controls;
+using perimapp.Services;
 using perimapp.ViewModels;
 
 namespace perimapp.Views;
 
-public partial class AddProductView : ContentPage 
+public partial class AddProductView : ContentPage
 {
     private AddProductViewModel _viewModel;
 
-    public AddProductView()
+    public AddProductView(LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
     {
         InitializeComponent();
-        _viewModel = new AddProductViewModel(this);
+        _viewModel = new AddProductViewModel(this, localProductService, localUserService, apiProductService);
         BindingContext = _viewModel;
-        
-        // Ajuste la largeur du sélecteur de date au démarrage et quand ça change
+
         SizeChanged += (_, __) => AdjustDatePickerWidth();
         DlcPicker.DateSelected += (_, __) => AdjustDatePickerWidth();
-        // Appel initial
         AdjustDatePickerWidth();
     }
 
@@ -49,7 +41,7 @@ public partial class AddProductView : ContentPage
 
         double measured = probe.Measure(double.PositiveInfinity, double.PositiveInfinity).Width;
 
-        double target = measured + 24; // padding interne
+        double target = measured + 24;
         double max = Math.Min(Width * 0.6, 260);
         double min = 140;
         target = Math.Max(min, Math.Min(max, target));

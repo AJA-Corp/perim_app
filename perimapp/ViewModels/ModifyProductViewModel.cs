@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -9,12 +8,12 @@ using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
 using perimapp.Services;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
     public partial class ModifyProductViewModel : ObservableObject
     {
-        private readonly NeonProductService _productService;
         private readonly LocalProductService _localProductService;
         private readonly ContentPage _page;
 
@@ -30,13 +29,9 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private string _currentCustomName;
 
-        public ModifyProductViewModel(
-            ContentPage page,
-            NeonProductService productService,
-            LocalProductService localProductService)
+        public ModifyProductViewModel(ContentPage page, LocalProductService localProductService)
         {
             _page = page;
-            _productService = productService;
             _localProductService = localProductService;
         }
 
@@ -58,30 +53,24 @@ namespace perimapp.ViewModels
         {
             if (!string.IsNullOrEmpty(uniqueId))
             {
-                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p =>
-                    p.ProductUniqueId == uniqueId
-                );
+                ProductInfos? product = AppData.CurrentProducts.FirstOrDefault(p => p.ProductUniqueId == uniqueId);
 
                 if (product != null)
                 {
                     CurrentProduct = product;
-                    Debug.WriteLine($"ModifyProductView: Produit \u00e0 modifier charg\u00e9 : {CurrentProduct.Name}");
+                    Debug.WriteLine($"ModifyProductView: Produit à modifier chargé : {CurrentProduct.Name}");
                 }
                 else
                 {
-                    Debug.WriteLine("ModifyProductView: Produit non trouv\u00e9 avec ProductUniqueId : " + uniqueId);
-                    await _page.DisplayAlert("Erreur", "Produit \u00e0 modifier non trouv\u00e9.", "OK");
-                    await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
+                    Debug.WriteLine("ModifyProductView: Produit non trouvé avec ProductUniqueId : " + uniqueId);
+                    await _page.DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
+                    await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                 }
             }
             else
             {
                 Debug.WriteLine("ModifyProductView: Aucun ProductUniqueId fourni pour la modification.");
-                await _page.DisplayAlert(
-                    "Erreur",
-                    "Impossible de modifier. Aucun ID de produit fourni.",
-                    "OK"
-                );
+                await _page.DisplayAlert("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
                 await Shell.Current.GoToAsync("..");
             }
         }
@@ -91,10 +80,6 @@ namespace perimapp.ViewModels
         {
             if (CurrentQuantity >= 99) return;
             CurrentQuantity++;
-            if (CurrentProduct != null)
-            {
-                CurrentProduct.Quantity = CurrentQuantity;
-            }
         }
 
         [RelayCommand]
@@ -103,10 +88,6 @@ namespace perimapp.ViewModels
             if (CurrentQuantity > 1)
             {
                 CurrentQuantity--;
-                if (CurrentProduct != null)
-                {
-                    CurrentProduct.Quantity = CurrentQuantity;
-                }
             }
         }
 
@@ -117,72 +98,45 @@ namespace perimapp.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(CurrentCustomName))
                 {
-                    await _page.DisplayAlert("Erreur", "Le nom du produit ne peut pas \u00eatre vide.", "OK");
+                    await _page.DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
                     return;
                 }
 
                 if (CurrentQuantity < 1)
                 {
-                    await _page.DisplayAlert(
-                        "Erreur",
-                        "La quantit\u00e9 doit \u00eatre sup\u00e9rieure ou \u00e9gale \u00e0 1.",
-                        "OK"
-                    );
+                    await _page.DisplayAlert("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
                     return;
                 }
-                
+
                 CurrentProduct.Quantity = CurrentQuantity;
 
-                if (CurrentProduct.HomeCode.HasValue && 
-                    !string.IsNullOrWhiteSpace(CurrentCustomName) && 
-                    CurrentCustomName.Trim() != CurrentProduct.Name.Trim())
+                if (CurrentCustomName.Trim() != CurrentProduct.Name?.Trim())
                 {
-                    try
-                    {
-                        bool customNameSaved = await _productService.SetCustomProductNameAsync(
-                            CurrentProduct.Barcode, 
-                            CurrentProduct.HomeCode.Value, 
-                            CurrentCustomName.Trim());
+                    CurrentProduct.CustomName = CurrentCustomName.Trim();
 
+                    if (!string.IsNullOrWhiteSpace(CurrentProduct.HomeCode))
+                    {
                         await _localProductService.SaveCustomProductNameAsync(
-                            CurrentProduct.Barcode, 
-                            CurrentProduct.HomeCode.Value, 
-                            CurrentCustomName.Trim());
-
-                        if (customNameSaved)
-                        {
-                            CurrentProduct.CustomName = CurrentCustomName.Trim();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"[DEBUG] Error saving custom name: {ex.Message}");
+                            CurrentProduct.Barcode,
+                            CurrentProduct.HomeCode,
+                            CurrentProduct.CustomName);
                     }
                 }
 
-                bool updated = await _productService.UpdateUserProductAsync(CurrentProduct);
-                if (!updated)
-                {
-                    await _page.DisplayAlert(
-                        "Erreur",
-                        "Impossible de sauvegarder le produit en base.",
-                        "OK"
-                    );
-                    return;
-                }
+                await _localProductService.UpdateProductLocalAsync(CurrentProduct);
 
-                await _page.DisplayAlert("Succ\u00e8s", "Produit modifi\u00e9 avec succ\u00e8s !", "OK");
+                perimapp.Services.NotificationScheduler.UpdateSchedules();
+
+                await _page.DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
 
                 try
                 {
-                    await Shell.Current.GoToAsync(
-                        $"{nameof(perimapp.Views.DetailsView)}?ProductUniqueId={CurrentProduct.ProductUniqueId}"
-                    );
+                    await Shell.Current.GoToAsync("..");
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[DEBUG] - Erreur navigation : {ex.Message}");
-                    await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
+                    await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                 }
             }
         }

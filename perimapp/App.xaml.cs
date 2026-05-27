@@ -2,9 +2,7 @@ using Microsoft.Maui.Storage;
 using perimapp.Data;
 using perimapp.Models;
 using perimapp.Views;
-using Plugin.LocalNotification;
 using perimapp.Services;
-
 
 namespace perimapp
 {
@@ -12,7 +10,6 @@ namespace perimapp
     {
         public static IServiceProvider Services { get; private set; }
 
-        // On garde un service local pour les données utilisateur
         private readonly LocalUserService _localUserService;
 
         public App(IServiceProvider serviceProvider)
@@ -21,36 +18,44 @@ namespace perimapp
 
             Services = serviceProvider;
 
-            _localUserService = new LocalUserService();
+            _localUserService = Services.GetService<LocalUserService>();
+
+            var syncService = Services.GetService<SyncService>();
+            if (syncService != null)
+            {
+                _ = Task.Run(async () => await syncService.ProcessSyncAsync());
+            }
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            try
+            {
+                return new Window(new AppShell());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n\n[CRASH FATAL MAUI] : {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"[CAUSE EXACTE] : {ex.InnerException.Message}\n\n");
+                }
+                throw;
+            }
         }
 
-
-        // Appelée automatiquement au démarrage de l'application.
-        // on charge l'utilisateur en local si présent.
         protected override async void OnStart()
         {
             base.OnStart();
 
-            // Charger l'utilisateur depuis le stockage local
             AppData.CurrentUser = await _localUserService.LoadUserAsync();
 
             if (AppData.CurrentUser != null)
-            {
                 Console.WriteLine($"[DEBUG] Utilisateur local chargé : {AppData.CurrentUser.FirstName} {AppData.CurrentUser.LastName}");
-            }
             else
-            {
                 Console.WriteLine("[DEBUG] Aucun utilisateur trouvé localement.");
-            }
         }
 
-        //Appelée quand l'application revient en avant-plan.
-        // On recharge l'utilisateur au cas où ses données locales ont changé.
         protected override async void OnResume()
         {
             base.OnResume();

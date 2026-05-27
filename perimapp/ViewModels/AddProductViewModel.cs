@@ -1,21 +1,25 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
+using Microsoft.Maui.Networking;
 using perimapp.Data;
 using perimapp.Models;
 using perimapp.Services;
-using Microsoft.Maui.ApplicationModel;
+using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
     public partial class AddProductViewModel : ObservableObject
     {
         private ContentPage _page;
+        private readonly LocalProductService _localProductService;
+        private readonly LocalUserService _localUserService;
+        private readonly ApiProductService _apiProductService;
+
+        private ProductInfos? _searchedProductData;
 
         [ObservableProperty]
         private int _currentQuantity = 1;
@@ -38,9 +42,12 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private DateTime _dlcDate = DateTime.Today;
 
-        public AddProductViewModel(ContentPage page)
+        public AddProductViewModel(ContentPage page, LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
         {
             _page = page;
+            _localProductService = localProductService;
+            _localUserService = localUserService;
+            _apiProductService = apiProductService;
         }
 
         [RelayCommand]
@@ -59,66 +66,6 @@ namespace perimapp.ViewModels
         }
 
         [RelayCommand]
-        private async Task ValidateProductAsync()
-        {
-            string userIdString = await SecureStorage.GetAsync("user_id");
-
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
-            {
-                await _page.DisplayAlert("Erreur", "Utilisateur non identifi\u00e9. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Views.StartingView));
-                return;
-            }
-
-            if (!long.TryParse(BarcodeText, out long barcode))
-            {
-                await _page.DisplayAlert("Erreur", "Code-barres invalide.", "OK");
-                return;
-            }
-
-            var service = new NeonProductService();
-            var product = await service.GetProductDataAsync(barcode);
-
-            if (product == null)
-            {
-                var apiService = new OpenFoodFactsService();
-                var apiProduct = await apiService.GetProductFromApiAsync(barcode);
-
-                if (apiProduct == null)
-                {
-                    await _page.DisplayAlert("Erreur", "Produit introuvable dans la base et API.", "OK");
-                    return;
-                }
-
-                await service.AddProductDataAsync(apiProduct);
-                product = apiProduct;
-            }
-
-            product.Dlc = DlcDate;
-            product.Quantity = CurrentQuantity;
-            product.AddedAt = DateTime.Now;
-
-            bool ok = await service.AddUserProductAsync(product, userId);
-
-            // Sauvegarde locale pour le hors-ligne
-            var localService = new LocalProductService();
-            await localService.AddProductAsync(product);
-
-            AppData.CurrentProducts.Add(product);
-            perimapp.Services.NotificationScheduler.UpdateSchedules();
-
-            if (ok)
-            {
-                await _page.DisplayAlert("Succ\u00e8s", "Produit ajout\u00e9 avec succ\u00e8s.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Views.MainView));
-            }
-            else
-            {
-                await _page.DisplayAlert("Erreur", "Impossible d'ajouter le produit.", "OK");
-            }
-        }
-
-        [RelayCommand]
         public async Task SearchBarcodeAsync()
         {
             if (!long.TryParse(BarcodeText, out long barcode))
@@ -127,76 +74,88 @@ namespace perimapp.ViewModels
                 return;
             }
 
-            // Get user's home code for custom name lookup
-            string userIdString = await SecureStorage.GetAsync("user_id");
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            var user = await _localUserService.LoadUserAsync();
+            if (user == null)
             {
-                await _page.DisplayAlert("Erreur", "Utilisateur non identifi\u00e9. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(perimapp.Views.StartingView));
+                await _page.DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+                await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
                 return;
             }
 
-            var userService = new NeonUserService();
-            var user = await userService.GetUserProfileAsync(userId);
-            
-            var service = new NeonProductService();
             ProductInfos? product = null;
 
-            // Try to get product with custom name if user has home code
-            if (user?.HomeCode != null)
+            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
             {
-                product = await service.GetProductDataWithCustomNameAsync(barcode, user.HomeCode);
-            }
-            
-            // Fallback to regular product data if no custom name version found
-            if (product == null)
-            {
-                product = await service.GetProductDataAsync(barcode);
-            }
+                product = await _apiProductService.SearchProductAsync(barcode);
 
-            if (product == null)
-            {
-                var apiService = new OpenFoodFactsService();
-                product = await apiService.GetProductFromApiAsync(barcode);
-
-                if (product == null)
+                if (product != null && !string.IsNullOrEmpty(user.HomeCode))
                 {
-                    bool reponse = await _page.DisplayAlert(
-                        "Erreur",
-                        "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
-                        "Oui",
-                        "Non"
-                    );
+                    string? remoteCustomName = await _apiProductService.GetCustomProductNameAsync(barcode, user.HomeCode);
 
-                    if (reponse)
+                    if (!string.IsNullOrWhiteSpace(remoteCustomName))
                     {
-                        string result = await _page.DisplayPromptAsync(
-                            "Nom du produit",
-                            "Entrez le nom du produit",
-                            "OK",
-                            "Annuler",
-                            "Entrez ici",
-                            maxLength: 255,
-                            keyboard: Keyboard.Text
-                        );
+                        product.CustomName = remoteCustomName;
 
-                        if (!string.IsNullOrEmpty(result))
-                        {
-                            BarcodeText = string.Empty;
-                            ProductNameText = result;
-                            ProductImageSource = null;
-                            HasImage = false;
-                            HasNoImage = true;
-                        }
+                        await _localProductService.SaveCustomProductNameAsync(barcode, user.HomeCode, remoteCustomName);
                     }
-                    return;
                 }
             }
 
-            // Display the appropriate name (custom name if available, otherwise original name)
-            ProductNameText = product.DisplayName;
-            ProductImageSource = product.UrlImage;
-            
+            if (product == null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            {
+                var offService = new OpenFoodFactsService();
+                product = await offService.GetProductFromApiAsync(barcode);
+            }
+
+            if (product == null)
+            {
+                bool reponse = await _page.DisplayAlert(
+                    "Erreur",
+                    "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
+                    "Oui",
+                    "Non"
+                );
+
+                if (reponse)
+                {
+                    string result = await _page.DisplayPromptAsync(
+                        "Nom du produit",
+                        "Entrez le nom du produit",
+                        "OK",
+                        "Annuler",
+                        "Entrez ici",
+                        maxLength: 255,
+                        keyboard: Keyboard.Text
+                    );
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        _searchedProductData = new ProductInfos
+                        {
+                            Barcode = barcode,
+                            Name = result
+                        };
+
+                        ProductNameText = result;
+                        ProductImageSource = null;
+                        HasImage = false;
+                        HasNoImage = true;
+                    }
+                }
+                return;
+            }
+
+            _searchedProductData = product;
+
+            string? localCustomName = await _localProductService.GetCustomProductNameAsync(barcode, user.HomeCode);
+            if (!string.IsNullOrEmpty(localCustomName))
+            {
+                _searchedProductData.CustomName = localCustomName;
+            }
+
+            ProductNameText = _searchedProductData.DisplayName;
+            ProductImageSource = _searchedProductData.UrlImage;
+
             if (!string.IsNullOrEmpty(ProductImageSource))
             {
                 HasImage = true;
@@ -207,6 +166,47 @@ namespace perimapp.ViewModels
                 HasImage = false;
                 HasNoImage = true;
             }
+        }
+
+        [RelayCommand]
+        private async Task ValidateProductAsync()
+        {
+            if (_searchedProductData == null)
+            {
+                await SearchBarcodeAsync();
+
+                if (_searchedProductData == null) return;
+            }
+
+            var user = await _localUserService.LoadUserAsync();
+            if (user == null) return;
+
+            var productToSave = new ProductInfos
+            {
+                Barcode = _searchedProductData.Barcode,
+                Name = _searchedProductData.Name,
+                CustomName = _searchedProductData.CustomName,
+                UrlImage = _searchedProductData.UrlImage,
+                Category = _searchedProductData.Category,
+                Conservation = _searchedProductData.Conservation,
+                HomeCode = user.HomeCode,
+                AddedAt = DateTime.UtcNow,
+                LastModified = DateTime.UtcNow,
+                Dlc = DlcDate,
+                Quantity = CurrentQuantity,
+                State = "Active"
+            };
+
+            await _localProductService.AddProductAsync(productToSave);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                AppData.CurrentProducts.Add(productToSave);
+                perimapp.Services.NotificationScheduler.UpdateSchedules();
+            });
+
+            await _page.DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
+            await Shell.Current.GoToAsync("..");
         }
 
         [RelayCommand]
@@ -232,7 +232,7 @@ namespace perimapp.ViewModels
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "La permission de la cam\u00e9ra est requise pour scanner un produit.", "OK");
+                await _page.DisplayAlert("Erreur", "La permission de la caméra est requise pour scanner un produit.", "OK");
             }
         }
     }

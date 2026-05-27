@@ -14,9 +14,10 @@ namespace perimapp.Services
         private static readonly List<int> _defaultNotificationDays = new List<int> { 1, 3, 7 };
         private static readonly List<TimeSpan> _notificationTimes = new List<TimeSpan> 
         { 
-            new TimeSpan(7, 0, 0),   // 7h00
-            new TimeSpan(11, 0, 0),  // 11h00
-            new TimeSpan(18, 00, 0)  // 18h00
+            new TimeSpan(7, 0, 0),
+            new TimeSpan(11, 0, 0),
+            new TimeSpan(15, 30, 0),
+            new TimeSpan(18, 00, 0)
         };
 
         public static void UpdateSchedules()
@@ -46,13 +47,11 @@ namespace perimapp.Services
 
             int notificationId = 1000;
 
-            // Generate schedules for the next 15 days (pour éviter la limite des 64 notifications d'iOS et la limite Android)
             var startDay = DateTime.Today;
             var endDay = DateTime.Today.AddDays(15);
 
             for (var date = startDay; date < endDay; date = date.AddDays(1))
             {
-                // -- 1ère NOTIFICATION : Les produits qui périment AUJOURD'HUI --
                 var dlcTodayProducts = allProducts.Where(p => p.Dlc.Date == date.Date).ToList();
                 if (dlcTodayProducts.Any())
                 {
@@ -64,10 +63,8 @@ namespace perimapp.Services
                     ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
                 }
 
-                // -- 2ème NOTIFICATION : Les autres jours (à venir) --
                 var upcomingMessages = new List<string>();
 
-                // On trie les jours pour les afficher dans l'ordre (ex: 1 jour, 2 jours...)
                 foreach (var days in notificationDays.OrderBy(d => d))
                 {
                     var expiringProducts = allProducts.Where(p => p.Dlc.Date == date.AddDays(days).Date).ToList();

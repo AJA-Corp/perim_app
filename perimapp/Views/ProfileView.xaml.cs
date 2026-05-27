@@ -1,16 +1,7 @@
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls;
-using perimapp.Models;
-using perimapp.PopUp;
-using perimapp.Services;
-using System.Diagnostics;
-using CommunityToolkit.Maui.Extensions;
 using perimapp.ViewModels;
+using perimapp.Services;
 
 namespace perimapp.Views
 {
@@ -18,10 +9,10 @@ namespace perimapp.Views
     {
         private ProfileViewModel _viewModel;
 
-        public ProfileView()
+        public ProfileView(LocalUserService localUserService, LocalProductService localProductService, ApiProfileService apiProfileService, AuthService authService)
         {
             InitializeComponent();
-            _viewModel = new ProfileViewModel(this);
+            _viewModel = new ProfileViewModel(this, localUserService, localProductService, apiProfileService, authService);
             BindingContext = _viewModel;
         }
 

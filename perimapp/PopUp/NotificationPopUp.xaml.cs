@@ -9,7 +9,6 @@ public partial class NotificationPopUp : Popup
     {
         InitializeComponent();
         
-        // Limiter la hauteur du popup sur les petits écrans
         var displayInfo = DeviceDisplay.Current.MainDisplayInfo;
         double density = displayInfo.Density > 0 ? displayInfo.Density : 1;
         double screenHeight = displayInfo.Height / density;
@@ -27,22 +26,18 @@ public partial class NotificationPopUp : Popup
         {
             try
             {
-                // Si des paramètres existent, on les charge
                 notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson) ?? new List<int> { 1, 3, 7 };
             }
             catch
             {
-                // En cas d'erreur de désérialisation, on utilise les valeurs par défaut
                 notificationDays = new List<int> { 1, 3, 7 };
             }
         }
         else
         {
-            // Sinon, on définit les valeurs par défaut
             notificationDays = new List<int> { 1, 3, 7 };
         }
 
-        // Met à jour l'état de chaque Switch en fonction de la liste (par défaut ou chargée)
         OneDayEntry.IsToggled = notificationDays.Contains(1);
         TwoDaysEntry.IsToggled = notificationDays.Contains(2);
         ThreeDaysEntry.IsToggled = notificationDays.Contains(3);
@@ -64,14 +59,11 @@ public partial class NotificationPopUp : Popup
         if (SixDaysEntry.IsToggled) daysToNotify.Add(6);
         if (SevenDaysEntry.IsToggled) daysToNotify.Add(7);
 
-        // Convertit la liste en JSON et la sauvegarde dans les préférences de l'appareil
         var settingsJson = JsonSerializer.Serialize(daysToNotify);
         Preferences.Set("NotificationDays", settingsJson);
 
-        // Met à jour les planifications de notifications
         perimapp.Services.NotificationScheduler.UpdateSchedules();
 
-        // On ferme le pop-up
         await CloseAsync();
     }
 }

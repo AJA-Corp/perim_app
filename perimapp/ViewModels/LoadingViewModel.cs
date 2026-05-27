@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -10,26 +9,20 @@ namespace perimapp.ViewModels
 {
     public partial class LoadingViewModel : ObservableObject
     {
-        public LoadingViewModel()
-        {
-        }
-
         [RelayCommand]
-        public async Task LoadAppAsync()
+        private async Task LoadAppAsync()
         {
-            string savedUserIdString = await SecureStorage.GetAsync("user_id");
+            await Task.Delay(1500); 
 
-            Console.WriteLine($"[DEBUG] ID utilisateur récupéré depuis SecureStorage : {savedUserIdString}");
+            var token = await SecureStorage.GetAsync("auth_token");
 
-            await Task.Delay(5000); 
-
-            if (!string.IsNullOrEmpty(savedUserIdString))
+            if (!string.IsNullOrEmpty(token))
             {
-                await Shell.Current.GoToAsync(nameof(MainView));
+                await Shell.Current.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
-                await Shell.Current.GoToAsync(nameof(StartingView));
+                await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
             }
         }
     }
