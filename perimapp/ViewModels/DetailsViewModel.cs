@@ -70,7 +70,7 @@ namespace perimapp.ViewModels
         {
             if (ProductDetail != null)
             {
-                string route = $"///{nameof(ModifyProductView)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
+                string route = $"{nameof(ModifyProductView)}?ProductUniqueId={ProductDetail.ProductUniqueId}";
                 Debug.WriteLine($"DetailsView: Navigating to {route}");
                 await Shell.Current.GoToAsync(route);
             }

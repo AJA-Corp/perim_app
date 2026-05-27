@@ -131,7 +131,7 @@ namespace perimapp.ViewModels
 
                 try
                 {
-                    await Shell.Current.GoToAsync("..");
+                    await Shell.Current.GoToAsync($"{nameof(DetailsView)}?ProductUniqueId={CurrentProduct.ProductUniqueId}"); // A verifier
                 }
                 catch (Exception ex)
                 {

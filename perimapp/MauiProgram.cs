@@ -76,6 +76,23 @@ public static class MauiProgram
         builder.EnableHotReload();
 #endif
 
+        // 🟢 CIBLAGE STRICT : Ne s'applique qu'au nouveau WhiteCursorEntry
+        Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("WhiteCursor", (handler, view) =>
+        {
+            if (view is perimapp.Controls.WhiteCursorEntry)
+            {
+#if ANDROID
+                handler.PlatformView.SetHighlightColor(Android.Graphics.Color.ParseColor("#80FFFFFF"));
+                if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Q)
+                {
+                    handler.PlatformView.TextCursorDrawable?.SetTint(Android.Graphics.Color.White);
+                }
+#elif IOS
+                handler.PlatformView.TintColor = UIKit.UIColor.White;
+#endif
+            }
+        });
+
         return builder.Build();
     }
 }

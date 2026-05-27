@@ -87,7 +87,7 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task BackLogInAsync()
         {
-            await Shell.Current.GoToAsync(nameof(StartingView));
+            await Shell.Current.GoToAsync("..");
         }
     }
 }

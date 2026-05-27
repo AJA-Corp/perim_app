@@ -112,13 +112,7 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task BackSignUpAsync()
         {
-            await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
-        }
-
-        [RelayCommand]
-        private async Task GotoHomeCodeAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(LogInView));
+            await Shell.Current.GoToAsync("..");
         }
     }
 }
