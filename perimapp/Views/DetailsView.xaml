@@ -100,8 +100,8 @@
 
                     <Button Text="Modifier"
                             Command="{Binding ModifyProductCommand}"
-                            BackgroundColor="White" 
-                            TextColor="Black"
+                            BackgroundColor="#58BF7F" 
+                            TextColor="White"
                             BorderColor="Transparent"
                             CornerRadius="5"
                             FontSize="18"
