@@ -4,7 +4,8 @@
 	<application android:allowBackup="true"
 				 android:icon="@mipmap/appicon"
 				 android:roundIcon="@mipmap/appicon_round"
-				 android:supportsRtl="true">
+				 android:supportsRtl="true"
+                 android:theme="@style/Maui.SplashTheme">
 		<service android:name="perimapp.Platforms.Android.NotificationForegroundService"
 				 android:exported="false"
 				 android:foregroundServiceType="dataSync"/>

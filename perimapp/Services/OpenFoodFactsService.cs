@@ -31,7 +31,7 @@ namespace perimapp.Services
                     Category = productNode.TryGetProperty("categories", out var cat)
                         ? cat.GetString() ?? ""
                         : "",
-                    Conservation = "", // si tu veux gérer plus tard
+                    Conservation = "",
                 };
             }
             catch

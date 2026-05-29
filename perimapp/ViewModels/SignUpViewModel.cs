@@ -7,12 +7,16 @@ using Microsoft.Maui.Storage;
 using perimapp.Models;
 using perimapp.Views;
 using perimapp.Services;
+using perimapp.Data;
 
 namespace perimapp.ViewModels
 {
     public partial class SignUpViewModel : ObservableObject
     {
-        private readonly NeonUserService _userService = new();
+        private readonly AuthService _authService = new();
+        private readonly ApiProfileService _apiProfileService = new();
+        private readonly LocalUserService _localUserService = new();
+
         private readonly ContentPage _page;
 
         [ObservableProperty]
@@ -23,6 +27,9 @@ namespace perimapp.ViewModels
 
         [ObservableProperty]
         private string _confirmPasswordText;
+
+        [ObservableProperty]
+        private string _homeCodeText;
 
         public SignUpViewModel(ContentPage page)
         {
@@ -35,71 +42,77 @@ namespace perimapp.ViewModels
             string email = EmailText?.Trim() ?? "";
             string password = PasswordText ?? "";
             string confirmPassword = ConfirmPasswordText ?? "";
+            string codeATester = HomeCodeText?.Trim() ?? "";
 
-            int homeCode = GenerateRandomHomeCode();
-
-            if (
-                string.IsNullOrWhiteSpace(email)
-                || string.IsNullOrWhiteSpace(password)
-                || string.IsNullOrWhiteSpace(confirmPassword)
-            )
+            if (string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password) ||
+                string.IsNullOrWhiteSpace(confirmPassword))
             {
-                await _page.DisplayAlert("Erreur", "Tous les champs doivent \u00eatre remplis.", "OK");
+                await _page.DisplayAlertAsync("Erreur", "Tous les champs doivent être remplis.", "OK");
                 return;
             }
 
             if (password != confirmPassword)
             {
-                await _page.DisplayAlert("Erreur", "Les mots de passe ne correspondent pas.", "OK");
+                await _page.DisplayAlertAsync("Erreur", "Les mots de passe ne correspondent pas.", "OK");
                 return;
             }
 
-            var newUser = new UserProfileDetails
+            if (!string.IsNullOrWhiteSpace(codeATester))
             {
-                Email = email,
-                Password = password,
-                HomeCode = homeCode,
-            };
+                bool codeExists = await _apiProfileService.CheckHomeCodeExistsAsync(codeATester);
 
-            int userId = await _userService.RegisterUserAsync(newUser);
-
-            if (userId > 0)
-            {
-                await SecureStorage.SetAsync("user_id", userId.ToString());
-
-                await _page.DisplayAlert("Succ\u00e8s", "Inscription r\u00e9ussie !", "OK");
-                await Shell.Current.GoToAsync(nameof(MainView));
+                if (!codeExists)
+                {
+                    await _page.DisplayAlertAsync("Erreur", "Ce code foyer est introuvable. Vérifiez-le et réessayez.", "OK");
+                    return;
+                }
             }
-            else if (userId == -2)
+
+            bool isRegistered = await _authService.SignUpAsync(email, password, "Nouvel", "Utilisateur");
+
+            if (isRegistered)
             {
-                await _page.DisplayAlert("Erreur", "Cet email est d\u00e9j\u00e0 utilis\u00e9.", "OK");
+                Preferences.Set("pending_home_code", codeATester);
+                var myProfile = await _apiProfileService.GetOrCreateMyProfileAsync(codeATester);
+
+                if (myProfile != null)
+                {
+                    Preferences.Set("mon_user_id", myProfile.Id);
+                    Preferences.Set("mon_home_code", myProfile.HomeCode);
+
+                    await _localUserService.SaveUserAsync(myProfile);
+                    await SecureStorage.SetAsync("user_id", myProfile.Id.ToString());
+
+                    AppData.CurrentUser = myProfile;
+                    AppData.CurrentUserId = myProfile.Id;
+
+                    if (!myProfile.IsValidated)
+                    {
+                        await _page.DisplayAlertAsync("Validation", "Un code a été envoyé au propriétaire du foyer.", "OK");
+                        await Shell.Current.GoToAsync(nameof(EmailVerificationView));
+                    }
+                    else
+                    {
+                        await _page.DisplayAlertAsync("Succès", "Foyer créé avec succès !", "OK");
+                        await Shell.Current.GoToAsync($"///{nameof(MainView)}");
+                    }
+                }
+                else
+                {
+                    await _page.DisplayAlertAsync("Erreur", "Problème lors de la synchronisation du profil.", "OK");
+                }
             }
             else
             {
-                await _page.DisplayAlert(
-                    "Erreur",
-                    "Une erreur s'est produite lors de l'inscription.",
-                    "OK"
-                );
+                await _page.DisplayAlertAsync("Erreur", "L'inscription a échoué. Cet email est peut-être déjà utilisé.", "OK");
             }
         }
 
         [RelayCommand]
         private async Task BackSignUpAsync()
         {
-            await Shell.Current.GoToAsync(nameof(StartingView));
-        }
-
-        [RelayCommand]
-        private async Task GotoHomeCodeAsync()
-        {
-            await Shell.Current.GoToAsync(nameof(LogInView));
-        }
-
-        private int GenerateRandomHomeCode()
-        {
-            Random random = new();
-            return random.Next(100000, 1000000);
+            await Shell.Current.GoToAsync("..");
         }
     }
 }

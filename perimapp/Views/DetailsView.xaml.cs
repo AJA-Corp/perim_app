@@ -22,11 +22,11 @@ namespace perimapp.Views
                 }
             }
         }
-        
-        public DetailsView(NeonProductService neonService, LocalProductService localService, NeonUserService userService, LocalUserService localUserService)
+
+        public DetailsView(LocalProductService localProductService, LocalUserService localUserService)
         {
             InitializeComponent();
-            _viewModel = new DetailsViewModel(this, neonService, localService, userService, localUserService);
+            _viewModel = new DetailsViewModel(this, localProductService, localUserService);
             BindingContext = _viewModel;
         }
     }

@@ -15,7 +15,7 @@
                    VerticalOptions="Center"/>
         </Grid>
 
-        <Label Text="Vérification email"
+        <Label Text="Validation Foyer"
                FontSize="24"
                FontAttributes="Bold"
                TextColor="White"

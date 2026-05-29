@@ -110,7 +110,7 @@
         </Setter>
     </Style>
 
-    <Style TargetType="Entry">
+    <Style TargetType="Entry" ApplyToDerivedTypes="True">
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontFamily" Value="InterMedium"/>

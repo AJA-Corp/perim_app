@@ -3,17 +3,19 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using perimapp.Data;
+using Microsoft.Maui.Storage;
 using perimapp.Services;
 using perimapp.Views;
+using perimapp.Data;
 
 namespace perimapp.ViewModels
 {
     public partial class LogInViewModel : ObservableObject
     {
-        private readonly NeonUserService _userService = new();
-        private readonly EmailService _emailService = new();
-        private readonly LoginVerificationService _verificationService = new();
+        private readonly AuthService _authService = new();
+        private readonly ApiProfileService _apiProfileService = new();
+        private readonly LocalUserService _localUserService = new();
+
         private readonly ContentPage _page;
 
         [ObservableProperty]
@@ -35,66 +37,57 @@ namespace perimapp.ViewModels
         {
             string email = EmailText?.Trim() ?? "";
             string password = PasswordText ?? "";
-            string homeCodeText = HomeCodeText?.Trim() ?? "";
-            string userEmail = "";
-            string loginMethod = "";
-            int userId = -1;
 
-            if (!string.IsNullOrWhiteSpace(email) && !string.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                userId = await _userService.AuthenticateUserAsync(email, password);
-                userEmail = email;
-                loginMethod = "email";
-            }
-            else if (!string.IsNullOrWhiteSpace(homeCodeText))
-            {
-                if (int.TryParse(homeCodeText, out int homeCode))
-                {
-                    userId = await _userService.AuthenticateByHomeCodeAsync(homeCode);
-                    if (userId > 0)
-                    {
-                        userEmail = await _userService.GetUserEmailAsync(userId);
-                    }
-                    loginMethod = "homecode";
-                }
-                else
-                {
-                    await _page.DisplayAlert("Erreur", "Le code foyer est invalide. Veuillez entrer un nombre.", "OK");
-                    return;
-                }
-            }
-            else
-            {
-                await _page.DisplayAlert("Erreur", "Email ou mot de passe incorrect.", "OK");
+                await _page.DisplayAlertAsync("Erreur", "Veuillez entrer votre email et votre mot de passe.", "OK");
                 return;
             }
 
-            if (userId > 0 && !string.IsNullOrWhiteSpace(userEmail))
+            bool isLoginSuccessful = await _authService.SignInAsync(email, password);
+
+            if (isLoginSuccessful)
             {
-                var sessionId = await _verificationService.CreateVerificationSessionAsync(userId, userEmail, loginMethod);
-                var session = _verificationService.GetSession(sessionId);
-                
-                var emailSent = await _emailService.SendLoginConfirmationEmailAsync(userEmail, session.VerificationCode);
-                
-                if (emailSent)
+                string pendingCode = Preferences.Get("pending_home_code", "");
+                var myProfile = await _apiProfileService.GetOrCreateMyProfileAsync(pendingCode);
+
+                if (myProfile != null)
                 {
-                    await Shell.Current.GoToAsync($"{nameof(EmailVerificationView)}?sessionId={sessionId}");
+                    Preferences.Remove("pending_home_code");
+
+                    Preferences.Set("mon_user_id", myProfile.Id);
+                    Preferences.Set("mon_home_code", myProfile.HomeCode);
+
+                    await _localUserService.SaveUserAsync(myProfile);
+                    await SecureStorage.SetAsync("user_id", myProfile.Id.ToString());
+
+                    AppData.CurrentUser = myProfile;
+                    AppData.CurrentUserId = myProfile.Id;
+
+                    if (!myProfile.IsValidated)
+                    {
+                        await Shell.Current.GoToAsync(nameof(EmailVerificationView));
+                    }
+                    else
+                    {
+                        await Shell.Current.GoToAsync($"///{nameof(MainView)}");
+                    }
                 }
                 else
                 {
-                    await _page.DisplayAlert("Erreur", "Impossible d'envoyer l'email de confirmation. V\u00e9rifiez votre configuration email dans EmailConfig.cs", "OK");
+                    await _page.DisplayAlertAsync("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
                 }
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "Identifiants ou code foyer incorrect.", "OK");
+                await _page.DisplayAlertAsync("Erreur", "Email ou mot de passe incorrect.", "OK");
             }
         }
 
         [RelayCommand]
         private async Task BackLogInAsync()
         {
-            await Shell.Current.GoToAsync(nameof(StartingView));
+            await Shell.Current.GoToAsync("..");
         }
     }
 }

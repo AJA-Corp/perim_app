@@ -15,7 +15,6 @@ namespace perimapp.Services
             _filePath = Path.Combine(FileSystem.AppDataDirectory, "userProfile.json");
         }
 
-        // Sauvegarde le profil utilisateur localement.
         public async Task SaveUserAsync(UserProfileDetails user)
         {
             try
@@ -32,7 +31,6 @@ namespace perimapp.Services
             }
         }
 
-        // Charge le profil utilisateur depuis le stockage local.
         public async Task<UserProfileDetails?> LoadUserAsync()
         {
             try
@@ -51,8 +49,6 @@ namespace perimapp.Services
             }
         }
 
-        
-        // Supprime le profil utilisateur local.
         public void ClearUser()
         {
             try

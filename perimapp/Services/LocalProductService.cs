@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using perimapp.Models;
@@ -13,13 +14,9 @@ namespace perimapp.Services
 
         public LocalProductService()
         {
-            // Le fichier sera stocké dans le dossier local de l'app
             _filePath = Path.Combine(FileSystem.AppDataDirectory, "products.json");
         }
 
-        /// <summary>
-        /// Charge les produits depuis le fichier local JSON
-        /// </summary>
         public async Task<List<ProductInfos>> LoadProductsAsync()
         {
             try
@@ -39,9 +36,6 @@ namespace perimapp.Services
             }
         }
 
-        /// <summary>
-        /// Sauvegarde la liste complète des produits dans le fichier JSON local
-        /// </summary>
         public async Task SaveProductsAsync(List<ProductInfos> products)
         {
             try
@@ -58,40 +52,47 @@ namespace perimapp.Services
             }
         }
 
-        /// <summary>
-        /// Ajoute un produit dans le fichier local
-        /// </summary>
+        public async Task<List<ProductInfos>> GetPendingSyncProductsAsync()
+        {
+            var products = await LoadProductsAsync();
+            return products.Where(p => p.SyncState != SyncState.Synced).ToList();
+        }
+
+        public async Task HardDeleteProductAsync(ProductInfos productToHardDelete)
+        {
+            var products = await LoadProductsAsync();
+            products.RemoveAll(p => p.ProductUniqueId == productToHardDelete.ProductUniqueId);
+            await SaveProductsAsync(products);
+        }
+
         public async Task AddProductAsync(ProductInfos product)
         {
             var products = await LoadProductsAsync();
 
-            // Vérifie si le produit existe déjà pour éviter les doublons
             if (!products.Exists(p => p.ProductUniqueId == product.ProductUniqueId))
             {
+                product.SyncState = SyncState.PendingCreate;
+                product.LastModified = DateTime.UtcNow;
+
                 products.Add(product);
                 await SaveProductsAsync(products);
             }
         }
 
-        /// <summary>
-        /// Supprime un produit par son ID unique (ProductUniqueId en string)
-        /// </summary>
-        public async Task RemoveProductAsync(string productUniqueId)
-        {
-            var products = await LoadProductsAsync();
-            products.RemoveAll(p => p.ProductUniqueId == productUniqueId);
-            await SaveProductsAsync(products);
-        }
-
-        /// <summary>
-        /// Met à jour un produit existant
-        /// </summary>
-        public async Task UpdateProductAsync(ProductInfos updatedProduct)
+        public async Task UpdateProductLocalAsync(ProductInfos updatedProduct)
         {
             var products = await LoadProductsAsync();
             var index = products.FindIndex(p => p.ProductUniqueId == updatedProduct.ProductUniqueId);
+
             if (index >= 0)
             {
+                updatedProduct.LastModified = DateTime.UtcNow;
+
+                if (updatedProduct.SyncState != SyncState.PendingCreate)
+                {
+                    updatedProduct.SyncState = SyncState.PendingUpdate;
+                }
+
                 products[index] = updatedProduct;
                 await SaveProductsAsync(products);
             }
@@ -102,23 +103,17 @@ namespace perimapp.Services
             try
             {
                 var products = await LoadProductsAsync();
-                var productToUpdate = products.FirstOrDefault(p => p.ProductUniqueId == productUniqueId);
+                var product = products.FirstOrDefault(p => p.ProductUniqueId == productUniqueId);
 
-                if (productToUpdate == null)
-                {
-                    return false;
-                }
+                if (product == null) return false;
 
-                productToUpdate.State = newState;
+                product.State = newState;
+                product.LastModified = DateTime.UtcNow;
+                product.DeletedAt = (newState == "Deleted") ? DateTime.UtcNow : null;
 
-                // Gérer le champ DeletedAt pour la cohérence
-                if (newState == "Deleted")
+                if (product.SyncState != SyncState.PendingCreate)
                 {
-                    productToUpdate.DeletedAt = DateTime.UtcNow;
-                }
-                else
-                {
-                    productToUpdate.DeletedAt = null;
+                    product.SyncState = SyncState.PendingUpdate;
                 }
 
                 await SaveProductsAsync(products);
@@ -131,136 +126,95 @@ namespace perimapp.Services
             }
         }
 
-        /// <summary>
-        /// Sauvegarde ou met à jour un nom personnalisé pour un produit et un code foyer
-        /// </summary>
-        public async Task SaveCustomProductNameAsync(long barcode, int homeCode, string customName)
+        public async Task EmptyTrashLocallyAsync()
+        {
+            try
+            {
+                var products = await LoadProductsAsync();
+                bool hasChanges = false;
+
+                var itemsToTrash = products.Where(p => p.State == "Deleted").ToList();
+
+                foreach (var product in itemsToTrash)
+                {
+                    if (product.SyncState == SyncState.PendingCreate)
+                    {
+                        products.Remove(product);
+                    }
+                    else
+                    {
+                        product.State = "HardDeleted";
+                        product.SyncState = SyncState.PendingDelete;
+                        product.LastModified = DateTime.UtcNow;
+                    }
+                    hasChanges = true;
+                }
+
+                if (hasChanges)
+                {
+                    await SaveProductsAsync(products);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LocalProductService] Erreur vidage corbeille : {ex.Message}");
+            }
+        }
+
+        public async Task SaveCustomProductNameAsync(long barcode, string homeCode, string customName)
         {
             try
             {
                 string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
                 var customNames = new Dictionary<string, string>();
 
-                // Charger les noms personnalisés existants
                 if (File.Exists(customNamesPath))
                 {
                     using var stream = File.OpenRead(customNamesPath);
                     customNames = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream) ?? new Dictionary<string, string>();
                 }
 
-                // Clé unique: barcode_homeCode
                 string key = $"{barcode}_{homeCode}";
                 customNames[key] = customName;
 
-                // Sauvegarder
                 using var writeStream = File.Create(customNamesPath);
-                await JsonSerializer.SerializeAsync(writeStream, customNames, new JsonSerializerOptions
-                {
-                    WriteIndented = true
-                });
+                await JsonSerializer.SerializeAsync(writeStream, customNames, new JsonSerializerOptions { WriteIndented = true });
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[LocalProductService] Erreur sauvegarde nom personnalisé : {ex.Message}");
+                Console.WriteLine($"[LocalProductService] Erreur sauvegarde nom : {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Supprime définitivement tous les produits dont le State est "Deleted"
-        /// </summary>
-        public async Task DeleteAllDeletedProductsAsync()
-        {
-            var products = await LoadProductsAsync();
-            products.RemoveAll(p => p.State == "Deleted");
-            await SaveProductsAsync(products);
-        }
-        /* Modifier cette fonction de sorte à ce que les produits soient marqués "HardDeleted" au lieu d'être supprimés, 
-         * pour que la synchronisation puisse les purger du serveur ensuite.
-        */
-
-        /// <summary>
-        /// Marque tous les produits de la corbeille comme "HardDeleted" (prêts à être purgés sur le serveur)
-        /// </summary>
-        //public async Task<bool> EmptyTrashLocallyAsync()
-        //{
-        //    try
-        //    {
-        //        var products = await LoadProductsAsync();
-        //        bool hasChanges = false;
-
-        //        foreach (var product in products)
-        //        {
-        //            if (product.State == "Deleted")
-        //            {
-        //                product.State = "HardDeleted";
-        //                product.LastModified = DateTime.UtcNow;
-        //                hasChanges = true;
-        //            }
-        //        }
-
-        //        if (hasChanges)
-        //        {
-        //            await SaveProductsAsync(products);
-        //        }
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"[LocalProductService] Erreur vidage corbeille : {ex.Message}");
-        //        return false;
-        //    }
-        //}
-
-        /// <summary>
-        /// Récupère un nom personnalisé pour un produit et un code foyer
-        /// </summary>
-        public async Task<string?> GetCustomProductNameAsync(long barcode, int homeCode)
+        public async Task<string?> GetCustomProductNameAsync(long barcode, string homeCode)
         {
             try
             {
                 string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
-                
-                if (!File.Exists(customNamesPath))
-                    return null;
+                if (!File.Exists(customNamesPath)) return null;
 
                 using var stream = File.OpenRead(customNamesPath);
                 var customNames = await JsonSerializer.DeserializeAsync<Dictionary<string, string>>(stream);
 
-                if (customNames == null)
-                    return null;
+                if (customNames == null) return null;
 
-                // Clé unique: barcode_homeCode
                 string key = $"{barcode}_{homeCode}";
                 return customNames.TryGetValue(key, out string? customName) ? customName : null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"[LocalProductService] Erreur lecture nom personnalisé : {ex.Message}");
                 return null;
             }
         }
 
-        /// <summary>
-        /// Supprime tous les produits locaux et les noms personnalisés
-        /// </summary>
         public void ClearAllProducts()
         {
             try
             {
-                // Supprimer le fichier de produits
-                if (File.Exists(_filePath))
-                {
-                    File.Delete(_filePath);
-                    Console.WriteLine("[LocalProductService] Fichier de produits supprimé.");
-                }
+                if (File.Exists(_filePath)) File.Delete(_filePath);
 
-                // Supprimer le fichier de noms personnalisés
                 string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
-                if (File.Exists(customNamesPath))
-                {
-                    File.Delete(customNamesPath);
-                    Console.WriteLine("[LocalProductService] Fichier de noms personnalisés supprimé.");
-                }
+                if (File.Exists(customNamesPath)) File.Delete(customNamesPath);
             }
             catch (Exception ex)
             {

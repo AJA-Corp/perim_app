@@ -6,26 +6,23 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using perimapp.Views;
 using perimapp.Services;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace perimapp.ViewModels
 {
     public partial class EmailVerificationViewModel : ObservableObject
     {
-        private readonly EmailService _emailService = new();
-        private readonly LoginVerificationService _verificationService = new();
-        private readonly NeonUserService _userService = new();
+        private readonly ApiProfileService _apiProfileService = new();
         private readonly ContentPage _page;
         private System.Timers.Timer _timer;
         private int _remainingSeconds = 300;
 
         [ObservableProperty]
-        private string _sessionId;
+        private string _infoText = "Veuillez entrer le code de validation reçu par le propriétaire du foyer.";
 
         [ObservableProperty]
-        private string _infoText;
-
-        [ObservableProperty]
-        private string _timerText = "Code expire dans : 5:00";
+        private string _timerText = "Le code expire bientôt";
 
         [ObservableProperty]
         private Color _timerTextColor = Colors.White;
@@ -36,25 +33,7 @@ namespace perimapp.ViewModels
         public EmailVerificationViewModel(ContentPage page)
         {
             _page = page;
-        }
-
-        partial void OnSessionIdChanged(string value)
-        {
-            OnSessionIdSet();
-        }
-
-        private void OnSessionIdSet()
-        {
-            if (!string.IsNullOrEmpty(SessionId))
-            {
-                var session = _verificationService.GetSession(SessionId);
-                if (session != null)
-                {
-                    InfoText = $"Un code de v\u00e9rification a \u00e9t\u00e9 envoy\u00e9 \u00e0 {MaskEmail(session.Email)}.";
-                }
-                
-                StartTimer();
-            }
+            StartTimer();
         }
 
         private void StartTimer()
@@ -67,20 +46,19 @@ namespace perimapp.ViewModels
         private void UpdateTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
             _remainingSeconds--;
-            
             _page.Dispatcher.Dispatch(() =>
             {
                 if (_remainingSeconds <= 0)
                 {
                     _timer?.Stop();
-                    TimerText = "Code expir\u00e9";
+                    TimerText = "Code possiblement expiré";
                     TimerTextColor = Colors.Red;
                 }
                 else
                 {
                     int minutes = _remainingSeconds / 60;
                     int seconds = _remainingSeconds % 60;
-                    TimerText = $"Code expire dans : {minutes}:{seconds:D2}";
+                    TimerText = $"Temps estimé : {minutes}:{seconds:D2}";
                 }
             });
         }
@@ -89,83 +67,24 @@ namespace perimapp.ViewModels
         private async Task VerifyAsync()
         {
             var enteredCode = VerificationCode?.Trim();
-            
-            if (string.IsNullOrWhiteSpace(enteredCode))
+
+            if (string.IsNullOrWhiteSpace(enteredCode) || enteredCode.Length != 6)
             {
-                await _page.DisplayAlert("Erreur", "Veuillez entrer le code de v\u00e9rification.", "OK");
+                await _page.DisplayAlert("Erreur", "Veuillez entrer un code valide à 6 chiffres.", "OK");
                 return;
             }
 
-            if (enteredCode.Length != 6)
-            {
-                await _page.DisplayAlert("Erreur", "Le code doit contenir 6 chiffres.", "OK");
-                return;
-            }
+            bool success = await _apiProfileService.ValidateHomeJoinCodeAsync(enteredCode);
 
-            var isValid = _verificationService.VerifyCode(SessionId, enteredCode);
-            
-            if (isValid)
+            if (success)
             {
-                var session = _verificationService.GetSession(SessionId);
-                if (session != null)
-                {
-                    await SecureStorage.SetAsync("user_id", session.UserId.ToString());
-                    _verificationService.CompleteVerification(SessionId);
-                    
-                    _timer?.Stop();
-                    
-                    await Shell.Current.GoToAsync(nameof(MainView));
-                }
-                else
-                {
-                    await _page.DisplayAlert("Erreur", "Session expir\u00e9e. Veuillez vous reconnecter.", "OK");
-                    await Shell.Current.GoToAsync(nameof(LogInView));
-                }
+                _timer?.Stop();
+                await _page.DisplayAlert("Succès", "Vous avez rejoint le foyer !", "OK");
+                await Shell.Current.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "Code de v\u00e9rification incorrect ou expir\u00e9.", "OK");
-            }
-        }
-
-        [RelayCommand]
-        private async Task ResendCodeAsync()
-        {
-            var session = _verificationService.GetSession(SessionId);
-            if (session == null)
-            {
-                await _page.DisplayAlert("Erreur", "Session expir\u00e9e. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.GoToAsync(nameof(LogInView));
-                return;
-            }
-
-            var userProfile = await _userService.GetUserProfileAsync(session.UserId);
-            if (userProfile == null)
-            {
-                await _page.DisplayAlert("Erreur", "Utilisateur introuvable.", "OK");
-                return;
-            }
-
-            var newSessionId = await _verificationService.CreateVerificationSessionAsync(
-                session.UserId, 
-                session.Email, 
-                session.LoginMethod);
-
-            var newSession = _verificationService.GetSession(newSessionId);
-            
-            var emailSent = await _emailService.SendLoginConfirmationEmailAsync(session.Email, newSession.VerificationCode);
-            
-            if (emailSent)
-            {
-                SessionId = newSessionId;
-                _remainingSeconds = 300;
-                TimerText = "Code expire dans : 5:00";
-                TimerTextColor = Colors.White;
-                await _page.DisplayAlert("Succ\u00e8s", "Un nouveau code a \u00e9t\u00e9 envoy\u00e9 \u00e0 votre email.", "OK");
-            }
-            else
-            {
-                await _page.DisplayAlert("Erreur", "Impossible d'envoyer l'email. V\u00e9rifiez votre configuration email.", "OK");
+                await _page.DisplayAlert("Erreur", "Code incorrect ou demande introuvable.", "OK");
             }
         }
 
@@ -173,23 +92,7 @@ namespace perimapp.ViewModels
         private async Task GoBackAsync()
         {
             _timer?.Stop();
-            await Shell.Current.GoToAsync(nameof(LogInView));
-        }
-
-        private string MaskEmail(string email)
-        {
-            if (string.IsNullOrEmpty(email) || !email.Contains("@"))
-                return email;
-
-            var parts = email.Split('@');
-            var localPart = parts[0];
-            var domain = parts[1];
-
-            if (localPart.Length <= 2)
-                return email;
-
-            var maskedLocal = localPart[0] + new string('*', localPart.Length - 2) + localPart[^1];
-            return $"{maskedLocal}@{domain}";
+            await Shell.Current.GoToAsync("..");
         }
 
         public void StopTimer()

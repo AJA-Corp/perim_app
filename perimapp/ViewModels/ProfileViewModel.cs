@@ -1,167 +1,88 @@
-using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Storage;
+using Microsoft.Maui.Networking;
+using perimapp.Data;
 using perimapp.Models;
 using perimapp.PopUp;
 using perimapp.Services;
-using CommunityToolkit.Maui.Views;
-using CommunityToolkit.Maui.Extensions;
 using perimapp.Views;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace perimapp.ViewModels
 {
     public partial class ProfileViewModel : ObservableObject
     {
-        private readonly NeonUserService _userService;
-        private readonly NeonProductService _productService;
         private readonly LocalUserService _localUserService;
         private readonly LocalProductService _localProductService;
+        private readonly ApiProfileService _apiProfileService;
+        private readonly AuthService _authService;
 
         private UserProfileDetails? _currentUser;
         private ContentPage _page;
 
-        private bool _isMenuVisible = false;
-        public bool IsMenuVisible
-        {
-            get => _isMenuVisible;
-            set => SetProperty(ref _isMenuVisible, value);
-        }
+        [ObservableProperty]
+        private bool _isMenuVisible;
 
+        [ObservableProperty]
         private string _userName = "Chargement...";
-        public string UserName
-        {
-            get => _userName;
-            set => SetProperty(ref _userName, value);
-        }
 
-        private int _registeredProductsCount = 0;
-        public int RegisteredProductsCount
-        {
-            get => _registeredProductsCount;
-            set => SetProperty(ref _registeredProductsCount, value);
-        }
+        [ObservableProperty]
+        private int _registeredProductsCount;
 
-        private int _lostProductsCount = 0;
-        public int LostProductsCount
-        {
-            get => _lostProductsCount;
-            set => SetProperty(ref _lostProductsCount, value);
-        }
+        [ObservableProperty]
+        private int _lostProductsCount;
 
+        [ObservableProperty]
         private string _familyCode = "Chargement...";
-        public string FamilyCode
-        {
-            get => _familyCode;
-            set => SetProperty(ref _familyCode, value);
-        }
 
-        private bool _isEditPopupVisible = false;
-        public bool IsEditPopupVisible
-        {
-            get => _isEditPopupVisible;
-            set => SetProperty(ref _isEditPopupVisible, value);
-        }
+        [ObservableProperty]
+        private bool _isEditPopupVisible;
 
+        [ObservableProperty]
         private string _editFirstName;
-        public string EditFirstName
-        {
-            get => _editFirstName;
-            set => SetProperty(ref _editFirstName, value);
-        }
 
+        [ObservableProperty]
         private string _editLastName;
-        public string EditLastName
-        {
-            get => _editLastName;
-            set => SetProperty(ref _editLastName, value);
-        }
 
-        public IAsyncRelayCommand LoadProfileDataCommand { get; }
-        public IRelayCommand ToggleSettingsCommand { get; }
-        public IAsyncRelayCommand EditProfileCommand { get; }
-        public IRelayCommand CancelEditCommand { get; }
-        public IAsyncRelayCommand SaveEditCommand { get; }
-        public IAsyncRelayCommand DeleteAccountCommand { get; }
-        public IAsyncRelayCommand LogoutCommand { get; }
-        public IRelayCommand ActivateNotificationsCommand { get; }
-
-        public ProfileViewModel(ContentPage page)
+        public ProfileViewModel(ContentPage page, LocalUserService localUserService, LocalProductService localProductService, ApiProfileService apiProfileService, AuthService authService)
         {
             _page = page;
-            _userService = new NeonUserService();
-            _productService = new NeonProductService();
-            _localUserService = new LocalUserService();
-            _localProductService = new LocalProductService();
-
-            LoadProfileDataCommand = new AsyncRelayCommand(LoadProfileDataAsync);
-            ToggleSettingsCommand = new RelayCommand(ToggleSettings);
-            EditProfileCommand = new AsyncRelayCommand(EditProfileAsync);
-            CancelEditCommand = new RelayCommand(CancelEdit);
-            SaveEditCommand = new AsyncRelayCommand(SaveEditAsync);
-            DeleteAccountCommand = new AsyncRelayCommand(DeleteAccountAsync);
-            LogoutCommand = new AsyncRelayCommand(LogoutAsync);
-            ActivateNotificationsCommand = new RelayCommand(ActivateNotifications);
+            _localUserService = localUserService;
+            _localProductService = localProductService;
+            _apiProfileService = apiProfileService;
+            _authService = authService;
         }
 
+        [RelayCommand]
         public async Task LoadProfileDataAsync()
         {
             try
             {
-                // 1. Charger les infos utilisateur depuis le local d'abord
-                var localUser = await _localUserService.LoadUserAsync();
-                if (localUser != null)
+                _currentUser = await _localUserService.LoadUserAsync();
+                if (_currentUser != null)
                 {
-                    UpdateUI(localUser);
-                    Debug.WriteLine("Profil chargé depuis le stockage local \u2705");
+                    UpdateUI(_currentUser);
                 }
 
-                // 2. Charger les produits enregistrés depuis le local
                 var localProducts = await _localProductService.LoadProductsAsync();
                 RegisteredProductsCount = localProducts.Count;
 
-                // 3. Essayer de rafraîchir depuis Neon si on a une connexion
-                var userIdStr = await SecureStorage.GetAsync("user_id");
-                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
                 {
-                    Debug.WriteLine("ProfileView [ERREUR] : ID utilisateur non trouvé.");
-                    return;
-                }
-
-                try
-                {
-                    // On récupère le profil complet depuis NeonDB
-                    var userProfile = await _userService.GetUserProfileAsync(userId);
-                    int productCount = await _userService.GetRegisteredProductsCountAsync(userId);
-
-                    if (userProfile != null)
+                    var serverProfile = await _apiProfileService.GetOrCreateMyProfileAsync();
+                    if (serverProfile != null && _currentUser != null)
                     {
-                        // On met à jour le profil
-                        userProfile.RegisteredProductsCount = productCount;
-                        await _localUserService.SaveUserAsync(userProfile);
+                        _currentUser.HomeCode = serverProfile.HomeCode;
+                        _currentUser.IsValidated = serverProfile.IsValidated;
 
-                        await SyncLostProductCountAsync(userId, userProfile);
-
-                        UpdateUI(userProfile);
-                        Debug.WriteLine("Profil mis à jour depuis Neon");
-
-                        // On synchronise les produits si le serveur en a
-                        if (productCount > localProducts.Count)
-                        {
-                            var serverProducts = await _productService.GetUserProductsAsync(userId);
-                            await _localProductService.SaveProductsAsync(serverProducts);
-                            RegisteredProductsCount = serverProducts.Count;
-                        }
-
-                        Debug.WriteLine(" Produits mis à jour depuis NeonDB \u2705");
+                        await _localUserService.SaveUserAsync(_currentUser);
+                        UpdateUI(_currentUser);
                     }
-                }
-                catch
-                {
-                    Debug.WriteLine("Mode hors-ligne activé \u2192 utilisation des données locales");
                 }
             }
             catch (Exception ex)
@@ -172,56 +93,23 @@ namespace perimapp.ViewModels
 
         private void UpdateUI(UserProfileDetails user)
         {
-            UserName = $"{user.FirstName} {user.LastName}";
-            FamilyCode = user.HomeCode.ToString();
-            RegisteredProductsCount = user.RegisteredProductsCount;
+            string fullName = $"{user.FirstName} {user.LastName}".Trim();
+            UserName = string.IsNullOrEmpty(fullName) ? "Mon Profil" : fullName;
+
+            FamilyCode = string.IsNullOrEmpty(user.HomeCode) ? "Aucun" : user.HomeCode;
             LostProductsCount = user.LostProductCount;
         }
 
-        private async Task SyncLostProductCountAsync(int userId, UserProfileDetails serverProfile)
-        {
-            try
-            {
-                var localUser = await _localUserService.LoadUserAsync();
-                if (localUser == null) return;
-
-                int localCount = localUser.LostProductCount;
-                int serverCount = serverProfile.LostProductCount;
-
-                if (localCount != serverCount)
-                {
-                    Debug.WriteLine($"ProfileView: Différence détectée - Local: {localCount}, Serveur: {serverCount}");
-                    Debug.WriteLine("ProfileView: Synchronisation du compteur avec le serveur (serveur fait autorité).");
-
-                    localUser.LostProductCount = serverCount;
-                    await _localUserService.SaveUserAsync(localUser);
-                    LostProductsCount = serverCount;
-
-                    Debug.WriteLine($"ProfileView: Compteur local mis à jour: {serverCount}");
-                }
-                else
-                {
-                    Debug.WriteLine("ProfileView: Compteurs local et serveur déjà synchronisés.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"ProfileView [SyncLostProductCount] Erreur: {ex.Message}");
-            }
-        }
-
+        [RelayCommand]
         private void ToggleSettings()
         {
             IsMenuVisible = !IsMenuVisible;
-            Debug.WriteLine($"Menu de paramètres visible : {IsMenuVisible}");
         }
 
+        [RelayCommand]
         private async Task EditProfileAsync()
         {
             IsMenuVisible = false;
-
-            // Charger l'utilisateur depuis le local storage
-            _currentUser = await _localUserService.LoadUserAsync();
 
             if (_currentUser == null)
             {
@@ -229,54 +117,39 @@ namespace perimapp.ViewModels
                 return;
             }
 
-            // Pré-remplir les champs
             EditFirstName = _currentUser.FirstName;
             EditLastName = _currentUser.LastName;
-
-            // Afficher la popup
             IsEditPopupVisible = true;
         }
 
+        [RelayCommand]
         private void CancelEdit()
         {
             IsEditPopupVisible = false;
         }
 
+        [RelayCommand]
         private async Task SaveEditAsync()
         {
             try
             {
-                // Récupérer l'ID utilisateur
-                var userIdStr = await SecureStorage.GetAsync("user_id");
-                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
-                {
-                    await _page.DisplayAlert("Erreur", "Impossible de retrouver votre profil.", "OK");
-                    return;
-                }
-
-                // Mettre à jour les infos en local
                 _currentUser.FirstName = EditFirstName?.Trim();
                 _currentUser.LastName = EditLastName?.Trim();
 
-                // Sauvegarder sur Neon
-                var success = await _userService.UpdateUserProfileAsync(userId, _currentUser);
+                bool isUpdatedOnServer = await _apiProfileService.UpdateNameAsync(_currentUser.FirstName, _currentUser.LastName);
 
-                if (!success)
+                if (!isUpdatedOnServer)
                 {
-                    await _page.DisplayAlert("Erreur", "La mise à jour du profil a échoué.", "OK");
-                    return;
+                    await _page.DisplayAlert("Attention", "Vos modifications ont été sauvegardées localement mais n'ont pas pu être envoyées au serveur (Pas de réseau ?)", "OK");
                 }
 
-                // Sauvegarder aussi en local
                 await _localUserService.SaveUserAsync(_currentUser);
-                
-                // Rafraîchir l'affichage
-                UserName = $"{_currentUser.FirstName} {_currentUser.LastName}";
 
-                // Fermer la popup
+                UpdateUI(_currentUser);
                 IsEditPopupVisible = false;
 
-                await _page.DisplayAlert("Succès", "Votre profil a été mis à jour.", "OK");
+                if (isUpdatedOnServer)
+                    await _page.DisplayAlert("Succès", "Votre profil a été mis à jour.", "OK");
             }
             catch (Exception ex)
             {
@@ -284,81 +157,63 @@ namespace perimapp.ViewModels
             }
         }
 
+        [RelayCommand]
         private async Task DeleteAccountAsync()
         {
             IsMenuVisible = false;
 
-            bool confirm = await _page.DisplayAlert(
-                "Supprimer le compte",
-                "⚠️ ATTENTION ⚠️\n\nCette action est irréversible et supprimera définitivement :\n\n" +
-                "• Votre profil utilisateur\n" +
-                "• Tous vos produits enregistrés\n" +
-                "• Votre code foyer et ses données associées\n" +
-                "• Toutes vos données locales\n\n" +
-                "Voulez-vous vraiment continuer ?",
-                "Supprimer définitivement",
-                "Annuler"
-            );
+            bool confirm = await _page.DisplayAlert("Supprimer le compte",
+                "⚠️ ATTENTION ⚠️\n\nCette action est irréversible. Vos produits, votre foyer et vos identifiants de connexion seront définitivement détruits. Voulez-vous vraiment continuer ?",
+                "Supprimer définitivement", "Annuler");
 
             if (!confirm) return;
 
-            bool finalConfirm = await _page.DisplayAlert(
-                "Dernière confirmation",
-                "Êtes-vous absolument certain(e) de vouloir supprimer votre compte ?",
-                "Oui, supprimer",
-                "Non, annuler"
-            );
-
-            if (!finalConfirm) return;
-
             try
             {
-                var userIdStr = await SecureStorage.GetAsync("user_id");
-                if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                bool isDeletedOnServer = await _apiProfileService.DeleteMyAccountAsync();
+
+                if (!isDeletedOnServer)
                 {
-                    await _page.DisplayAlert("Erreur", "Impossible de retrouver votre profil.", "OK");
+                    await _page.DisplayAlert("Erreur réseau", "Impossible de contacter le serveur Render pour supprimer vos données. Réessayez plus tard.", "OK");
                     return;
                 }
 
-                Debug.WriteLine($"[ProfileView] Début de la suppression du compte {userId}...");
+                bool isDeletedOnNeon = await _authService.DeleteNeonAccountAsync();
 
-                bool deletedFromServer = await _userService.DeleteUserAccountAsync(userId);
-                if (!deletedFromServer)
+                if (!isDeletedOnNeon)
                 {
-                    await _page.DisplayAlert("Erreur", "Une erreur est survenue lors de la suppression du compte sur le serveur.", "OK");
-                    return;
+                    System.Diagnostics.Debug.WriteLine("Attention : Le compte Neon n'a pas pu être supprimé automatiquement.");
                 }
 
-                Debug.WriteLine("[ProfileView] Données serveur supprimées \u2705");
-
+                _authService.SignOut();
                 _localUserService.ClearUser();
                 _localProductService.ClearAllProducts();
-                SecureStorage.Remove("user_id");
 
-                Debug.WriteLine("[ProfileView] Données locales supprimées \u2705");
+                await _page.DisplayAlert("Compte supprimé", "Votre compte et l'intégralité de vos données ont été définitivement supprimés.", "OK");
 
-                await _page.DisplayAlert("Compte supprimé", "Votre compte a été définitivement supprimé.", "OK");
-
-                await Shell.Current.GoToAsync(nameof(StartingView));
+                await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ProfileView] Erreur lors de la suppression du compte : {ex.Message}");
                 await _page.DisplayAlert("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
             }
         }
 
+        [RelayCommand]
         private async Task LogoutAsync()
         {
             IsMenuVisible = false;
 
-            SecureStorage.Remove("user_id");
+            _authService.SignOut();
             _localUserService.ClearUser();
-            Debug.WriteLine("Déconnexion de l'utilisateur. Suppression de l'ID utilisateur.");
+            _localProductService.ClearAllProducts();
 
-            await Shell.Current.GoToAsync(nameof(StartingView));
+            AppData.Clear();
+
+            await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
         }
 
+        [RelayCommand]
         private void ActivateNotifications()
         {
             var popup = new NotificationPopUp();

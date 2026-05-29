@@ -13,4 +13,14 @@
         ContentTemplate="{DataTemplate views:LoadingView}"
         Route="LoadingView" />
 
+    <ShellContent
+        Title="StartingView"
+        ContentTemplate="{DataTemplate views:StartingView}"
+        Route="StartingView" />
+
+    <ShellContent
+        Title="MainView"
+        ContentTemplate="{DataTemplate views:MainView}"
+        Route="MainView" />
+
 </Shell>
