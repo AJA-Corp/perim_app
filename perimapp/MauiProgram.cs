@@ -76,7 +76,6 @@ public static class MauiProgram
         builder.EnableHotReload();
 #endif
 
-        // 🟢 CIBLAGE STRICT : Ne s'applique qu'au nouveau WhiteCursorEntry
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("WhiteCursor", (handler, view) =>
         {
             if (view is perimapp.Controls.WhiteCursorEntry)
