@@ -14,5 +14,17 @@ namespace perimapp.Views
             InitializeComponent();
             BindingContext = new SignUpViewModel(this);
         }
+
+        private void OnTogglePasswordVisibilityClicked(object sender, EventArgs e)
+        {
+            PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
+            PasswordIcon.Source = PasswordEntry.IsPassword ? "visibility_off_green.png" : "visibility_green.png";
+        }
+
+        private void OnToggleConfirmPasswordVisibilityClicked(object sender, EventArgs e)
+        {
+            ConfirmPasswordEntry.IsPassword = !ConfirmPasswordEntry.IsPassword;
+            ConfirmPasswordIcon.Source = ConfirmPasswordEntry.IsPassword ? "visibility_off_green.png" : "visibility_green.png";
+        }
     }
 }

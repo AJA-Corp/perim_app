@@ -12,4 +12,10 @@ public partial class LogInView : ContentPage
         InitializeComponent();
         BindingContext = new LogInViewModel(this);
     }
+
+    private void OnTogglePasswordVisibilityClicked(object sender, EventArgs e)
+    {
+        PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
+        PasswordIcon.Source = PasswordEntry.IsPassword ? "visibility_off_white.png" : "visibility_white.png";
+    }
 }
