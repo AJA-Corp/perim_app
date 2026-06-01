@@ -62,11 +62,6 @@ namespace perimapp.Services
             }
         }
 
-        public void DeleteUser()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> IncrementLostProductCountAsync()
         {
             try

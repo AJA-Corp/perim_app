@@ -22,13 +22,13 @@ namespace perimapp.Models
         [JsonIgnore]
         public string Password { get; set; }
 
-        [JsonIgnore]
+        [JsonPropertyName("registeredProductsCount")]
         public int RegisteredProductsCount { get; set; }
 
-        [JsonIgnore]
+        [JsonPropertyName("firstName")]
         public string FirstName { get; set; }
 
-        [JsonIgnore]
+        [JsonPropertyName("lastName")]
         public string LastName { get; set; }
     }
 }

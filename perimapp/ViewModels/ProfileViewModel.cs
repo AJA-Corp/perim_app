@@ -79,6 +79,9 @@ namespace perimapp.ViewModels
                     {
                         _currentUser.HomeCode = serverProfile.HomeCode;
                         _currentUser.IsValidated = serverProfile.IsValidated;
+                        _currentUser.FirstName = serverProfile.FirstName;
+                        _currentUser.LastName = serverProfile.LastName;
+                        _currentUser.LostProductCount = serverProfile.LostProductCount;
 
                         await _localUserService.SaveUserAsync(_currentUser);
                         UpdateUI(_currentUser);

@@ -50,7 +50,8 @@
                    BackgroundColor="White"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   WidthRequest="300">
+                   WidthRequest="300"
+                   BorderColor="White">
 
                 <VerticalStackLayout Spacing="15">
 
@@ -63,12 +64,14 @@
                     <Entry x:Name="FirstNameEntry"
                            TextColor="Black"
                            Text="{Binding EditFirstName, Mode=TwoWay}"
-                           Placeholder="Prénom" />
+                           Placeholder="Prénom"
+                           PlaceholderColor="Gray"/>
 
                     <Entry x:Name="LastNameEntry"
                            TextColor="Black"
                            Text="{Binding EditLastName, Mode=TwoWay}"
-                           Placeholder="Nom" />
+                           Placeholder="Nom"
+                           PlaceholderColor="Gray"/>
 
                     <HorizontalStackLayout Spacing="10"
                                            HorizontalOptions="Center">
