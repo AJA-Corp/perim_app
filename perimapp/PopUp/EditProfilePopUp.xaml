@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="perimapp.PopUp.EditProfilePopUp"
+    CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border Padding="20"
+            StrokeThickness="0"
+            BackgroundColor="White"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            WidthRequest="300">
+
+        <VerticalStackLayout Spacing="15">
+            <Label Text="Modifier mon profil"
+                   TextColor="Black"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+
+            <VerticalStackLayout Spacing="0">
+                <Entry x:Name="FirstNameEntry"
+                       TextColor="Black"
+                       Placeholder="Prénom"
+                       PlaceholderColor="Gray"/>
+                <BoxView HeightRequest="1" BackgroundColor="#57BF7F" VerticalOptions="End"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="0">
+                <Entry x:Name="LastNameEntry"
+                       TextColor="Black"
+                       Placeholder="Nom"
+                       PlaceholderColor="Gray"/>
+                <BoxView HeightRequest="1" BackgroundColor="#57BF7F" VerticalOptions="End"/>
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <Button Text="Annuler"
+                        Clicked="OnCancelClicked"
+                        BackgroundColor="LightGray"
+                        TextColor="Black"
+                        WidthRequest="120"/>
+
+                <Button Text="Enregistrer"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#58BF7F"
+                        TextColor="White"
+                        WidthRequest="120"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</toolkit:Popup>
