@@ -8,6 +8,8 @@ using perimapp.Views;
 using perimapp.Services;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using perimapp.PopUp;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -70,7 +72,8 @@ namespace perimapp.ViewModels
 
             if (string.IsNullOrWhiteSpace(enteredCode) || enteredCode.Length != 6)
             {
-                await _page.DisplayAlert("Erreur", "Veuillez entrer un code valide à 6 chiffres.", "OK");
+                var errorPopup = new InfosPopUp("Code invalide", "Veuillez entrer un code de validation à 6 chiffres.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -79,12 +82,14 @@ namespace perimapp.ViewModels
             if (success)
             {
                 _timer?.Stop();
-                await _page.DisplayAlert("Succès", "Vous avez rejoint le foyer !", "OK");
+                var infosPopup = new InfosPopUp("Bienvenue !", "Vous avez rejoint le foyer avec succès. Vous pouvez maintenant accéder à toutes les fonctionnalités de l'application.", "OK");
+                await _page.ShowPopupAsync(infosPopup);
                 await Shell.Current.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "Code incorrect ou demande introuvable.", "OK");
+                var errorPopup = new InfosPopUp("Code incorrect", "Le code de validation que vous avez entré est incorrect. Veuillez vérifier le code reçu par le propriétaire du foyer et réessayer.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 

@@ -7,6 +7,8 @@ using Microsoft.Maui.Storage;
 using perimapp.Services;
 using perimapp.Views;
 using perimapp.Data;
+using perimapp.PopUp;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -40,7 +42,8 @@ namespace perimapp.ViewModels
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
-                await _page.DisplayAlertAsync("Erreur", "Veuillez entrer votre email et votre mot de passe.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Veuillez entrer votre email et votre mot de passe.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -76,11 +79,14 @@ namespace perimapp.ViewModels
                 else
                 {
                     await _page.DisplayAlertAsync("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                 }
             }
             else
             {
-                await _page.DisplayAlertAsync("Erreur", "Email ou mot de passe incorrect.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Email ou mot de passe incorrect.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 

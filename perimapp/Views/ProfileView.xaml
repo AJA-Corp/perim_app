@@ -36,60 +36,6 @@
         <headers:SharedHeader Grid.Row="0" HeaderText="Profil"/>
 
         <Grid Grid.Row="1">
-            
-            <!-- POPUP MODIFICATION PROFIL -->
-        <Grid x:Name="EditProfilePopup"
-              BackgroundColor="#80000000"
-              IsVisible="{Binding IsEditPopupVisible}"
-              VerticalOptions="FillAndExpand"
-              HorizontalOptions="FillAndExpand"
-              ZIndex="999">
-
-            <Frame Padding="20"
-                   CornerRadius="15"
-                   BackgroundColor="White"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   WidthRequest="300"
-                   BorderColor="White">
-
-                <VerticalStackLayout Spacing="15">
-
-                    <Label Text="Modifier mon profil"
-                           TextColor="Black"
-                           FontSize="20"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"/>
-
-                    <Entry x:Name="FirstNameEntry"
-                           TextColor="Black"
-                           Text="{Binding EditFirstName, Mode=TwoWay}"
-                           Placeholder="Prénom"
-                           PlaceholderColor="Gray"/>
-
-                    <Entry x:Name="LastNameEntry"
-                           TextColor="Black"
-                           Text="{Binding EditLastName, Mode=TwoWay}"
-                           Placeholder="Nom"
-                           PlaceholderColor="Gray"/>
-
-                    <HorizontalStackLayout Spacing="10"
-                                           HorizontalOptions="Center">
-                        <Button Text="Annuler"
-                                Command="{Binding CancelEditCommand}"
-                                BackgroundColor="LightGray"
-                                TextColor="Black"
-                                WidthRequest="120"/>
-
-                        <Button Text="Enregistrer"
-                                Command="{Binding SaveEditCommand}"
-                                BackgroundColor="#58BF7F"
-                                TextColor="White"
-                                WidthRequest="120"/>
-                    </HorizontalStackLayout>
-                </VerticalStackLayout>
-            </Frame>
-        </Grid>
 
             <ScrollView VerticalOptions="CenterAndExpand">
                 <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="StartAndExpand">

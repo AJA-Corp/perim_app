@@ -7,8 +7,10 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
+using perimapp.PopUp;
 using perimapp.Services;
 using perimapp.Views;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -63,14 +65,16 @@ namespace perimapp.ViewModels
                 else
                 {
                     Debug.WriteLine("ModifyProductView: Produit non trouvé avec ProductUniqueId : " + uniqueId);
-                    await _page.DisplayAlert("Erreur", "Produit à modifier non trouvé.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur", "Produit à modifier non trouvé.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                     await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                 }
             }
             else
             {
                 Debug.WriteLine("ModifyProductView: Aucun ProductUniqueId fourni pour la modification.");
-                await _page.DisplayAlert("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync("..");
             }
         }
@@ -98,13 +102,15 @@ namespace perimapp.ViewModels
             {
                 if (string.IsNullOrWhiteSpace(CurrentCustomName))
                 {
-                    await _page.DisplayAlert("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                     return;
                 }
 
                 if (CurrentQuantity < 1)
                 {
-                    await _page.DisplayAlert("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                     return;
                 }
 
@@ -127,7 +133,8 @@ namespace perimapp.ViewModels
 
                 perimapp.Services.NotificationScheduler.UpdateSchedules();
 
-                await _page.DisplayAlert("Succès", "Produit modifié avec succès !", "OK");
+                var successPopup = new InfosPopUp("Succès", "Produit modifié avec succès !", "OK");
+                await _page.ShowPopupAsync(successPopup);
 
                 try
                 {

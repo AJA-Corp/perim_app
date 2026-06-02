@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -7,8 +6,11 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Networking;
 using perimapp.Data;
 using perimapp.Models;
+using perimapp.PopUp;
 using perimapp.Services;
 using perimapp.Views;
+using System;
+using System.Threading.Tasks;
 
 namespace perimapp.ViewModels
 {
@@ -70,14 +72,16 @@ namespace perimapp.ViewModels
         {
             if (!long.TryParse(BarcodeText, out long barcode))
             {
-                await _page.DisplayAlert("Erreur", "Code-barres invalide.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Code-barres invalide.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
             var user = await _localUserService.LoadUserAsync();
             if (user == null)
             {
-                await _page.DisplayAlert("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
                 return;
             }
@@ -109,39 +113,37 @@ namespace perimapp.ViewModels
 
             if (product == null)
             {
-                bool reponse = await _page.DisplayAlert(
-                    "Erreur",
-                    "Produit introuvable. Voulez-vous ajouter un nouveau produit perso. ?",
-                    "Oui",
-                    "Non"
+                var newProductPopup = new BoolPopUp("Produit introuvable", "Voulez-vous ajouter un nouveau produit perso ?", "Oui", "Non");
+                await _page.ShowPopupAsync(newProductPopup);
+
+                if (!newProductPopup.Result) return;
+
+                var namePromptPopup = new PromptPopUp(
+                    "Nom du produit",
+                    "Veuillez entrer le nom du produit",
+                    "Entrez ici...",
+                    "OK",
+                    "Annuler"
                 );
 
-                if (reponse)
+                await _page.ShowPopupAsync(namePromptPopup);
+
+                string result = namePromptPopup.Result;
+
+                if (!string.IsNullOrEmpty(result))
                 {
-                    string result = await _page.DisplayPromptAsync(
-                        "Nom du produit",
-                        "Entrez le nom du produit",
-                        "OK",
-                        "Annuler",
-                        "Entrez ici",
-                        maxLength: 255,
-                        keyboard: Keyboard.Text
-                    );
-
-                    if (!string.IsNullOrEmpty(result))
+                    _searchedProductData = new ProductInfos
                     {
-                        _searchedProductData = new ProductInfos
-                        {
-                            Barcode = barcode,
-                            Name = result
-                        };
+                        Barcode = barcode,
+                        Name = result
+                    };
 
-                        ProductNameText = result;
-                        ProductImageSource = null;
-                        HasImage = false;
-                        HasNoImage = true;
-                    }
+                    ProductNameText = result;
+                    ProductImageSource = null;
+                    HasImage = false;
+                    HasNoImage = true;
                 }
+
                 return;
             }
 
@@ -205,7 +207,8 @@ namespace perimapp.ViewModels
                 perimapp.Services.NotificationScheduler.UpdateSchedules();
             });
 
-            await _page.DisplayAlert("Succès", "Produit ajouté avec succès.", "OK");
+            var successPopup = new InfosPopUp("Succès", "Produit ajouté avec succès.", "OK");
+            await _page.ShowPopupAsync(successPopup);
             await Shell.Current.GoToAsync("..");
         }
 
@@ -232,7 +235,8 @@ namespace perimapp.ViewModels
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "La permission de la caméra est requise pour scanner un produit.", "OK");
+                var errorPopup = new InfosPopUp("Permission refusée", "La permission de la caméra est requise pour scanner un produit.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
     }

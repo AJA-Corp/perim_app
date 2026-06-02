@@ -2,10 +2,12 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using perimapp.Models;
+using perimapp.PopUp;
 using perimapp.Services;
 
 namespace perimapp.ViewModels
@@ -40,14 +42,9 @@ namespace perimapp.ViewModels
         {
             if (!Products.Any()) return;
 
-            bool confirm = await _page.DisplayAlert(
-                "Confirmation",
-                "Voulez-vous supprimer définitivement tous les produits de la corbeille ?",
-                "Oui",
-                "Non"
-            );
+            var confirmPopUp = new BoolPopUp("Confirmation", "Voulez-vous supprimer définitivement tous les produits de la corbeille ?", "Oui", "Non");
 
-            if (confirm)
+            if (confirmPopUp.Result)
             {
                 await _localProductService.EmptyTrashLocallyAsync();
 
@@ -60,14 +57,10 @@ namespace perimapp.ViewModels
         {
             if (product == null) return;
 
-            bool confirm = await _page.DisplayAlert(
-                "Confirmation",
-                $"Voulez-vous restaurer {product.DisplayName} ?",
-                "Oui",
-                "Non"
-            );
+            var confirmPopUp = new BoolPopUp("Confirmation", $"Voulez-vous restaurer {product.DisplayName} ?", "Oui", "Non");
+            await _page.ShowPopupAsync(confirmPopUp);
 
-            if (confirm)
+            if (confirmPopUp.Result)
             {
                 bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
@@ -77,7 +70,8 @@ namespace perimapp.ViewModels
                 }
                 else
                 {
-                    await _page.DisplayAlert("Erreur", "Impossible de restaurer le produit.", "OK");
+                    var popUp = new InfosPopUp("Erreur", "Une erreur est survenue lors de la restauration du produit. Veuillez réessayer.", "OK");
+                    await _page.ShowPopupAsync(popUp);
                 }
             }
         }

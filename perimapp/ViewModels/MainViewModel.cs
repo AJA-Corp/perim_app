@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
+using perimapp.PopUp;
 using perimapp.Services;
 using perimapp.Views;
 
@@ -64,7 +66,8 @@ namespace perimapp.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                await _page.DisplayAlert("Erreur", "Impossible de charger les produits.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors du chargement des produits. Veuillez réessayer plus tard.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -117,7 +120,7 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task SortButtonClickedAsync()
         {
-            string result = await _page.DisplayActionSheet(
+            string result = await _page.DisplayActionSheetAsync(
                 "Trier par", "Annuler", null,
                 "DLC (proche)",
                 "DLC (lointaine)"
