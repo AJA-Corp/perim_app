@@ -36,17 +36,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BarcodeScanning.Native.Maui" Version="3.0.3" />
-    <PackageReference Include="CommunityToolkit.Maui" Version="14.0.1" />
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="BarcodeScanning.Native.Maui" Version="3.0.4" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
     
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.50" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.4" />
-    <PackageReference Include="Microsoft.Maui.Core" Version="10.0.50" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.70" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
+    <PackageReference Include="Microsoft.Maui.Core" Version="10.0.70" />
 
-    <PackageReference Include="Npgsql" Version="10.0.1" />
-    <PackageReference Include="Plugin.LocalNotification" Version="13.0.0" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+    <PackageReference Include="Plugin.LocalNotification" Version="10.4.0" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageReference Include="DotNetMeteor.HotReload.Plugin" Version="3.3.0" />
   </ItemGroup>
@@ -56,6 +56,18 @@
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Pages\ScannerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="PopUp\BoolPopUp.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="PopUp\EditProfilePopUp.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="PopUp\InfosPopUp.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="PopUp\PromptPopUp.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
   </ItemGroup>
@@ -68,10 +80,13 @@
     <Compile Update="Pages\ScannerPage.xaml.cs">
       <DependentUpon>ScannerPage.xaml</DependentUpon>
     </Compile>
+    <Compile Update="PopUp\EditProfilePopUp.xaml.cs">
+      <DependentUpon>EditProfilePopUp.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
-    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.5.0.5" />
-    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.1.1" />
+    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0" />
+    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.2" />
   </ItemGroup>
 </Project>
