@@ -8,6 +8,8 @@ using perimapp.Models;
 using perimapp.Views;
 using perimapp.Services;
 using perimapp.Data;
+using perimapp.PopUp;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -48,13 +50,15 @@ namespace perimapp.ViewModels
                 string.IsNullOrWhiteSpace(password) ||
                 string.IsNullOrWhiteSpace(confirmPassword))
             {
-                await _page.DisplayAlertAsync("Erreur", "Tous les champs doivent être remplis.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Tous les champs doivent être remplis.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
             if (password != confirmPassword)
             {
-                await _page.DisplayAlertAsync("Erreur", "Les mots de passe ne correspondent pas.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Les mots de passe ne correspondent pas.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -64,7 +68,8 @@ namespace perimapp.ViewModels
 
                 if (!codeExists)
                 {
-                    await _page.DisplayAlertAsync("Erreur", "Ce code foyer est introuvable. Vérifiez-le et réessayez.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur", "Ce code foyer est introuvable. Vérifiez-le et réessayez.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                     return;
                 }
             }
@@ -89,23 +94,27 @@ namespace perimapp.ViewModels
 
                     if (!myProfile.IsValidated)
                     {
-                        await _page.DisplayAlertAsync("Validation", "Un code a été envoyé au propriétaire du foyer.", "OK");
+                        var verificationPopup = new InfosPopUp("Validation en attente", "Votre compte est en attente de validation par le propriétaire du foyer. Vous serez redirigé vers la page de vérification par email.", "OK");
+                        await _page.ShowPopupAsync(verificationPopup);  
                         await Shell.Current.GoToAsync(nameof(EmailVerificationView));
                     }
                     else
                     {
-                        await _page.DisplayAlertAsync("Succès", "Foyer créé avec succès !", "OK");
+                        var successPopup = new InfosPopUp("Succès", "Votre compte a été créé et validé avec succès ! Vous allez être redirigé vers la page d'accueil.", "OK");
+                        await _page.ShowPopupAsync(successPopup);
                         await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                     }
                 }
                 else
                 {
-                    await _page.DisplayAlertAsync("Erreur", "Problème lors de la synchronisation du profil.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur", "Problème lors de la synchronisation du profil. Veuillez réessayer plus tard.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                 }
             }
             else
             {
-                await _page.DisplayAlertAsync("Erreur", "L'inscription a échoué. Cet email est peut-être déjà utilisé.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "L'inscription a échoué. Cet email est peut-être déjà utilisé.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 

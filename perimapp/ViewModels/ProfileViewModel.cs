@@ -41,9 +41,6 @@ namespace perimapp.ViewModels
         private string _familyCode = "Chargement...";
 
         [ObservableProperty]
-        private bool _isEditPopupVisible;
-
-        [ObservableProperty]
         private string _editFirstName;
 
         [ObservableProperty]
@@ -79,6 +76,9 @@ namespace perimapp.ViewModels
                     {
                         _currentUser.HomeCode = serverProfile.HomeCode;
                         _currentUser.IsValidated = serverProfile.IsValidated;
+                        _currentUser.FirstName = serverProfile.FirstName;
+                        _currentUser.LastName = serverProfile.LastName;
+                        _currentUser.LostProductCount = serverProfile.LostProductCount;
 
                         await _localUserService.SaveUserAsync(_currentUser);
                         UpdateUI(_currentUser);
@@ -113,19 +113,24 @@ namespace perimapp.ViewModels
 
             if (_currentUser == null)
             {
-                await _page.DisplayAlert("Erreur", "Impossible de charger votre profil.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Impossible de charger votre profil.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 return;
             }
 
-            EditFirstName = _currentUser.FirstName;
-            EditLastName = _currentUser.LastName;
-            IsEditPopupVisible = true;
-        }
+            var popup = new EditProfilePopUp(_currentUser.FirstName, _currentUser.LastName);
 
-        [RelayCommand]
-        private void CancelEdit()
-        {
-            IsEditPopupVisible = false;
+            await _page.ShowPopupAsync(popup);
+
+            var result = popup.Result;
+
+            if (result != null)
+            {
+                EditFirstName = result.FirstName;
+                EditLastName = result.LastName;
+
+                await SaveEditAsync();
+            }
         }
 
         [RelayCommand]
@@ -140,20 +145,24 @@ namespace perimapp.ViewModels
 
                 if (!isUpdatedOnServer)
                 {
-                    await _page.DisplayAlert("Attention", "Vos modifications ont été sauvegardées localement mais n'ont pas pu être envoyées au serveur (Pas de réseau ?)", "OK");
+                    var successPopup = new InfosPopUp("Attention", "Vos modifications ont été sauvegardées localement mais n'ont pas pu être envoyées au serveur (Pas de réseau ?)", "OK");
+                    await _page.ShowPopupAsync(successPopup);
                 }
 
                 await _localUserService.SaveUserAsync(_currentUser);
 
                 UpdateUI(_currentUser);
-                IsEditPopupVisible = false;
 
                 if (isUpdatedOnServer)
-                    await _page.DisplayAlert("Succès", "Votre profil a été mis à jour.", "OK");
+                {
+                    var successPopup = new InfosPopUp("Succès", "Votre profil a été mis à jour.", "OK");
+                    await _page.ShowPopupAsync(successPopup);
+                }
             }
             catch (Exception ex)
             {
-                await _page.DisplayAlert("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
+                var errorPopup = new InfosPopUp("Erreur", $"Impossible de sauvegarder : {ex.Message}", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -162,11 +171,13 @@ namespace perimapp.ViewModels
         {
             IsMenuVisible = false;
 
-            bool confirm = await _page.DisplayAlert("Supprimer le compte",
+            var confirmPopUp = new BoolPopUp(
+                "Supprimer le compte",
                 "⚠️ ATTENTION ⚠️\n\nCette action est irréversible. Vos produits, votre foyer et vos identifiants de connexion seront définitivement détruits. Voulez-vous vraiment continuer ?",
                 "Supprimer définitivement", "Annuler");
+            await _page.ShowPopupAsync(confirmPopUp);
 
-            if (!confirm) return;
+            if (!confirmPopUp.Result) return;
 
             try
             {
@@ -174,7 +185,8 @@ namespace perimapp.ViewModels
 
                 if (!isDeletedOnServer)
                 {
-                    await _page.DisplayAlert("Erreur réseau", "Impossible de contacter le serveur Render pour supprimer vos données. Réessayez plus tard.", "OK");
+                    var errorNetPopup = new InfosPopUp("Erreur réseau", "Impossible de contacter le serveur Render pour supprimer vos données. Réessayez plus tard.", "OK");
+                    await _page.ShowPopupAsync(errorNetPopup);
                     return;
                 }
 
@@ -189,13 +201,15 @@ namespace perimapp.ViewModels
                 _localUserService.ClearUser();
                 _localProductService.ClearAllProducts();
 
-                await _page.DisplayAlert("Compte supprimé", "Votre compte et l'intégralité de vos données ont été définitivement supprimés.", "OK");
+                var successPopup = new InfosPopUp("Compte supprimé", "Votre compte et l'intégralité de vos données ont été définitivement supprimés.", "OK");
+                await _page.ShowPopupAsync(successPopup);
 
                 await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
             }
             catch (Exception ex)
             {
-                await _page.DisplayAlert("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
+                var errorPopup = new InfosPopUp("Erreur", $"Une erreur est survenue : {ex.Message}", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 

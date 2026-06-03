@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using perimapp.Views;
+using perimapp.PopUp;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -23,7 +25,8 @@ namespace perimapp.ViewModels
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await Shell.Current.DisplayAlert("Erreur", "Une erreur est survenue lors de la navigation.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
+                await Shell.Current.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -37,7 +40,8 @@ namespace perimapp.ViewModels
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                await Shell.Current.DisplayAlert("Erreur", "Une erreur est survenue lors de la navigation.", "OK");
+                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
+                await Shell.Current.ShowPopupAsync(errorPopup);
             }
         }
     }

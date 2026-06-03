@@ -10,6 +10,8 @@ using perimapp.Data;
 using perimapp.Models;
 using perimapp.Services;
 using perimapp.Views;
+using perimapp.PopUp;
+using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
@@ -44,8 +46,8 @@ namespace perimapp.ViewModels
 
             if (ProductDetail != null && ProductDetail.State != "Active")
             {
-                Debug.WriteLine($"DetailsView: Tentative d'accès à un produit non actif ({ProductDetail.State}). Redirection.");
-                await _page.DisplayAlert("Erreur", "Ce produit n'est plus actif.", "OK");
+                var errorPopup = new InfosPopUp("Produit non actif", $"Le produit {ProductDetail.Name} est actuellement dans un état '{ProductDetail.State}' et ne peut pas être consulté.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync("..");
                 return;
             }
@@ -59,7 +61,8 @@ namespace perimapp.ViewModels
                 Debug.WriteLine("DetailsView: Aucun ProductUniqueId fourni ou produit non trouvé.");
                 if (string.IsNullOrEmpty(ProductUniqueId))
                 {
-                    await _page.DisplayAlert("Erreur", "Aucun ID de produit fourni.", "OK");
+                    var errorPopup = new InfosPopUp("Produit introuvable", "Aucun ID de produit fourni. Veuillez revenir en arrière et sélectionner un produit valide.", "OK");
+                    await _page.ShowPopupAsync(errorPopup);
                     await Shell.Current.GoToAsync("..");
                 }
             }
@@ -76,7 +79,8 @@ namespace perimapp.ViewModels
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "Impossible de modifier le produit. ID manquant.", "OK");
+                var errorPopup = new InfosPopUp("Erreur de navigation", "Impossible de modifier le produit car l'ID est manquant. Veuillez revenir en arrière et sélectionner un produit valide.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -85,14 +89,14 @@ namespace perimapp.ViewModels
         {
             if (ProductDetail == null) return;
 
-            bool confirmed = await _page.DisplayAlert(
+            var confirmPopup = new BoolPopUp(
                 "Supprimer le produit",
                 $"Êtes-vous sûr de vouloir jeter {ProductDetail.Name}? Il sera archivé temporairement.",
                 "Oui",
                 "Non"
             );
 
-            if (!confirmed) return;
+            if (!confirmPopup.Result) return;
 
             bool localSuccess = await _localService.UpdateProductStateAsync(ProductDetail.ProductUniqueId, "Deleted");
 
@@ -120,7 +124,8 @@ namespace perimapp.ViewModels
             }
             else
             {
-                await _page.DisplayAlert("Erreur", "Impossible de supprimer le produit.", "OK");
+                var errorPopup = new InfosPopUp("Erreur de suppression", "Impossible de supprimer le produit.", "OK");
+                await _page.ShowPopupAsync(errorPopup);
             }
         }
     }
