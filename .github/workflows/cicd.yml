@@ -46,8 +46,10 @@ jobs:
         name: perimapp-apk
         path: drop
 
-    - name: Vérifier la présence du fichier
-      run: ls -R drop
+    - name: Préparer l'APK pour Firebase
+      run: |
+        find drop/ -name "*-Signed.apk" -exec cp {} ./app.apk \;
+        ls -l app.apk
 
     - name: Distribuer sur Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
@@ -55,4 +57,4 @@ jobs:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
         groups: bêta-testeurs
-        file: drop/*-Signed.apk
+        file: app.apk
