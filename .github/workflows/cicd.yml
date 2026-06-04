@@ -7,8 +7,8 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build-android:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: windows-latest
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
@@ -31,7 +31,17 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: perimapp-apk
-        path: '**/*-Signed.apk'
+        path: perimapp/bin/Release/net10.0-android/*-Signed.apk
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Télécharger l'artefact Android
+      uses: actions/download-artifact@v4
+      with:
+        name: perimapp-apk
+        path: drop
 
     - name: Distribuer sur Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
@@ -39,6 +49,4 @@ jobs:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
         groups: bêta-testeurs
-        # Si ton fichier .csproj n'est pas à la racine stricte du dépôt, 
-        # il faudra ajouter le nom du dossier avant "bin/Release/..."
-        file: perimapp/bin/Release/net10.0-android/*-Signed.apk
+        file: drop/*-Signed.apk
