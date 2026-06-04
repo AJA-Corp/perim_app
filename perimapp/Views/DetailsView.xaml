@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="perimapp.Views.DetailsView"
+             xmlns:localModels="clr-namespace:perimapp.Models"
+             xmlns:localConverters="clr-namespace:perimapp.Converters"  
+             xmlns:headers="clr-namespace:perimapp.Headers" 
+             BackgroundColor="White">
+
+    <ContentPage.Resources>
+        <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
+    </ContentPage.Resources>
+
+    
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!-- Header -->
+            <headers:SharedHeader Grid.Row="0" HeaderText="Perim'App">
+            </headers:SharedHeader>
+
+            <!-- Contenu principal -->
+            <ScrollView Grid.Row="1" 
+                        Padding="10" 
+                        HorizontalOptions="FillAndExpand"
+                        VerticalOptions="FillAndExpand">
+                 <VerticalStackLayout Spacing="10"
+                                      HorizontalOptions="FillAndExpand">
+                     <ImageButton 
+                             Source="bin_white.png" 
+                             Command="{Binding DeleteProductCommand}" 
+                             BackgroundColor="Crimson"
+                             CornerRadius="20"
+                             WidthRequest="60"
+                             HeightRequest="60"
+                             Margin="0,0,0,-75"
+                             Padding="10"
+                             HorizontalOptions="End"
+                             VerticalOptions="Start"/>
+                     
+                     <Border WidthRequest="150"
+                             HeightRequest="150"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Margin="0,20,0,10"
+                             Padding="0"                
+                             Background="Transparent"   
+                             StrokeShape="{RoundRectangle CornerRadius='3'}"  
+                             Stroke="Transparent"       
+                             StrokeThickness="0">
+                         <Image Source="{Binding ProductDetail.UrlImage}" 
+                                Aspect="AspectFill"     
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+                     </Border>
+
+                    <Label Text="{Binding ProductDetail.DisplayName}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center" Margin="0,0,0,10"/>
+
+                    <Grid ColumnDefinitions="*,*">
+                        <Label Grid.Column="0"
+                               Text="{Binding ProductDetail.AddedAt, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
+                               FontSize="15"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                        <Label Grid.Column="1"
+                               Text="{Binding ProductDetail.Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
+                               FontSize="15"
+                               TextColor="Gray"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"/>
+                    </Grid>
+
+                    <Label Text="{Binding ProductDetail.Quantity, StringFormat='Quantité: {0}'}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="Black"
+                           HorizontalOptions="Center"
+                           Margin="0,10,0,10"/>
+                    
+                    <Frame BackgroundColor="LightGray"
+                           Padding="15"
+                           Margin="0,10,0,10"
+                           CornerRadius="0"
+                           BorderColor="Transparent"
+                           HasShadow="False"
+                           HorizontalOptions="FillAndExpand">
+                        <Label Text="{Binding ProductDetail.Category, StringFormat='Catégories : {0}'}"
+                               FontSize="15"
+                               TextColor="Black"
+                               HorizontalOptions="FillAndExpand"   
+                               HorizontalTextAlignment="Center"
+                               LineBreakMode="TailTruncation"
+                               MaxLines="4"/>    
+                    </Frame>
+
+                    <Button Text="Modifier"
+                            Command="{Binding ModifyProductCommand}"
+                            BackgroundColor="#58BF7F" 
+                            TextColor="White"
+                            BorderColor="Transparent"
+                            CornerRadius="5"
+                            FontSize="18"
+                            FontAttributes="Bold"
+                            WidthRequest="200"
+                            HeightRequest="50"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Margin="0,0,0,0"/>
+
+                    <ContentView VerticalOptions="FillAndExpand" /> 
+                 </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Footer avec le bord arrondi -->
+            <Grid Grid.Row="2">
+                <Rectangle
+                    Fill="{Binding ProductDetail.DaysRemaining, Converter={StaticResource dlcColorConverter}}"
+                    HeightRequest="70"
+                    HorizontalOptions="FillAndExpand"
+                    VerticalOptions="End"
+                    Margin="-10,0, -10, -10"
+                    RadiusX="2500"
+                    RadiusY="0" />
+
+                <Label
+                    Text="{Binding ProductDetail.DaysRemainingTextDetailsView}"
+                    TextColor="White"
+                    FontSize="30"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    VerticalTextAlignment="Center" />
+            </Grid>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

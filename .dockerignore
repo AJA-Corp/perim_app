@@ -1,0 +1,50 @@
+# .dockerignore file for the PerimApp project
+
+# Ignore version control directories
+.git/
+.gitignore
+
+# Ignore IDE and editor files
+.idea/
+.vscode/
+*.suo
+*.swp
+*.swo
+
+# Ignore build and output directories
+bin/
+obj/
+
+# Ignore temporary and cache files
+*.tmp
+*.log
+*.cache
+
+# Ignore environment and secret files
+.env*
+*.pem
+*.key
+*.crt
+
+# Ignore documentation and auxiliary files
+docs/
+*.md
+README*
+
+# Ignore Docker-related files
+Dockerfile*
+docker-compose*
+
+# Ignore project-specific patterns
+.vs/
+
+# Ensure necessary files are included
+!PerimApp/**/*.cs
+!PerimApp/**/*.xaml
+!PerimApp/**/*.xml
+!PerimApp/**/*.plist
+!PerimApp/**/*.json
+!PerimApp/**/*.svg
+!PerimApp/Resources/**/*
+
+# End of .dockerignore file

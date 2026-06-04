@@ -1,0 +1,51 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="perimapp.Views.StartingView"
+             BackgroundColor="#58BF7F">
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="20">
+            <Label Text="Perim'App"
+                   FontSize="50"
+                   FontAttributes="Bold"
+                   FontFamily="InterBold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Start"
+                   Grid.Row="0"
+                   Margin="0,40,0,10"/>
+
+            <Image Source="perimapp.png"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Grid.Row="1"
+                   HeightRequest="300"/>
+
+            <Button Text="Se connecter"
+                    Command="{Binding LogInCommand}"  
+                    FontSize="20"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    FontAttributes="Bold"
+                    CornerRadius="50"
+                    WidthRequest="300"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    Grid.Row="2"
+                    Margin="0,10"/>
+
+            <Button Text="Créer un compte"
+                    Command="{Binding SignUpCommand}"  
+                    FontSize="20"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    FontAttributes="Bold"
+                    CornerRadius="50"
+                    WidthRequest="300"
+                    HeightRequest="50"
+                    HorizontalOptions="Center"
+                    Grid.Row="3"
+                    Margin="0,10"/>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
