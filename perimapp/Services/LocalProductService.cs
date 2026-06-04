@@ -165,7 +165,7 @@ namespace perimapp.Services
         {
             try
             {
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json"));
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
                 var customNames = new Dictionary<string, string>();
 
                 if (File.Exists(customNamesPath))
