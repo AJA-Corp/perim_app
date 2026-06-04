@@ -1,26 +1,24 @@
 name: Création automatique de Pull Request
 
 on:
-  push:
-    branches-ignore:
-      - develop
+  push:
+    branches-ignore:
+      - develop
 
 jobs:
-  create_pull_request:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
-          base: 'develop'
-          title: 'Pull Request automatique depuis ${{ github.ref }}'
-          body: |
-            Pull request automatique vers develop.
-
-            Modifications depuis la branche : ${{ github.ref }}
-
-            Veuillez vérifier les modifications avant de fusionner.
+  create_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          base: 'develop'
+          title: 'Pull Request automatique depuis ${{ github.ref }}'
+          body: |
+            Pull request automatique vers develop.
+            Modifications depuis la branche : ${{ github.ref }}
+            Veuillez vérifier les modifications avant de fusionner.
