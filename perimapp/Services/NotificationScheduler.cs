@@ -89,9 +89,8 @@ namespace perimapp.Services
 
         private static void ScheduleNotification(string title, string description, DateTime actionDate, List<TimeSpan> times, ref int notificationId)
         {
-            foreach (var time in times)
+            foreach (var notifyTime in times.Select(time => actionDate.Date.Add(time)))
             {
-                var notifyTime = actionDate.Date.Add(time);
                 if (notifyTime <= DateTime.Now) continue;
 
                 var request = new NotificationRequest

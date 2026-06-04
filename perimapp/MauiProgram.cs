@@ -78,18 +78,24 @@ public static class MauiProgram
 
         Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("WhiteCursor", (handler, view) =>
         {
+#if ANDROID
             if (view is perimapp.Controls.WhiteCursorEntry)
             {
-#if ANDROID
                 handler.PlatformView.SetHighlightColor(Android.Graphics.Color.ParseColor("#80FFFFFF"));
                 if (Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.Q)
                 {
                     handler.PlatformView.TextCursorDrawable?.SetTint(Android.Graphics.Color.White);
                 }
-#elif IOS
-                handler.PlatformView.TintColor = UIKit.UIColor.White;
-#endif
             }
+#elif IOS
+            if (view is perimapp.Controls.WhiteCursorEntry)
+            { 
+                handler.PlatformView.TintColor = UIKit.UIColor.White;
+            }
+#else
+
+#endif
+        
         });
 
         return builder.Build();

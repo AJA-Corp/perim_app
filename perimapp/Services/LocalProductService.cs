@@ -14,7 +14,7 @@ namespace perimapp.Services
 
         public LocalProductService()
         {
-            _filePath = Path.Combine(FileSystem.AppDataDirectory, "products.json");
+            _filePath = Path.Combine(FileSystem.AppDataDirectory, Path.GetFileName("products.json"));
         }
 
         public async Task<List<ProductInfos>> LoadProductsAsync()
@@ -165,7 +165,7 @@ namespace perimapp.Services
         {
             try
             {
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, Path.GetFileName("custom_names.json"));
                 var customNames = new Dictionary<string, string>();
 
                 if (File.Exists(customNamesPath))
@@ -190,7 +190,7 @@ namespace perimapp.Services
         {
             try
             {
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, Path.GetFileName("custom_names.json"));
                 if (!File.Exists(customNamesPath)) return null;
 
                 using var stream = File.OpenRead(customNamesPath);
@@ -213,7 +213,7 @@ namespace perimapp.Services
             {
                 if (File.Exists(_filePath)) File.Delete(_filePath);
 
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, Path.GetFileName("custom_names.json"));
                 if (File.Exists(customNamesPath)) File.Delete(customNamesPath);
             }
             catch (Exception ex)

@@ -87,14 +87,9 @@ namespace perimapp.ViewModels
         {
             IsTorchOn = !IsTorchOn;
 
-            if (IsTorchOn)
-            {
-                FlashButtonBackgroundColor = Color.FromArgb("#58BF7F"); 
-            }
-            else
-            {
-                FlashButtonBackgroundColor = Color.FromArgb("#80000000"); 
-            }
+            FlashButtonBackgroundColor = IsTorchOn 
+                ? Color.FromArgb("#58BF7F") 
+                : Color.FromArgb("#80000000");
         }
     }
 }
