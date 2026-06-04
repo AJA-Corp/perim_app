@@ -51,7 +51,8 @@ namespace perimapp.Services
 
             for (var date = startDay; date < endDay; date = date.AddDays(1))
             {
-                var dlcTodayProducts = allProducts.Where(p => p.Dlc.Date == date.Date).ToList();
+                var currentDate = DateOnly.FromDateTime(date);
+                var dlcTodayProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == currentDate).ToList();
                 if (dlcTodayProducts.Any())
                 {
                     string title = "Péremption aujourd'hui ⚠️";
@@ -66,7 +67,8 @@ namespace perimapp.Services
 
                 foreach (var days in notificationDays.OrderBy(d => d))
                 {
-                    var expiringProducts = allProducts.Where(p => p.Dlc.Date == date.AddDays(days).Date).ToList();
+                    var targetDate = DateOnly.FromDateTime(date.AddDays(days));
+                    var expiringProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == targetDate).ToList();
                     if (expiringProducts.Any())
                     {
                         string dayText = days > 1 ? "jours" : "jour";

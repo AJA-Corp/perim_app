@@ -194,7 +194,7 @@ namespace perimapp.ViewModels
                 HomeCode = user.HomeCode,
                 AddedAt = DateTime.UtcNow,
                 LastModified = DateTime.UtcNow,
-                Dlc = DlcDate,
+                Dlc = DateOnly.FromDateTime(DlcDate),
                 Quantity = CurrentQuantity,
                 State = "Active"
             };

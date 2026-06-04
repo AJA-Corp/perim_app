@@ -42,7 +42,7 @@ namespace perimapp.Models
         public DateTime AddedAt { get; set; }
 
         [JsonPropertyName("dlc")]
-        public DateTime Dlc { get; set; }
+        public DateOnly? Dlc { get; set; }
 
         [JsonPropertyName("quantity")]
         public int Quantity { get; set; }
@@ -66,7 +66,7 @@ namespace perimapp.Models
         public string DisplayName => !string.IsNullOrWhiteSpace(CustomName) ? CustomName : Name;
 
         [Ignore, JsonIgnore]
-        public int DaysRemaining => (Dlc.Date - DateTime.Today).Days;
+        public int DaysRemaining => Dlc.HasValue ? (Dlc.Value.ToDateTime(TimeOnly.MinValue).Date - DateTime.Today).Days : 0;
 
         [Ignore, JsonIgnore]
         public string DaysRemainingTextMainView

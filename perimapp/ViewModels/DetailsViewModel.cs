@@ -102,7 +102,7 @@ namespace perimapp.ViewModels
 
             if (localSuccess)
             {
-                bool isExpired = ProductDetail.Dlc.Date < DateTime.Today;
+                bool isExpired = ProductDetail.Dlc.HasValue && ProductDetail.Dlc.Value < DateOnly.FromDateTime(DateTime.Today);
 
                 if (isExpired)
                 {
