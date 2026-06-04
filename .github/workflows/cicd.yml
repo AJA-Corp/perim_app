@@ -37,11 +37,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+
     - name: Télécharger l'artefact Android
       uses: actions/download-artifact@v4
       with:
         name: perimapp-apk
         path: drop
+
+    - name: Vérifier la présence du fichier
+      run: ls -R drop
 
     - name: Distribuer sur Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
