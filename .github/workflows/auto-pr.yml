@@ -1,44 +1,26 @@
 name: Création automatique de Pull Request
 
 on:
-  push:
-    branches-ignore:
-      - master
+  push:
+    branches-ignore:
+      - develop
 
 jobs:
-  create_pr_to_develop:
-    if: github.ref != 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Create Pull Request vers develop
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }} 
-          base: 'develop' 
-          title: 'Auto PR : ${{ github.ref }} -> develop'
-          body: |
-            Pull request automatique vers develop.
-            Modifications depuis la branche : ${{ github.ref }}
-            Veuillez vérifier les modifications avant de fusionner.
+  create_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          base: 'develop'
+          title: 'Pull Request automatique depuis ${{ github.ref }}'
+          body: |
+            Pull request automatique vers develop.
 
-  create_pr_to_main:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        
-      - name: Create Pull Request vers main
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: develop
-          base: 'master'
-          title: 'Release : develop -> master'
-          body: |
-            Pull request automatique de develop vers la branche principale.
-            Prêt pour la mise en production (Release).
+            Modifications depuis la branche : ${{ github.ref }}
+
+            Veuillez vérifier les modifications avant de fusionner.
