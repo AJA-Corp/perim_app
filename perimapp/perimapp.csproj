@@ -88,5 +88,12 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
     <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0" />
     <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.2" />
+    <PackageReference Include="Xamarin.GooglePlayServices.Base">
+      <Version>118.10.0.1</Version>
+    </PackageReference>
   </ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
+	</ItemGroup>
 </Project>

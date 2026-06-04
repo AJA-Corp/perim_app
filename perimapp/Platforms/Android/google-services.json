@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1098521790011",
+    "project_id": "perim-app-beta-testing-d5f06",
+    "storage_bucket": "perim-app-beta-testing-d5f06.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1098521790011:android:285b28a082a924d3af3e1e",
+        "android_client_info": {
+          "package_name": "com.companyname.perimapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh493lRx_RXQk6648RHqqdZyxaQ1c2eFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

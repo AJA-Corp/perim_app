@@ -1,0 +1,44 @@
+name: CI/CD Perim'App Android
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-android:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+
+    - name: Configurer .NET 10
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Installer les workloads MAUI
+      run: dotnet workload install maui --ignore-failed-sources
+
+    - name: Restaurer les dépendances
+      run: dotnet restore
+
+    - name: Compiler pour Android (Format APK pour les testeurs)
+      run: dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false
+
+    - name: Sauvegarder l'artefact Android
+      uses: actions/upload-artifact@v4
+      with:
+        name: perimapp-apk
+        path: '**/*-Signed.apk'
+
+    - name: Distribuer sur Firebase App Distribution
+      uses: wzieba/Firebase-Distribution-Github-Action@v1
+      with:
+        appId: ${{ secrets.FIREBASE_APP_ID }}
+        serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
+        groups: bêta-testeurs
+        # Si ton fichier .csproj n'est pas à la racine stricte du dépôt, 
+        # il faudra ajouter le nom du dossier avant "bin/Release/..."
+        file: perimapp/bin/Release/net10.0-android/*-Signed.apk
