@@ -16,7 +16,6 @@ namespace perimapp.Services
         { 
             new TimeSpan(7, 0, 0),
             new TimeSpan(11, 0, 0),
-            new TimeSpan(15, 30, 0),
             new TimeSpan(18, 00, 0)
         };
 
@@ -89,10 +88,10 @@ namespace perimapp.Services
 
         private static void ScheduleNotification(string title, string description, DateTime actionDate, List<TimeSpan> times, ref int notificationId)
         {
-            foreach (var notifyTime in times.Select(time => actionDate.Date.Add(time)))
+            foreach (var notifyTime in times
+                 .Select(time => actionDate.Date.Add(time))
+                 .Where(notifyTime => notifyTime > DateTime.Now))
             {
-                if (notifyTime <= DateTime.Now) continue;
-
                 var request = new NotificationRequest
                 {
                     NotificationId = notificationId++,

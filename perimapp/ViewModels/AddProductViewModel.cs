@@ -16,7 +16,7 @@ namespace perimapp.ViewModels
 {
     public partial class AddProductViewModel : ObservableObject
     {
-        private ContentPage _page;
+        private readonly ContentPage _page;
         private readonly LocalProductService _localProductService;
         private readonly LocalUserService _localUserService;
         private readonly ApiProductService _apiProductService;
