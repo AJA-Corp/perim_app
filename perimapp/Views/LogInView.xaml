@@ -32,8 +32,7 @@
                                            HeightRequest="50"
                                            FontSize="20"
                                            Text="{Binding EmailText, Mode=TwoWay}"
-                                           x:Name="EmailEntry"
-                                           AutomationId="email_input"/>
+                                           x:Name="EmailEntry"/>
                 <BoxView HeightRequest="1" BackgroundColor="White" VerticalOptions="End"/>
             </Grid>
 
@@ -47,7 +46,6 @@
                                FontSize="20"
                                Text="{Binding PasswordText, Mode=TwoWay}"
                                x:Name="PasswordEntry"
-                               AutomationId="password_input"
                                Grid.Column="0"/>
 
                 <ImageButton x:Name="PasswordIcon"
