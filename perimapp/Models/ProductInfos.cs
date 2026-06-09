@@ -27,16 +27,16 @@ namespace perimapp.Models
         public long Barcode { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("urlImage")]
-        public string UrlImage { get; set; }
+        public string? UrlImage { get; set; }
 
         [JsonPropertyName("category")]
-        public string Category { get; set; }
+        public string? Category { get; set; }
 
         [JsonPropertyName("conservation")]
-        public string Conservation { get; set; }
+        public string? Conservation { get; set; }
 
         [JsonPropertyName("addedAt")]
         public DateTime AddedAt { get; set; }
@@ -48,7 +48,7 @@ namespace perimapp.Models
         public int Quantity { get; set; }
 
         [JsonPropertyName("state")]
-        public string State { get; set; }
+        public string? State { get; set; }
 
         [JsonPropertyName("deletedAt")]
         public DateTime? DeletedAt { get; set; }

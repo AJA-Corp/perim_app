@@ -4,7 +4,7 @@
              x:Class="perimapp.Views.EmailVerificationView"
              BackgroundColor="#58BF7F">
 
-    <VerticalStackLayout Spacing="20" VerticalOptions="CenterAndExpand">
+    <VerticalStackLayout Spacing="20" VerticalOptions="Center">
 
         <Grid Padding="20">
             <Label Text="Perim'App"
@@ -30,7 +30,7 @@
                HorizontalTextAlignment="Center"
                Margin="20,0,20,20"/>
 
-        <VerticalStackLayout Padding="20, 20, 20, 20" Spacing="20" VerticalOptions="CenterAndExpand">
+        <VerticalStackLayout Padding="20, 20, 20, 20" Spacing="20" VerticalOptions="Center">
 
             <Grid>
                 <Entry Placeholder="Code de vérification (6 chiffres)"
@@ -56,7 +56,7 @@
 
         </VerticalStackLayout>
 
-        <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="EndAndExpand">
+        <VerticalStackLayout Padding="20,20,20,20" Spacing="15" VerticalOptions="End">
             <Button Text="Vérifier"
                     Command="{Binding VerifyCommand}"
                     BackgroundColor="White"

@@ -11,21 +11,19 @@
         <localConverters:DlcColorConverter x:Key="dlcColorConverter" />
     </ContentPage.Resources>
 
-    
+
     <ContentPage.Content>
         <Grid RowDefinitions="Auto, *, Auto">
-            <!-- Header -->
             <headers:SharedHeader Grid.Row="0" HeaderText="Perim'App">
             </headers:SharedHeader>
 
-            <!-- Contenu principal -->
             <ScrollView Grid.Row="1" 
                         Padding="10" 
-                        HorizontalOptions="FillAndExpand"
-                        VerticalOptions="FillAndExpand">
-                 <VerticalStackLayout Spacing="10"
-                                      HorizontalOptions="FillAndExpand">
-                     <ImageButton 
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill">
+                <VerticalStackLayout Spacing="10"
+                                      HorizontalOptions="Fill">
+                    <ImageButton 
                              Source="bin_white.png" 
                              Command="{Binding DeleteProductCommand}" 
                              BackgroundColor="Crimson"
@@ -36,8 +34,8 @@
                              Padding="10"
                              HorizontalOptions="End"
                              VerticalOptions="Start"/>
-                     
-                     <Border WidthRequest="150"
+
+                    <Border WidthRequest="150"
                              HeightRequest="150"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
@@ -47,11 +45,11 @@
                              StrokeShape="{RoundRectangle CornerRadius='3'}"  
                              Stroke="Transparent"       
                              StrokeThickness="0">
-                         <Image Source="{Binding ProductDetail.UrlImage}" 
+                        <Image Source="{Binding ProductDetail.UrlImage}" 
                                 Aspect="AspectFill"     
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"/>
-                     </Border>
+                    </Border>
 
                     <Label Text="{Binding ProductDetail.DisplayName}"
                            FontSize="20"
@@ -62,16 +60,16 @@
 
                     <Grid ColumnDefinitions="*,*">
                         <Label Grid.Column="0"
-                               Text="{Binding ProductDetail.AddedAt, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"
-                               FontSize="15"
-                               TextColor="Gray"
-                               HorizontalOptions="Center"
+                               Text="{Binding ProductDetail.AddedAt, StringFormat='Date d\'ajout : {0:dd/MM/yyyy}'}"                               
+                               FontSize="15"                               
+                               TextColor="Gray"                               
+                               HorizontalOptions="Center"                               
                                HorizontalTextAlignment="Center"/>
-                        <Label Grid.Column="1"
-                               Text="{Binding ProductDetail.Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"
-                               FontSize="15"
-                               TextColor="Gray"
-                               HorizontalOptions="Center"
+                        <Label Grid.Column="1"                               
+                               Text="{Binding ProductDetail.Dlc, StringFormat='DLC: {0:dd/MM/yyyy}'}"                               
+                               FontSize="15"                               
+                               TextColor="Gray"                               
+                               HorizontalOptions="Center"                               
                                HorizontalTextAlignment="Center"/>
                     </Grid>
 
@@ -81,22 +79,20 @@
                            TextColor="Black"
                            HorizontalOptions="Center"
                            Margin="0,10,0,10"/>
-                    
-                    <Frame BackgroundColor="LightGray"
-                           Padding="15"
-                           Margin="0,10,0,10"
-                           CornerRadius="0"
-                           BorderColor="Transparent"
-                           HasShadow="False"
-                           HorizontalOptions="FillAndExpand">
+
+                    <Border BackgroundColor="LightGray"
+                            Padding="15"
+                            Margin="0,10,0,10"
+                            Stroke="Transparent"
+                            HorizontalOptions="Fill">
                         <Label Text="{Binding ProductDetail.Category, StringFormat='Catégories : {0}'}"
                                FontSize="15"
                                TextColor="Black"
-                               HorizontalOptions="FillAndExpand"   
+                               HorizontalOptions="Fill"   
                                HorizontalTextAlignment="Center"
                                LineBreakMode="TailTruncation"
-                               MaxLines="4"/>    
-                    </Frame>
+                               MaxLines="4"/>
+                    </Border>
 
                     <Button Text="Modifier"
                             Command="{Binding ModifyProductCommand}"
@@ -112,16 +108,15 @@
                             VerticalOptions="Center"
                             Margin="0,0,0,0"/>
 
-                    <ContentView VerticalOptions="FillAndExpand" /> 
-                 </VerticalStackLayout>
+                    <ContentView VerticalOptions="Fill" />
+                </VerticalStackLayout>
             </ScrollView>
 
-            <!-- Footer avec le bord arrondi -->
             <Grid Grid.Row="2">
                 <Rectangle
                     Fill="{Binding ProductDetail.DaysRemaining, Converter={StaticResource dlcColorConverter}}"
                     HeightRequest="70"
-                    HorizontalOptions="FillAndExpand"
+                    HorizontalOptions="Fill"
                     VerticalOptions="End"
                     Margin="-10,0, -10, -10"
                     RadiusX="2500"

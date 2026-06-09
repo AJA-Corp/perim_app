@@ -14,7 +14,6 @@
     <ContentPage.Content>
         <Grid RowDefinitions="Auto, Auto, *">
             
-            <!-- Header -->
             <Grid Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="65" Padding="10,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -22,7 +21,6 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Bouton Profil -->
                 <Button Grid.Column="0"
                         Command="{Binding ProfileIconClickedCommand}"
                         BackgroundColor="LightGray"
@@ -33,7 +31,6 @@
                         CornerRadius="40"
                         Margin="2,0,0,0" />
 
-                <!-- Titre -->
                 <Label Grid.Column="1"
                        Text="Vos Produits"
                        TextColor="White"
@@ -42,7 +39,6 @@
                        VerticalOptions="Center"
                        HorizontalOptions="Center" />
 
-                <!-- Bouton AddProduct -->
                 <Button Grid.Column="2"
                         Text="+"
                         Command="{Binding AddProductClickedCommand}"
@@ -57,7 +53,6 @@
                         Padding="0, -13, 0, 0" />
             </Grid>
             
-            <!-- MiniHeader -->
             <Grid Grid.Row="1" BackgroundColor="White" Padding="0" HeightRequest="32.5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -83,7 +78,6 @@
                         Margin="15,0,5,0" />
             </Grid>
             
-            <!-- Product Cards -->
             <RefreshView Grid.Row="2"
                          x:Name= "ProductRefreshView"
                          IsRefreshing="{Binding IsRefreshing}"
@@ -111,7 +105,6 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Image -->
                                 <Border Grid.Column="0"
                                         WidthRequest="80"
                                         HeightRequest="80"
@@ -129,7 +122,6 @@
                                            VerticalOptions="Center"/>
                                 </Border>
 
-                                <!-- Quantité / DLC -->
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
                                                      Padding="10,0">
@@ -146,7 +138,6 @@
                                            TextColor="DarkGray"/>
                                 </VerticalStackLayout>
 
-                                <!-- Pastille pour DLC / jours restants -->
                                 <Border Grid.Column="2"
                                         BackgroundColor="{Binding DaysRemaining, Converter={StaticResource dlcColorConverter}}"
                                         HorizontalOptions="End"     

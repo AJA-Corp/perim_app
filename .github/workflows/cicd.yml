@@ -48,13 +48,13 @@ jobs:
 
     - name: Préparer l'APK pour Firebase
       run: |
-        find drop/ -name "*-Signed.apk" -exec cp {} ./app.apk \;
-        ls -l app.apk
+        find drop/ -name "*-Signed.apk" -exec cp {} ./perimapp.apk \;
+        ls -l perimapp.apk
 
     - name: Distribuer sur Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
-        groups: bêta-testeurs
-        file: app.apk
+        groups: admins
+        file: perimapp.apk

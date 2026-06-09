@@ -8,10 +8,10 @@ namespace perimapp.Models
         public int Id { get; set; }
 
         [JsonPropertyName("homeCode")]
-        public string HomeCode { get; set; }
+        public required string HomeCode { get; set; }
 
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [JsonPropertyName("lostProductCount")]
         public int LostProductCount { get; set; }
@@ -20,15 +20,15 @@ namespace perimapp.Models
         public bool IsValidated { get; set; }
 
         [JsonIgnore]
-        public string Password { get; set; }
+        public required string Password { get; set; }
 
         [JsonPropertyName("registeredProductsCount")]
         public int RegisteredProductsCount { get; set; }
 
         [JsonPropertyName("firstName")]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [JsonPropertyName("lastName")]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
     }
 }

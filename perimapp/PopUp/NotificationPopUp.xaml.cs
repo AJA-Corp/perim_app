@@ -37,7 +37,6 @@ public partial class NotificationPopUp : Popup
         {
             notificationDays = new List<int> { 1, 3, 7 };
         }
-
         OneDayEntry.IsToggled = notificationDays.Contains(1);
         TwoDaysEntry.IsToggled = notificationDays.Contains(2);
         ThreeDaysEntry.IsToggled = notificationDays.Contains(3);
@@ -62,7 +61,7 @@ public partial class NotificationPopUp : Popup
         var settingsJson = JsonSerializer.Serialize(daysToNotify);
         Preferences.Set("NotificationDays", settingsJson);
 
-        perimapp.Services.NotificationScheduler.UpdateSchedules();
+        Services.NotificationScheduler.UpdateSchedules();
 
         await CloseAsync();
     }

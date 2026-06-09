@@ -5,7 +5,7 @@ namespace perimapp.PopUp
 {
     public partial class PromptPopUp : Popup
     {
-        public string Result { get; private set; }
+        public string? Result { get; private set; }
 
         public PromptPopUp(string title, string subtitle, string placeholder, string affirmativeText, string negativeText)
         {
@@ -20,7 +20,6 @@ namespace perimapp.PopUp
 
         private async void OnNegativeClicked(object sender, EventArgs e)
         {
-            Result = null;
             await CloseAsync();
         }
 

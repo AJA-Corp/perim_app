@@ -31,7 +31,7 @@
             <Entry x:Name="InputEntry"
                    TextColor="Black"
                    PlaceholderColor="Gray"
-                   HorizontalOptions="FillAndExpand"/>
+                   HorizontalOptions="Fill"/>
 
             <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
                 <Button x:Name="NegativeButton"
