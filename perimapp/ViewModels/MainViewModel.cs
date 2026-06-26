@@ -20,7 +20,6 @@ namespace perimapp.ViewModels
     {
         private readonly LocalProductService _localProductService;
         private readonly SyncService _syncService;
-        private readonly ContentPage _page;
 
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -34,9 +33,8 @@ namespace perimapp.ViewModels
         [NotifyPropertyChangedFor(nameof(Products))]
         private int _displayedProductsCount;
 
-        public MainViewModel(ContentPage page, LocalProductService localProductService, SyncService syncService)
+        public MainViewModel(LocalProductService localProductService, SyncService syncService)
         {
-            _page = page;
             _localProductService = localProductService;
             _syncService = syncService;
         }
@@ -67,7 +65,7 @@ namespace perimapp.ViewModels
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
                 var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors du chargement des produits. Veuillez réessayer plus tard.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -120,7 +118,7 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task SortButtonClickedAsync()
         {
-            string result = await _page.DisplayActionSheetAsync(
+            string result = await Shell.Current.CurrentPage.DisplayActionSheetAsync(
                 "Trier par", "Annuler", null,
                 "DLC (proche)",
                 "DLC (lointaine)"

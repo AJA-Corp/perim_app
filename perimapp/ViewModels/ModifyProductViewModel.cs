@@ -17,7 +17,6 @@ namespace perimapp.ViewModels
     public partial class ModifyProductViewModel : ObservableObject
     {
         private readonly LocalProductService _localProductService;
-        private readonly ContentPage _page;
 
         [ObservableProperty]
         private string? _productUniqueId;
@@ -28,12 +27,19 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private int _currentQuantity;
 
+        private DateTime _currentDlcDate = DateTime.Today;
+
+        public DateTime CurrentDlcDate
+        {
+            get => _currentDlcDate;
+            set => SetProperty(ref _currentDlcDate, value);
+        }
+
         [ObservableProperty]
         private string _currentCustomName;
 
-        public ModifyProductViewModel(ContentPage page, LocalProductService localProductService)
+        public ModifyProductViewModel(LocalProductService localProductService)
         {
-            _page = page;
             _localProductService = localProductService;
         }
 
@@ -48,6 +54,7 @@ namespace perimapp.ViewModels
             {
                 CurrentQuantity = Math.Max(1, value.Quantity);
                 CurrentCustomName = value.DisplayName;
+                CurrentDlcDate = value.Dlc?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Today;
             }
         }
 
@@ -66,7 +73,7 @@ namespace perimapp.ViewModels
                 {
                     Debug.WriteLine("ModifyProductView: Produit non trouvé avec ProductUniqueId : " + uniqueId);
                     var errorPopup = new InfosPopUp("Erreur", "Produit à modifier non trouvé.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                     await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                 }
             }
@@ -74,7 +81,7 @@ namespace perimapp.ViewModels
             {
                 Debug.WriteLine("ModifyProductView: Aucun ProductUniqueId fourni pour la modification.");
                 var errorPopup = new InfosPopUp("Erreur", "Impossible de modifier. Aucun ID de produit fourni.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync("..");
             }
         }
@@ -103,18 +110,19 @@ namespace perimapp.ViewModels
                 if (string.IsNullOrWhiteSpace(CurrentCustomName))
                 {
                     var errorPopup = new InfosPopUp("Erreur", "Le nom du produit ne peut pas être vide.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                     return;
                 }
 
                 if (CurrentQuantity < 1)
                 {
                     var errorPopup = new InfosPopUp("Erreur", "La quantité doit être supérieure ou égale à 1.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                     return;
                 }
 
                 CurrentProduct.Quantity = CurrentQuantity;
+                CurrentProduct.Dlc = DateOnly.FromDateTime(CurrentDlcDate.Date);
 
                 if (CurrentCustomName.Trim() != CurrentProduct.Name?.Trim())
                 {
@@ -131,10 +139,10 @@ namespace perimapp.ViewModels
 
                 await _localProductService.UpdateProductLocalAsync(CurrentProduct);
 
-                perimapp.Services.NotificationScheduler.UpdateSchedules();
+                NotificationScheduler.UpdateSchedules();
 
                 var successPopup = new InfosPopUp("Succès", "Produit modifié avec succès !", "OK");
-                await _page.ShowPopupAsync(successPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(successPopup);
 
                 try
                 {

@@ -20,7 +20,7 @@ public partial class ScannerView : ContentPage
     public ScannerView()
     {
         InitializeComponent();
-        _viewModel = new ScannerViewModel(this);
+        _viewModel = new ScannerViewModel();
         BindingContext = _viewModel;
     }
 

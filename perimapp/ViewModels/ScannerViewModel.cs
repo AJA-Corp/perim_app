@@ -11,7 +11,6 @@ namespace perimapp.ViewModels
 {
     public partial class ScannerViewModel : ObservableObject
     {
-        private readonly ContentPage _page;
         private bool _isProcessing = false;
         
         public Action<string> OnBarcodeScanned { get; set; }
@@ -25,9 +24,8 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private Color _flashButtonBackgroundColor = Color.FromArgb("#80000000");
 
-        public ScannerViewModel(ContentPage page)
+        public ScannerViewModel()
         {
-            _page = page;
         }
 
         public void StartCamera()
@@ -57,7 +55,7 @@ namespace perimapp.ViewModels
                     {
                         try
                         {
-                            await _page.Navigation.PopModalAsync();
+                            await Shell.Current.CurrentPage.Navigation.PopModalAsync();
 
                             if (OnBarcodeScanned != null)
                                 OnBarcodeScanned.Invoke(barcode);
@@ -79,7 +77,7 @@ namespace perimapp.ViewModels
             if (_isProcessing) return;
             _isProcessing = true; 
 
-            await _page.Navigation.PopModalAsync();
+            await Shell.Current.CurrentPage.Navigation.PopModalAsync();
         }
 
         [RelayCommand]

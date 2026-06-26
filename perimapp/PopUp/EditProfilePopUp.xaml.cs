@@ -18,7 +18,7 @@ namespace perimapp.PopUp
             InitializeComponent();
 
             FirstNameEntry.Text = currentFirstName;
-            LastNameEntry.Text = currentLastName;
+            LastNameEntry.Text = currentLastName.ToUpper();
         }
 
         private async void OnCancelClicked(object sender, EventArgs e)

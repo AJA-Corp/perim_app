@@ -15,8 +15,7 @@ namespace perimapp.ViewModels
 {
     public partial class EmailVerificationViewModel : ObservableObject
     {
-        private readonly ApiProfileService _apiProfileService = new();
-        private readonly ContentPage _page;
+        private readonly ApiProfileService _apiProfileService;
         private System.Timers.Timer _timer;
         private int _remainingSeconds = 300;
 
@@ -32,9 +31,9 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private string _verificationCode;
 
-        public EmailVerificationViewModel(ContentPage page)
+        public EmailVerificationViewModel(ApiProfileService apiProfileService)
         {
-            _page = page;
+            _apiProfileService = apiProfileService;
             StartTimer();
         }
 
@@ -48,7 +47,8 @@ namespace perimapp.ViewModels
         private void UpdateTimer(object sender, System.Timers.ElapsedEventArgs e)
         {
             _remainingSeconds--;
-            _page.Dispatcher.Dispatch(() =>
+
+            MainThread.BeginInvokeOnMainThread(() =>
             {
                 if (_remainingSeconds <= 0)
                 {
@@ -73,7 +73,7 @@ namespace perimapp.ViewModels
             if (string.IsNullOrWhiteSpace(enteredCode) || enteredCode.Length != 6)
             {
                 var errorPopup = new InfosPopUp("Code invalide", "Veuillez entrer un code de validation à 6 chiffres.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -83,13 +83,13 @@ namespace perimapp.ViewModels
             {
                 _timer?.Stop();
                 var infosPopup = new InfosPopUp("Bienvenue !", "Vous avez rejoint le foyer avec succès. Vous pouvez maintenant accéder à toutes les fonctionnalités de l'application.", "OK");
-                await _page.ShowPopupAsync(infosPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(infosPopup);
                 await Shell.Current.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
                 var errorPopup = new InfosPopUp("Code incorrect", "Le code de validation que vous avez entré est incorrect. Veuillez vérifier le code reçu par le propriétaire du foyer et réessayer.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
 

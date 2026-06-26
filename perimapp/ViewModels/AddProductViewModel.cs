@@ -16,7 +16,6 @@ namespace perimapp.ViewModels
 {
     public partial class AddProductViewModel : ObservableObject
     {
-        private readonly ContentPage _page;
         private readonly LocalProductService _localProductService;
         private readonly LocalUserService _localUserService;
         private readonly ApiProductService _apiProductService;
@@ -44,9 +43,8 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private DateTime _dlcDate = DateTime.Today;
 
-        public AddProductViewModel(ContentPage page, LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
+        public AddProductViewModel(LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
         {
-            _page = page;
             _localProductService = localProductService;
             _localUserService = localUserService;
             _apiProductService = apiProductService;
@@ -73,7 +71,7 @@ namespace perimapp.ViewModels
             if (!long.TryParse(BarcodeText, out long barcode))
             {
                 var errorPopup = new InfosPopUp("Erreur", "Code-barres invalide.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -81,7 +79,7 @@ namespace perimapp.ViewModels
             if (user == null)
             {
                 var errorPopup = new InfosPopUp("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
                 return;
             }
@@ -114,7 +112,7 @@ namespace perimapp.ViewModels
             if (product == null)
             {
                 var newProductPopup = new BoolPopUp("Produit introuvable", "Voulez-vous ajouter un nouveau produit perso ?", "Oui", "Non");
-                await _page.ShowPopupAsync(newProductPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(newProductPopup);
 
                 if (!newProductPopup.Result) return;
 
@@ -126,7 +124,7 @@ namespace perimapp.ViewModels
                     "Annuler"
                 );
 
-                await _page.ShowPopupAsync(namePromptPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(namePromptPopup);
 
                 string result = namePromptPopup.Result;
 
@@ -208,7 +206,7 @@ namespace perimapp.ViewModels
             });
 
             var successPopup = new InfosPopUp("Succès", "Produit ajouté avec succès.", "OK");
-            await _page.ShowPopupAsync(successPopup);
+            await Shell.Current.CurrentPage.ShowPopupAsync(successPopup);
             await Shell.Current.GoToAsync("..");
         }
 
@@ -231,12 +229,12 @@ namespace perimapp.ViewModels
                     SearchBarcodeAsync().ConfigureAwait(false);
                 };
 
-                await _page.Navigation.PushModalAsync(ScannerView);
+                await Shell.Current.CurrentPage.Navigation.PushModalAsync(ScannerView);
             }
             else
             {
                 var errorPopup = new InfosPopUp("Permission refusée", "La permission de la caméra est requise pour scanner un produit.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
     }

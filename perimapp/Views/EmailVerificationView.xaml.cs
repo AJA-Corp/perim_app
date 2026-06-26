@@ -1,5 +1,6 @@
 using perimapp.ViewModels;
 using Microsoft.Maui.Controls;
+using perimapp.Services;
 
 namespace perimapp.Views
 {
@@ -7,11 +8,11 @@ namespace perimapp.Views
     {
         private EmailVerificationViewModel _viewModel;
 
-        public EmailVerificationView()
+        public EmailVerificationView(ApiProfileService apiProfileService)
         {
             InitializeComponent();
 
-            _viewModel = new EmailVerificationViewModel(this);
+            _viewModel = new EmailVerificationViewModel(apiProfileService);
             BindingContext = _viewModel;
         }
 

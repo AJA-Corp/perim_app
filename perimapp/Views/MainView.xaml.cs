@@ -14,7 +14,7 @@ namespace perimapp.Views
         public MainView(LocalProductService localProductService, SyncService syncService)
         {
             InitializeComponent();
-            _viewModel = new MainViewModel(this, localProductService, syncService);
+            _viewModel = new MainViewModel(localProductService, syncService);
             BindingContext = _viewModel;
             NavigationPage.SetHasNavigationBar(this, false);
         }

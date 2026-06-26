@@ -26,7 +26,7 @@ namespace perimapp.Views
         public DetailsView(LocalProductService localProductService, LocalUserService localUserService)
         {
             InitializeComponent();
-            _viewModel = new DetailsViewModel(this, localProductService, localUserService);
+            _viewModel = new DetailsViewModel(localProductService, localUserService);
             BindingContext = _viewModel;
         }
     }

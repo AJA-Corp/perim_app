@@ -14,11 +14,9 @@ namespace perimapp.ViewModels
 {
     public partial class LogInViewModel : ObservableObject
     {
-        private readonly AuthService _authService = new();
-        private readonly ApiProfileService _apiProfileService = new();
-        private readonly LocalUserService _localUserService = new();
-
-        private readonly ContentPage _page;
+        private readonly AuthService _authService;
+        private readonly ApiProfileService _apiProfileService;
+        private readonly LocalUserService _localUserService;
 
         [ObservableProperty]
         private string _emailText;
@@ -29,9 +27,11 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private string _homeCodeText;
 
-        public LogInViewModel(ContentPage page)
+        public LogInViewModel(AuthService authService, ApiProfileService apiProfileService, LocalUserService localUserService)
         {
-            _page = page;
+            _authService = authService;
+            _apiProfileService = apiProfileService;
+            _localUserService = localUserService;
         }
 
         [RelayCommand]
@@ -43,7 +43,7 @@ namespace perimapp.ViewModels
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 var errorPopup = new InfosPopUp("Erreur", "Veuillez entrer votre email et votre mot de passe.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -78,15 +78,16 @@ namespace perimapp.ViewModels
                 }
                 else
                 {
-                    await _page.DisplayAlertAsync("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
+                    SecureStorage.Remove("auth_token");
+                    await Shell.Current.CurrentPage.DisplayAlertAsync("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
                     var errorPopup = new InfosPopUp("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 }
             }
             else
             {
                 var errorPopup = new InfosPopUp("Erreur", "Email ou mot de passe incorrect.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
 

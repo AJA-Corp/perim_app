@@ -7,10 +7,10 @@ namespace perimapp.Views;
 
 public partial class LogInView : ContentPage
 {
-    public LogInView()
+    public LogInView(AuthService authService, ApiProfileService apiProfileService, LocalUserService localUserService)
     {
         InitializeComponent();
-        BindingContext = new LogInViewModel(this);
+        BindingContext = new LogInViewModel(authService, apiProfileService, localUserService);
     }
 
     private void OnTogglePasswordVisibilityClicked(object sender, EventArgs e)

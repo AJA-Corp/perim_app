@@ -19,9 +19,6 @@ namespace perimapp.Models
         [JsonPropertyName("isValidated")]
         public bool IsValidated { get; set; }
 
-        [JsonIgnore]
-        public required string Password { get; set; }
-
         [JsonPropertyName("registeredProductsCount")]
         public int RegisteredProductsCount { get; set; }
 

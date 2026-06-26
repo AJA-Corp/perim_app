@@ -15,11 +15,10 @@ namespace perimapp.ViewModels
 {
     public partial class SignUpViewModel : ObservableObject
     {
-        private readonly AuthService _authService = new();
-        private readonly ApiProfileService _apiProfileService = new();
-        private readonly LocalUserService _localUserService = new();
+        private readonly AuthService _authService;
+        private readonly ApiProfileService _apiProfileService;
+        private readonly LocalUserService _localUserService;
 
-        private readonly ContentPage _page;
 
         [ObservableProperty]
         private string _emailText;
@@ -33,9 +32,11 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private string _homeCodeText;
 
-        public SignUpViewModel(ContentPage page)
+        public SignUpViewModel(AuthService authService, ApiProfileService apiProfileService, LocalUserService localUserService)
         {
-            _page = page;
+            _authService = authService;
+            _apiProfileService = apiProfileService;
+            _localUserService = localUserService;
         }
 
         [RelayCommand]
@@ -51,14 +52,14 @@ namespace perimapp.ViewModels
                 string.IsNullOrWhiteSpace(confirmPassword))
             {
                 var errorPopup = new InfosPopUp("Erreur", "Tous les champs doivent être remplis.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 return;
             }
 
             if (password != confirmPassword)
             {
                 var errorPopup = new InfosPopUp("Erreur", "Les mots de passe ne correspondent pas.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 return;
             }
 
@@ -69,7 +70,7 @@ namespace perimapp.ViewModels
                 if (!codeExists)
                 {
                     var errorPopup = new InfosPopUp("Erreur", "Ce code foyer est introuvable. Vérifiez-le et réessayez.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                     return;
                 }
             }
@@ -95,26 +96,26 @@ namespace perimapp.ViewModels
                     if (!myProfile.IsValidated)
                     {
                         var verificationPopup = new InfosPopUp("Validation en attente", "Votre compte est en attente de validation par le propriétaire du foyer. Vous serez redirigé vers la page de vérification par email.", "OK");
-                        await _page.ShowPopupAsync(verificationPopup);  
+                        await Shell.Current.CurrentPage.ShowPopupAsync(verificationPopup);
                         await Shell.Current.GoToAsync(nameof(EmailVerificationView));
                     }
                     else
                     {
                         var successPopup = new InfosPopUp("Succès", "Votre compte a été créé et validé avec succès ! Vous allez être redirigé vers la page d'accueil.", "OK");
-                        await _page.ShowPopupAsync(successPopup);
+                        await Shell.Current.CurrentPage.ShowPopupAsync(successPopup);
                         await Shell.Current.GoToAsync($"///{nameof(MainView)}");
                     }
                 }
                 else
                 {
                     var errorPopup = new InfosPopUp("Erreur", "Problème lors de la synchronisation du profil. Veuillez réessayer plus tard.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 }
             }
             else
             {
                 var errorPopup = new InfosPopUp("Erreur", "L'inscription a échoué. Cet email est peut-être déjà utilisé.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
 

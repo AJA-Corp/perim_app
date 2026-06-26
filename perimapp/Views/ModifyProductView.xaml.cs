@@ -25,7 +25,7 @@ namespace perimapp.Views
         public ModifyProductView(LocalProductService localProductService)
         {
             InitializeComponent();
-            _viewModel = new ModifyProductViewModel(this, localProductService);
+            _viewModel = new ModifyProductViewModel(localProductService);
             BindingContext = _viewModel;
         }
 

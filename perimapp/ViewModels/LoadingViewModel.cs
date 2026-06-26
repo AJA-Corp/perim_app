@@ -15,13 +15,17 @@ namespace perimapp.ViewModels
             await Task.Delay(1500); 
 
             var token = await SecureStorage.GetAsync("auth_token");
+            var localUserService = new Services.LocalUserService();
+            var user = await localUserService.LoadUserAsync();
 
-            if (!string.IsNullOrEmpty(token))
+            if (!string.IsNullOrEmpty(token) && user != null)
             {
                 await Shell.Current.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
+                SecureStorage.Remove("auth_token");
+                localUserService.ClearUser();
                 await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
             }
         }

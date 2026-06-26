@@ -15,13 +15,11 @@ namespace perimapp.ViewModels
     public partial class DeletedProductViewModel : ObservableObject
     {
         private readonly LocalProductService _localProductService;
-        private readonly ContentPage _page;
 
         public ObservableCollection<ProductInfos> Products { get; } = new();
 
-        public DeletedProductViewModel(ContentPage page, LocalProductService localProductService)
+        public DeletedProductViewModel(LocalProductService localProductService)
         {
-            _page = page;
             _localProductService = localProductService;
         }
 
@@ -44,6 +42,8 @@ namespace perimapp.ViewModels
 
             var confirmPopUp = new BoolPopUp("Confirmation", "Voulez-vous supprimer définitivement tous les produits de la corbeille ?", "Oui", "Non");
 
+            await Shell.Current.CurrentPage.ShowPopupAsync(confirmPopUp);
+
             if (confirmPopUp.Result)
             {
                 await _localProductService.EmptyTrashLocallyAsync();
@@ -58,7 +58,7 @@ namespace perimapp.ViewModels
             if (product == null) return;
 
             var confirmPopUp = new BoolPopUp("Confirmation", $"Voulez-vous restaurer {product.DisplayName} ?", "Oui", "Non");
-            await _page.ShowPopupAsync(confirmPopUp);
+            await Shell.Current.CurrentPage.ShowPopupAsync(confirmPopUp);
 
             if (confirmPopUp.Result)
             {
@@ -71,7 +71,7 @@ namespace perimapp.ViewModels
                 else
                 {
                     var popUp = new InfosPopUp("Erreur", "Une erreur est survenue lors de la restauration du produit. Veuillez réessayer.", "OK");
-                    await _page.ShowPopupAsync(popUp);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(popUp);
                 }
             }
         }

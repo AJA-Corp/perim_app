@@ -19,7 +19,6 @@ namespace perimapp.ViewModels
     {
         private readonly LocalProductService _localService;
         private readonly LocalUserService _localUserService;
-        private readonly ContentPage _page;
 
         [ObservableProperty]
         private string _productUniqueId;
@@ -27,9 +26,8 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private ProductInfos? _productDetail;
 
-        public DetailsViewModel(ContentPage page, LocalProductService localService, LocalUserService localUserService)
+        public DetailsViewModel(LocalProductService localService, LocalUserService localUserService)
         {
-            _page = page;
             _localService = localService;
             _localUserService = localUserService;
         }
@@ -47,7 +45,7 @@ namespace perimapp.ViewModels
             if (ProductDetail != null && ProductDetail.State != "Active")
             {
                 var errorPopup = new InfosPopUp("Produit non actif", $"Le produit {ProductDetail.Name} est actuellement dans un état '{ProductDetail.State}' et ne peut pas être consulté.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 await Shell.Current.GoToAsync("..");
                 return;
             }
@@ -62,7 +60,7 @@ namespace perimapp.ViewModels
                 if (string.IsNullOrEmpty(ProductUniqueId))
                 {
                     var errorPopup = new InfosPopUp("Produit introuvable", "Aucun ID de produit fourni. Veuillez revenir en arrière et sélectionner un produit valide.", "OK");
-                    await _page.ShowPopupAsync(errorPopup);
+                    await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                     await Shell.Current.GoToAsync("..");
                 }
             }
@@ -80,7 +78,7 @@ namespace perimapp.ViewModels
             else
             {
                 var errorPopup = new InfosPopUp("Erreur de navigation", "Impossible de modifier le produit car l'ID est manquant. Veuillez revenir en arrière et sélectionner un produit valide.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
 
@@ -95,6 +93,8 @@ namespace perimapp.ViewModels
                 "Oui",
                 "Non"
             );
+
+            await Shell.Current.CurrentPage.ShowPopupAsync(confirmPopup);
 
             if (!confirmPopup.Result) return;
 
@@ -125,7 +125,7 @@ namespace perimapp.ViewModels
             else
             {
                 var errorPopup = new InfosPopUp("Erreur de suppression", "Impossible de supprimer le produit.", "OK");
-                await _page.ShowPopupAsync(errorPopup);
+                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
     }
