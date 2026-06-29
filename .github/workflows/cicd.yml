@@ -2,9 +2,9 @@ name: CI/CD Perim'App Android
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "develop" ]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       run: dotnet restore
 
     - name: Compiler pour Android (Format APK pour les testeurs)
-      run: dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false
+      run: dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion="1.1.0"
 
     - name: Sauvegarder l'artefact Android
       uses: actions/upload-artifact@v4
@@ -36,6 +36,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+    env:
+      FIREBASE_GROUP: ${{ github.ref == 'refs/heads/master' && 'beta-testeurs' || (github.ref == 'refs/heads/develop' && 'admins' || '') }}
     steps:
     - name: Checkout du code
       uses: actions/checkout@v4
@@ -52,9 +54,12 @@ jobs:
         ls -l perimapp.apk
 
     - name: Distribuer sur Firebase App Distribution
+      # Ne s'exécute que si FIREBASE_GROUP n'est pas vide
+      if: env.FIREBASE_GROUP != ''
       uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
         appId: ${{ secrets.FIREBASE_APP_ID }}
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
-        groups: admins
+        groups: ${{ env.FIREBASE_GROUP }}
         file: perimapp.apk
+        releaseNotesFile: version_notes.md
