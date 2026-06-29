@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1098521790011:android:285b28a082a924d3af3e1e",
+        "mobilesdk_app_id": "1:1098521790011:android:6e49d752247bb455af3e1e",
         "android_client_info": {
-          "package_name": "com.companyname.perimapp"
+          "package_name": "com.ajacorp.perimapp"
         }
       },
       "oauth_client": [],

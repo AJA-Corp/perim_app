@@ -12,7 +12,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationTitle>Perim'App</ApplicationTitle>
-    <ApplicationId>com.companyname.perimapp</ApplicationId>
+    <ApplicationId>com.ajacorp.perimapp</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <WindowsPackageType>None</WindowsPackageType>
