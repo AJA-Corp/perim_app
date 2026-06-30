@@ -21,6 +21,69 @@ namespace perimapp.Services
             _httpClient.BaseAddress = new Uri(BaseApiUrl);
         }
 
+        // --- CREATE (ApiProductService) START ---
+        public async Task<bool> CreateProductAsync(ProductInfos product)
+        {
+            // Create = POST Inventory/add
+            return await AddProductToInventoryAsync(product);
+        }
+        // --- CREATE (ApiProductService) END ---
+
+        // --- READ (ApiProductService) START ---
+        public async Task<ProductInfos?> ReadProductAsync(string productUniqueId)
+        {
+            try
+            {
+                await AttachAuthenticationHeaderAsync();
+                var response = await _httpClient.GetAsync($"Inventory/{productUniqueId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<ProductInfos>();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiProductService] Erreur ReadProduct : {ex.Message}");
+                return null;
+            }
+        }
+        // --- READ (ApiProductService) END ---
+
+        // --- UPDATE (ApiProductService) START ---
+        public async Task<bool> UpdateProductAsync(string productUniqueId, ProductInfos updatedProduct)
+        {
+            try
+            {
+                await AttachAuthenticationHeaderAsync();
+                var response = await _httpClient.PutAsJsonAsync($"Inventory/{productUniqueId}", updatedProduct);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiProductService] Erreur UpdateProduct : {ex.Message}");
+                return false;
+            }
+        }
+        // --- UPDATE (ApiProductService) END ---
+
+        // --- DELETE (ApiProductService) START ---
+        public async Task<bool> DeleteProductAsync(string productUniqueId)
+        {
+            try
+            {
+                await AttachAuthenticationHeaderAsync();
+                var response = await _httpClient.DeleteAsync($"Inventory/{productUniqueId}");
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ApiProductService] Erreur DeleteProduct : {ex.Message}");
+                return false;
+            }
+        }
+        // --- DELETE (ApiProductService) END ---
+
         private async Task AttachAuthenticationHeaderAsync()
         {
             var token = await SecureStorage.GetAsync("auth_token");

@@ -18,6 +18,57 @@ namespace perimapp.Services
             _httpClient = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
         }
 
+        // --- CREATE (ApiProfileService) START ---
+        public async Task<bool> CreateFamilyAsync(string homeCode, string familyName)
+        {
+            try
+            {
+                await AttachAuthenticationHeaderAsync();
+                var dto = new { HomeCode = homeCode, FamilyName = familyName };
+                var response = await _httpClient.PostAsJsonAsync("FamilyInfos", dto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Erreur Create Family] : {ex.Message}");
+                return false;
+            }
+        }
+        // --- CREATE (ApiProfileService) END ---
+
+        // --- READ (ApiProfileService) START ---
+        public async Task<UserProfileDetails?> ReadProfileAsync()
+        {
+            // Read = GET FamilyInfos/me
+            return await GetOrCreateMyProfileAsync();
+        }
+        // --- READ (ApiProfileService) END ---
+
+        // --- UPDATE (ApiProfileService) START ---
+        public async Task<bool> UpdateProfileAsync(object updateDto)
+        {
+            try
+            {
+                await AttachAuthenticationHeaderAsync();
+                var response = await _httpClient.PutAsJsonAsync("FamilyInfos/me", updateDto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Erreur Update Profile] : {ex.Message}");
+                return false;
+            }
+        }
+        // --- UPDATE (ApiProfileService) END ---
+
+        // --- DELETE (ApiProfileService) START ---
+        public async Task<bool> DeleteFamilyAsync()
+        {
+            // Delete = DELETE FamilyInfos/me
+            return await DeleteMyAccountAsync();
+        }
+        // --- DELETE (ApiProfileService) END ---
+
         private async Task AttachAuthenticationHeaderAsync()
         {
             var token = await SecureStorage.GetAsync("auth_token");
