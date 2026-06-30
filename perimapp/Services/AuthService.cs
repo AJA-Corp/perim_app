@@ -146,6 +146,76 @@ namespace perimapp.Services
             return await SecureStorage.GetAsync("auth_token");
         }
 
+        // --- CREATE (AuthService) START ---
+        public async Task<bool> CreateUserAsync(string email, string password, string firstName, string lastName)
+        {
+            // Create = sign-up
+            return await SignUpAsync(email, password, firstName, lastName);
+        }
+        // --- CREATE (AuthService) END ---
+
+        // --- READ (AuthService) START ---
+        public async Task<BetterAuthUser?> ReadCurrentUserAsync()
+        {
+            try
+            {
+                var token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token)) return null;
+
+                var handler = new HttpClientHandler { UseCookies = false };
+                using var client = new HttpClient(handler) { BaseAddress = new Uri(NeonAuthBaseUrl) };
+                client.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"__Secure-neon-auth.session_token={token}");
+
+                var response = await client.GetAsync("user");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<BetterAuthUser>();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Erreur Read Current User] : {ex.Message}");
+                return null;
+            }
+        }
+        // --- READ (AuthService) END ---
+
+        // --- UPDATE (AuthService) START ---
+        public async Task<bool> UpdateUserAsync(object updateDto)
+        {
+            try
+            {
+                var token = await SecureStorage.GetAsync("auth_token");
+                if (string.IsNullOrEmpty(token)) return false;
+
+                var handler = new HttpClientHandler { UseCookies = false };
+                using var client = new HttpClient(handler) { BaseAddress = new Uri(NeonAuthBaseUrl) };
+                client.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Add("Cookie", $"__Secure-neon-auth.session_token={token}");
+
+                var response = await client.PutAsJsonAsync("user", updateDto);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Erreur Update User] : {ex.Message}");
+                return false;
+            }
+        }
+        // --- UPDATE (AuthService) END ---
+
+        // --- DELETE (AuthService) START ---
+        public async Task<bool> DeleteUserAsync()
+        {
+            // Delete = user/delete
+            return await DeleteNeonAccountAsync();
+        }
+        // --- DELETE (AuthService) END ---
+
         public async Task<bool> DeleteNeonAccountAsync()
         {
             try
