@@ -108,7 +108,7 @@ namespace perimapp.Services
 
                             await SecureStorage.SetAsync("auth_token", secureTokenValue);
 
-                            Console.WriteLine("[SUCCÈS] Jeton crypté sauvegardé !");
+                            Console.WriteLine("[SUCCÈS] Jeton crypté sauvegardé");
                             return true;
                         }
                     }
@@ -165,7 +165,7 @@ namespace perimapp.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    System.Diagnostics.Debug.WriteLine("[SUCCÈS] Compte Neon Auth pulvérisé !");
+                    System.Diagnostics.Debug.WriteLine("[SUCCÈS] Compte Neon Auth supprimé");
                     return true;
                 }
                 else

@@ -202,7 +202,7 @@ namespace perimapp.ViewModels
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 AppData.CurrentProducts.Add(productToSave);
-                perimapp.Services.NotificationScheduler.UpdateSchedules();
+                NotificationScheduler.UpdateSchedules();
             });
 
             var successPopup = new InfosPopUp("Succès", "Produit ajouté avec succès.", "OK");
