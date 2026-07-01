@@ -10,10 +10,10 @@ public partial class AddProductView : ContentPage
 {
     private AddProductViewModel _viewModel;
 
-    public AddProductView(LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
+    public AddProductView(AddProductViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = new AddProductViewModel(localProductService, localUserService, apiProductService);
+        _viewModel = viewModel;
         BindingContext = _viewModel;
 
         SizeChanged += (_, __) => AdjustDatePickerWidth();

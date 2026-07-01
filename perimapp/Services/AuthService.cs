@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Storage;
+using Microsoft.Maui.Storage;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -11,26 +11,53 @@ namespace perimapp.Services
     public class AuthService
     {
         private readonly HttpClient _httpClient;
+        private readonly ISecureStorage? _secureStorage;
 
         private const string NeonAuthBaseUrl = "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech/perimapp/auth/"; 
 
-        public AuthService()
+        public AuthService(HttpClient? httpClient = null, ISecureStorage? secureStorage = null)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(NeonAuthBaseUrl);
+            _httpClient = httpClient ?? new HttpClient();
+            if (_httpClient.BaseAddress == null)
+            {
+                _httpClient.BaseAddress = new Uri(NeonAuthBaseUrl);
+            }
 
             _httpClient.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
+            _secureStorage = secureStorage;
         }
 
-        public async Task<bool> SignUpAsync(string email, string password, string firstName, string lastName)
+        private async Task SetTokenAsync(string token)
+        {
+            if (_secureStorage != null)
+                await _secureStorage.SetAsync("auth_token", token);
+            else
+            {
+                try { await SecureStorage.SetAsync("auth_token", token); } catch (Exception) {}
+            }
+        }
+
+        private async Task<string?> GetTokenAsync()
+        {
+            if (_secureStorage != null)
+                return await _secureStorage.GetAsync("auth_token");
+            try { return await SecureStorage.GetAsync("auth_token"); } catch (Exception) { return null; }
+        }
+
+        private void RemoveToken()
+        {
+            if (_secureStorage != null)
+                _secureStorage.Remove("auth_token");
+            else
+            {
+                try { SecureStorage.Remove("auth_token"); } catch (Exception) {}
+            }
+        }
+
+        public virtual async Task<bool> SignUpAsync(string email, string password, string firstName, string lastName)
         {
             try
             {
-                var handler = new HttpClientHandler { UseCookies = false };
-                using var client = new HttpClient(handler) { BaseAddress = new Uri(NeonAuthBaseUrl) };
-
-                client.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
-
                 var signUpData = new
                 {
                     email = email,
@@ -38,7 +65,7 @@ namespace perimapp.Services
                     name = $"{firstName} {lastName}"
                 };
 
-                var response = await client.PostAsJsonAsync("sign-up/email", signUpData);
+                var response = await _httpClient.PostAsJsonAsync("sign-up/email", signUpData);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -61,7 +88,7 @@ namespace perimapp.Services
 
                     if (!string.IsNullOrEmpty(tokenTrouve))
                     {
-                        await SecureStorage.SetAsync("auth_token", tokenTrouve);
+                        await SetTokenAsync(tokenTrouve);
                         System.Diagnostics.Debug.WriteLine("[SUCCÈS] Utilisateur créé et Token sauvegardé.");
                         return true;
                     }
@@ -83,18 +110,13 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> SignInAsync(string email, string password)
+        public virtual async Task<bool> SignInAsync(string email, string password)
         {
             try
             {
-                var handler = new HttpClientHandler { UseCookies = false };
-                using var authClient = new HttpClient(handler) { BaseAddress = new Uri(NeonAuthBaseUrl) };
-
-                authClient.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
-
                 var signInData = new { email = email, password = password };
 
-                var response = await authClient.PostAsJsonAsync("sign-in/email", signInData);
+                var response = await _httpClient.PostAsJsonAsync("sign-in/email", signInData);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -106,7 +128,7 @@ namespace perimapp.Services
                         {
                             string secureTokenValue = neonCookie.Split(';')[0].Split('=')[1];
 
-                            await SecureStorage.SetAsync("auth_token", secureTokenValue);
+                            await SetTokenAsync(secureTokenValue);
 
                             Console.WriteLine("[SUCCÈS] Jeton crypté sauvegardé");
                             return true;
@@ -116,7 +138,7 @@ namespace perimapp.Services
                     var authResult = await response.Content.ReadFromJsonAsync<BetterAuthResponse>();
                     if (!string.IsNullOrWhiteSpace(authResult?.Token))
                     {
-                        await SecureStorage.SetAsync("auth_token", authResult.Token);
+                        await SetTokenAsync(authResult.Token);
                         return true;
                     }
                 }
@@ -135,33 +157,29 @@ namespace perimapp.Services
             }
         }
 
-        public void SignOut()
+        public virtual void SignOut()
         {
-            SecureStorage.Remove("auth_token");
+            RemoveToken();
             _httpClient.PostAsync("sign-out", null);
         }
 
-        public async Task<string?> GetCurrentTokenAsync()
+        public virtual async Task<string?> GetCurrentTokenAsync()
         {
-            return await SecureStorage.GetAsync("auth_token");
+            return await GetTokenAsync();
         }
 
-        public async Task<bool> DeleteNeonAccountAsync()
+        public virtual async Task<bool> DeleteNeonAccountAsync()
         {
             try
             {
-                var token = await SecureStorage.GetAsync("auth_token");
+                var token = await GetTokenAsync();
                 if (string.IsNullOrEmpty(token)) return false;
 
-                var handler = new HttpClientHandler { UseCookies = false };
-                using var client = new HttpClient(handler) { BaseAddress = new Uri(NeonAuthBaseUrl) };
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                _httpClient.DefaultRequestHeaders.Remove("Cookie");
+                _httpClient.DefaultRequestHeaders.Add("Cookie", $"__Secure-neon-auth.session_token={token}");
 
-                client.DefaultRequestHeaders.Add("Origin", "https://ep-lingering-dream-abu6v3ac.neonauth.eu-west-2.aws.neon.tech");
-
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                client.DefaultRequestHeaders.Add("Cookie", $"__Secure-neon-auth.session_token={token}");
-
-                var response = await client.PostAsync("user/delete", null);
+                var response = await _httpClient.PostAsync("user/delete", null);
 
                 if (response.IsSuccessStatusCode)
                 {

@@ -22,10 +22,10 @@ namespace perimapp.Views
             }
         }
 
-        public ModifyProductView(LocalProductService localProductService)
+        public ModifyProductView(ModifyProductViewModel viewModel)
         {
             InitializeComponent();
-            _viewModel = new ModifyProductViewModel(localProductService);
+            _viewModel = viewModel;
             BindingContext = _viewModel;
         }
 

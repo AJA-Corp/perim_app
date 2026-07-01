@@ -16,7 +16,7 @@ namespace perimapp.Models
         [JsonPropertyName("productUniqueId")]
         public string ProductUniqueId { get; set; } = Guid.NewGuid().ToString();
 
-        [JsonIgnore]
+        [JsonPropertyName("syncState")]
         public SyncState SyncState { get; set; } = SyncState.PendingCreate;
 
         [JsonPropertyName("lastModified")]

@@ -20,7 +20,14 @@ public partial class ScannerView : ContentPage
     public ScannerView()
     {
         InitializeComponent();
-        _viewModel = new ScannerViewModel();
+        var services = App.Current?.Handler?.MauiContext?.Services;
+        var navService = (perimapp.Services.INavigationService?)services?.GetService(typeof(perimapp.Services.INavigationService));
+        var dispService = (perimapp.Services.IDispatcherService?)services?.GetService(typeof(perimapp.Services.IDispatcherService));
+
+        _viewModel = new ScannerViewModel(
+            navService ?? new perimapp.Services.NavigationService(),
+            dispService ?? new perimapp.Services.DispatcherService()
+        );
         BindingContext = _viewModel;
     }
 

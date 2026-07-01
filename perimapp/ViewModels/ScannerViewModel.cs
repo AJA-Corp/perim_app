@@ -6,11 +6,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using perimapp.Services;
 
 namespace perimapp.ViewModels
 {
     public partial class ScannerViewModel : ObservableObject
     {
+        private readonly INavigationService _navigationService;
+        private readonly IDispatcherService _dispatcherService;
         private bool _isProcessing = false;
         
         public Action<string> OnBarcodeScanned { get; set; }
@@ -24,8 +27,10 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private Color _flashButtonBackgroundColor = Color.FromArgb("#80000000");
 
-        public ScannerViewModel()
+        public ScannerViewModel(INavigationService navigationService, IDispatcherService dispatcherService)
         {
+            _navigationService = navigationService;
+            _dispatcherService = dispatcherService;
         }
 
         public void StartCamera()
@@ -51,11 +56,11 @@ namespace perimapp.ViewModels
                 {
                     _isProcessing = true; 
 
-                    MainThread.BeginInvokeOnMainThread(async () =>
+                    _dispatcherService.BeginInvokeOnMainThread(async () =>
                     {
                         try
                         {
-                            await Shell.Current.CurrentPage.Navigation.PopModalAsync();
+                            await _navigationService.PopModalAsync();
 
                             if (OnBarcodeScanned != null)
                                 OnBarcodeScanned.Invoke(barcode);
@@ -77,7 +82,7 @@ namespace perimapp.ViewModels
             if (_isProcessing) return;
             _isProcessing = true; 
 
-            await Shell.Current.CurrentPage.Navigation.PopModalAsync();
+            await _navigationService.PopModalAsync();
         }
 
         [RelayCommand]

@@ -7,9 +7,14 @@ namespace perimapp.Services
 {
     public class OpenFoodFactsService
     {
-        private readonly HttpClient _httpClient = new();
+        private readonly HttpClient _httpClient;
 
-        public async Task<ProductInfos?> GetProductFromApiAsync(long barcode)
+        public OpenFoodFactsService(HttpClient? httpClient = null)
+        {
+            _httpClient = httpClient ?? new HttpClient();
+        }
+
+        public virtual async Task<ProductInfos?> GetProductFromApiAsync(long barcode)
         {
             try
             {

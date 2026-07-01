@@ -1,4 +1,3 @@
-using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -6,7 +5,6 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Networking;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.PopUp;
 using perimapp.Services;
 using perimapp.Views;
 using System;
@@ -19,6 +17,10 @@ namespace perimapp.ViewModels
         private readonly LocalProductService _localProductService;
         private readonly LocalUserService _localUserService;
         private readonly ApiProductService _apiProductService;
+        private readonly INavigationService _navigationService;
+        private readonly IDialogService _dialogService;
+        private readonly IDispatcherService _dispatcherService;
+        private readonly IConnectivity _connectivity;
 
         private ProductInfos? _searchedProductData;
 
@@ -43,11 +45,32 @@ namespace perimapp.ViewModels
         [ObservableProperty]
         private DateTime _dlcDate = DateTime.Today;
 
-        public AddProductViewModel(LocalProductService localProductService, LocalUserService localUserService, ApiProductService apiProductService)
+        public AddProductViewModel(
+            LocalProductService localProductService, 
+            LocalUserService localUserService, 
+            ApiProductService apiProductService,
+            INavigationService navigationService,
+            IDialogService dialogService,
+            IDispatcherService dispatcherService,
+            IConnectivity connectivity)
         {
             _localProductService = localProductService;
             _localUserService = localUserService;
             _apiProductService = apiProductService;
+            _navigationService = navigationService;
+            _dialogService = dialogService;
+            _dispatcherService = dispatcherService;
+            _connectivity = connectivity;
+        }
+
+        protected virtual Task<PermissionStatus> CheckCameraPermissionHelperAsync()
+        {
+            return Permissions.CheckStatusAsync<Permissions.Camera>();
+        }
+
+        protected virtual Task<PermissionStatus> RequestCameraPermissionHelperAsync()
+        {
+            return Permissions.RequestAsync<Permissions.Camera>();
         }
 
         [RelayCommand]
@@ -70,23 +93,21 @@ namespace perimapp.ViewModels
         {
             if (!long.TryParse(BarcodeText, out long barcode))
             {
-                var errorPopup = new InfosPopUp("Erreur", "Code-barres invalide.", "OK");
-                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
+                await _dialogService.ShowAlertAsync("Erreur", "Code-barres invalide.", "OK");
                 return;
             }
 
             var user = await _localUserService.LoadUserAsync();
             if (user == null)
             {
-                var errorPopup = new InfosPopUp("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
-                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
-                await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
+                await _dialogService.ShowAlertAsync("Erreur", "Utilisateur non identifié. Veuillez vous reconnecter.", "OK");
+                await _navigationService.GoToAsync($"///{nameof(StartingView)}");
                 return;
             }
 
             ProductInfos? product = null;
 
-            if (Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (_connectivity.NetworkAccess == NetworkAccess.Internet)
             {
                 product = await _apiProductService.SearchProductAsync(barcode);
 
@@ -103,7 +124,7 @@ namespace perimapp.ViewModels
                 }
             }
 
-            if (product == null && Connectivity.Current.NetworkAccess == NetworkAccess.Internet)
+            if (product == null && _connectivity.NetworkAccess == NetworkAccess.Internet)
             {
                 var offService = new OpenFoodFactsService();
                 product = await offService.GetProductFromApiAsync(barcode);
@@ -111,22 +132,17 @@ namespace perimapp.ViewModels
 
             if (product == null)
             {
-                var newProductPopup = new BoolPopUp("Produit introuvable", "Voulez-vous ajouter un nouveau produit perso ?", "Oui", "Non");
-                await Shell.Current.CurrentPage.ShowPopupAsync(newProductPopup);
+                bool answer = await _dialogService.ShowConfirmAsync("Produit introuvable", "Voulez-vous ajouter un nouveau produit perso ?", "Oui", "Non");
 
-                if (!newProductPopup.Result) return;
+                if (!answer) return;
 
-                var namePromptPopup = new PromptPopUp(
+                string? result = await _dialogService.ShowPromptAsync(
                     "Nom du produit",
                     "Veuillez entrer le nom du produit",
                     "Entrez ici...",
                     "OK",
                     "Annuler"
                 );
-
-                await Shell.Current.CurrentPage.ShowPopupAsync(namePromptPopup);
-
-                string result = namePromptPopup.Result;
 
                 if (!string.IsNullOrEmpty(result))
                 {
@@ -137,7 +153,7 @@ namespace perimapp.ViewModels
                     };
 
                     ProductNameText = result;
-                    ProductImageSource = null;
+                    ProductImageSource = null!;
                     HasImage = false;
                     HasNoImage = true;
                 }
@@ -154,7 +170,7 @@ namespace perimapp.ViewModels
             }
 
             ProductNameText = _searchedProductData.DisplayName;
-            ProductImageSource = _searchedProductData.UrlImage;
+            ProductImageSource = _searchedProductData.UrlImage!;
 
             if (!string.IsNullOrEmpty(ProductImageSource))
             {
@@ -199,24 +215,23 @@ namespace perimapp.ViewModels
 
             await _localProductService.AddProductAsync(productToSave);
 
-            MainThread.BeginInvokeOnMainThread(() =>
+            _dispatcherService.BeginInvokeOnMainThread(() =>
             {
                 AppData.CurrentProducts.Add(productToSave);
                 NotificationScheduler.UpdateSchedules();
             });
 
-            var successPopup = new InfosPopUp("Succès", "Produit ajouté avec succès.", "OK");
-            await Shell.Current.CurrentPage.ShowPopupAsync(successPopup);
-            await Shell.Current.GoToAsync("..");
+            await _dialogService.ShowAlertAsync("Succès", "Produit ajouté avec succès.", "OK");
+            await _navigationService.GoToAsync("..");
         }
 
         [RelayCommand]
         private async Task ScanBarcodeAsync()
         {
-            var status = await Permissions.CheckStatusAsync<Permissions.Camera>();
+            var status = await CheckCameraPermissionHelperAsync();
             if (status != PermissionStatus.Granted)
             {
-                status = await Permissions.RequestAsync<Permissions.Camera>();
+                status = await RequestCameraPermissionHelperAsync();
             }
 
             if (status == PermissionStatus.Granted)
@@ -229,12 +244,11 @@ namespace perimapp.ViewModels
                     SearchBarcodeAsync().ConfigureAwait(false);
                 };
 
-                await Shell.Current.CurrentPage.Navigation.PushModalAsync(ScannerView);
+                await _navigationService.PushModalAsync(ScannerView);
             }
             else
             {
-                var errorPopup = new InfosPopUp("Permission refusée", "La permission de la caméra est requise pour scanner un produit.", "OK");
-                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
+                await _dialogService.ShowAlertAsync("Permission refusée", "La permission de la caméra est requise pour scanner un produit.", "OK");
             }
         }
     }

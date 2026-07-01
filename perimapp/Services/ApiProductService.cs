@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,25 +12,46 @@ namespace perimapp.Services
     public class ApiProductService
     {
         private readonly HttpClient _httpClient;
+        private readonly ISecureStorage? _secureStorage;
 
         private const string BaseApiUrl = "https://perimapp-web-api.onrender.com/api/";
 
-        public ApiProductService()
+        public ApiProductService(HttpClient? httpClient = null, ISecureStorage? secureStorage = null)
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseApiUrl);
+            _httpClient = httpClient ?? new HttpClient();
+            if (_httpClient.BaseAddress == null)
+            {
+                _httpClient.BaseAddress = new Uri(BaseApiUrl);
+            }
+            _secureStorage = secureStorage;
         }
 
         private async Task AttachAuthenticationHeaderAsync()
         {
-            var token = await SecureStorage.GetAsync("auth_token");
+            string? token = null;
+            if (_secureStorage != null)
+            {
+                token = await _secureStorage.GetAsync("auth_token");
+            }
+            else
+            {
+                try
+                {
+                    token = await SecureStorage.GetAsync("auth_token");
+                }
+                catch (Exception)
+                {
+                    // Fallback
+                }
+            }
+
             if (!string.IsNullOrWhiteSpace(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
-        public async Task<ProductInfos?> SearchProductAsync(long barcode)
+        public virtual async Task<ProductInfos?> SearchProductAsync(long barcode)
         {
             try
             {
@@ -51,7 +72,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> AddProductToInventoryAsync(ProductInfos product)
+        public virtual async Task<bool> AddProductToInventoryAsync(ProductInfos product)
         {
             try
             {
@@ -68,7 +89,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<List<ProductInfos>> GetMyInventoryAsync()
+        public virtual async Task<List<ProductInfos>> GetMyInventoryAsync()
         {
             try
             {
@@ -91,7 +112,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
+        public virtual async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
         {
             try
             {
@@ -106,7 +127,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> SyncOfflineProductsAsync(List<ProductInfos> pendingProducts)
+        public virtual async Task<bool> SyncOfflineProductsAsync(List<ProductInfos> pendingProducts)
         {
             try
             {
@@ -121,7 +142,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> EmptyTrashOnlineAsync()
+        public virtual async Task<bool> EmptyTrashOnlineAsync()
         {
             try
             {
@@ -136,7 +157,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> SetCustomProductNameAsync(long barcode, string homeCode, string customName)
+        public virtual async Task<bool> SetCustomProductNameAsync(long barcode, string homeCode, string customName)
         {
             try
             {
@@ -159,7 +180,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<string?> GetCustomProductNameAsync(long barcode, string homeCode)
+        public virtual async Task<string?> GetCustomProductNameAsync(long barcode, string homeCode)
         {
             try
             {

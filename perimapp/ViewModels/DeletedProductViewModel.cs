@@ -2,12 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using perimapp.Models;
-using perimapp.PopUp;
 using perimapp.Services;
 
 namespace perimapp.ViewModels
@@ -15,12 +12,14 @@ namespace perimapp.ViewModels
     public partial class DeletedProductViewModel : ObservableObject
     {
         private readonly LocalProductService _localProductService;
+        private readonly IDialogService _dialogService;
 
         public ObservableCollection<ProductInfos> Products { get; } = new();
 
-        public DeletedProductViewModel(LocalProductService localProductService)
+        public DeletedProductViewModel(LocalProductService localProductService, IDialogService dialogService)
         {
             _localProductService = localProductService;
+            _dialogService = dialogService;
         }
 
         [RelayCommand]
@@ -38,16 +37,11 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task DeleteAllAsync()
         {
-            if (!Products.Any()) return;
+            bool confirm = await _dialogService.ShowConfirmAsync("Vider la corbeille", "Voulez-vous vraiment vider la corbeille ? Cette action est irréversible.", "Oui", "Non");
 
-            var confirmPopUp = new BoolPopUp("Confirmation", "Voulez-vous supprimer définitivement tous les produits de la corbeille ?", "Oui", "Non");
-
-            await Shell.Current.CurrentPage.ShowPopupAsync(confirmPopUp);
-
-            if (confirmPopUp.Result)
+            if (confirm)
             {
                 await _localProductService.EmptyTrashLocallyAsync();
-
                 Products.Clear();
             }
         }
@@ -57,10 +51,9 @@ namespace perimapp.ViewModels
         {
             if (product == null) return;
 
-            var confirmPopUp = new BoolPopUp("Confirmation", $"Voulez-vous restaurer {product.DisplayName} ?", "Oui", "Non");
-            await Shell.Current.CurrentPage.ShowPopupAsync(confirmPopUp);
+            bool confirm = await _dialogService.ShowConfirmAsync("Confirmation", $"Voulez-vous restaurer {product.DisplayName} ?", "Oui", "Non");
 
-            if (confirmPopUp.Result)
+            if (confirm)
             {
                 bool localSuccess = await _localProductService.UpdateProductStateAsync(product.ProductUniqueId, "Active");
 
@@ -70,8 +63,7 @@ namespace perimapp.ViewModels
                 }
                 else
                 {
-                    var popUp = new InfosPopUp("Erreur", "Une erreur est survenue lors de la restauration du produit. Veuillez réessayer.", "OK");
-                    await Shell.Current.CurrentPage.ShowPopupAsync(popUp);
+                    await _dialogService.ShowAlertAsync("Erreur", "Une erreur est survenue lors de la restauration du produit. Veuillez réessayer.", "OK");
                 }
             }
         }

@@ -10,12 +10,21 @@ namespace perimapp.Services
     {
         private readonly string _filePath;
 
-        public LocalUserService()
+        public LocalUserService(string? baseDirectory = null)
         {
-            _filePath = Path.Combine(FileSystem.AppDataDirectory, "userProfile.json");
+            string baseDir;
+            try
+            {
+                baseDir = baseDirectory ?? FileSystem.AppDataDirectory;
+            }
+            catch (Exception)
+            {
+                baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            }
+            _filePath = Path.Combine(baseDir, "userProfile.json");
         }
 
-        public async Task SaveUserAsync(UserProfileDetails user)
+        public virtual async Task SaveUserAsync(UserProfileDetails user)
         {
             try
             {
@@ -31,7 +40,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<UserProfileDetails?> LoadUserAsync()
+        public virtual async Task<UserProfileDetails?> LoadUserAsync()
         {
             try
             {
@@ -49,7 +58,7 @@ namespace perimapp.Services
             }
         }
 
-        public void ClearUser()
+        public virtual void ClearUser()
         {
             try
             {
@@ -62,7 +71,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> IncrementLostProductCountAsync()
+        public virtual async Task<bool> IncrementLostProductCountAsync()
         {
             try
             {
@@ -85,7 +94,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> DecrementLostProductCountAsync()
+        public virtual async Task<bool> DecrementLostProductCountAsync()
         {
             try
             {

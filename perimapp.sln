@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.7.11925.98 stable
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "perimapp", "perimapp\perimapp.csproj", "{95D02E68-B101-4925-93D4-8DD12FF76399}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "perimapp.Tests", "perimapp.Tests\perimapp.Tests.csproj", "{55C6E21B-A757-4E51-8C52-C7883D837C66}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,7 +15,18 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D02E68-B101-4925-93D4-8DD12FF76399}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95D02E68-B101-4925-93D4-8DD12FF76399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55C6E21B-A757-4E51-8C52-C7883D837C66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55C6E21B-A757-4E51-8C52-C7883D837C66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55C6E21B-A757-4E51-8C52-C7883D837C66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55C6E21B-A757-4E51-8C52-C7883D837C66}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {42222CA5-9B7E-4568-BBE7-5AA9C03F7E77}
 	EndGlobalSection
 EndGlobal

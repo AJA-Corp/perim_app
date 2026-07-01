@@ -9,10 +9,10 @@ namespace perimapp.Views
 {
     public partial class SignUpView : ContentPage
     {
-        public SignUpView(AuthService authService, ApiProfileService apiProfileService, LocalUserService localUserService)
+        public SignUpView(SignUpViewModel viewModel)
         {
             InitializeComponent();
-            BindingContext = new SignUpViewModel(authService, apiProfileService, localUserService);
+            BindingContext = viewModel;
         }
 
         private void OnTogglePasswordVisibilityClicked(object sender, EventArgs e)

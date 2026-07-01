@@ -13,7 +13,7 @@ namespace perimapp.Views
 
         public string ProductUniqueId
         {
-            get => _viewModel?.ProductUniqueId;
+            get => _viewModel?.ProductUniqueId ?? string.Empty;
             set
             {
                 if (_viewModel != null)
@@ -23,10 +23,10 @@ namespace perimapp.Views
             }
         }
 
-        public DetailsView(LocalProductService localProductService, LocalUserService localUserService)
+        public DetailsView(DetailsViewModel viewModel)
         {
             InitializeComponent();
-            _viewModel = new DetailsViewModel(localProductService, localUserService);
+            _viewModel = viewModel;
             BindingContext = _viewModel;
         }
     }
