@@ -28,7 +28,7 @@ jobs:
       run: dotnet test perimapp.Tests/perimapp.Tests.csproj --no-restore --logger:"console;verbosity=normal"
 
     - name: Compiler pour Android (Format APK pour les testeurs)
-      run: dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion="1.1.0"
+      run: dotnet publish perimapp/perimapp.csproj -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion="1.1.0"
 
     - name: Sauvegarder l'artefact Android
       uses: actions/upload-artifact@v4
