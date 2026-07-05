@@ -8,10 +8,10 @@ public partial class LoadingView : ContentPage
 {
     private LoadingViewModel _viewModel;
 
-    public LoadingView()
+    public LoadingView(LoadingViewModel viewModel)
     {
         InitializeComponent();
-        _viewModel = new LoadingViewModel();
+        _viewModel = viewModel;
         BindingContext = _viewModel;
     }
 

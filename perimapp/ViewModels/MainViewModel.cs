@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
 using perimapp.Data;
 using perimapp.Models;
-using perimapp.PopUp;
 using perimapp.Services;
 using perimapp.Views;
 
@@ -20,6 +16,9 @@ namespace perimapp.ViewModels
     {
         private readonly LocalProductService _localProductService;
         private readonly SyncService _syncService;
+        private readonly INavigationService _navigationService;
+        private readonly IDialogService _dialogService;
+        private readonly IDispatcherService _dispatcherService;
 
         public ObservableCollection<ProductInfos> Products => AppData.CurrentProducts;
 
@@ -33,10 +32,18 @@ namespace perimapp.ViewModels
         [NotifyPropertyChangedFor(nameof(Products))]
         private int _displayedProductsCount;
 
-        public MainViewModel(LocalProductService localProductService, SyncService syncService)
+        public MainViewModel(
+            LocalProductService localProductService, 
+            SyncService syncService,
+            INavigationService navigationService,
+            IDialogService dialogService,
+            IDispatcherService dispatcherService)
         {
             _localProductService = localProductService;
             _syncService = syncService;
+            _navigationService = navigationService;
+            _dialogService = dialogService;
+            _dispatcherService = dispatcherService;
         }
 
         [RelayCommand]
@@ -51,7 +58,7 @@ namespace perimapp.ViewModels
                     .OrderBy(p => p.DaysRemaining)
                     .ToList();
 
-                MainThread.BeginInvokeOnMainThread(() =>
+                _dispatcherService.BeginInvokeOnMainThread(() =>
                 {
                     AppData.CurrentProducts.Clear();
                     foreach (var product in activeProducts)
@@ -64,8 +71,7 @@ namespace perimapp.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
-                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors du chargement des produits. Veuillez réessayer plus tard.", "OK");
-                await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
+                await _dialogService.ShowAlertAsync("Erreur", "Une erreur est survenue lors du chargement des produits. Veuillez réessayer plus tard.", "OK");
             }
         }
 
@@ -91,13 +97,13 @@ namespace perimapp.ViewModels
         [RelayCommand]
         private async Task ProfileIconClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(ProfileView));
+            await _navigationService.GoToAsync(nameof(ProfileView));
         }
 
         [RelayCommand]
         private async Task AddProductClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(AddProductView));
+            await _navigationService.GoToAsync(nameof(AddProductView));
         }
 
         [RelayCommand]
@@ -105,21 +111,21 @@ namespace perimapp.ViewModels
         {
             if (selectedProduct != null)
             {
-                await Shell.Current.GoToAsync($"{nameof(DetailsView)}?ProductUniqueId={selectedProduct.ProductUniqueId}");
+                await _navigationService.GoToAsync($"{nameof(DetailsView)}?ProductUniqueId={selectedProduct.ProductUniqueId}");
             }
         }
 
         [RelayCommand]
         private async Task LostProductsClickedAsync()
         {
-            await Shell.Current.GoToAsync(nameof(DeletedProductView));
+            await _navigationService.GoToAsync(nameof(DeletedProductView));
         }
 
         [RelayCommand]
         private async Task SortButtonClickedAsync()
         {
-            string result = await Shell.Current.CurrentPage.DisplayActionSheetAsync(
-                "Trier par", "Annuler", null,
+            string result = await _dialogService.ShowActionSheetAsync(
+                "Trier par", "Annuler", null!,
                 "DLC (proche)",
                 "DLC (lointaine)"
             );

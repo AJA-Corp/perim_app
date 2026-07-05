@@ -11,6 +11,10 @@ namespace perimapp.Services
 {
     public static class NotificationScheduler
     {
+        public static Action? CancelAllOverride { get; set; }
+        public static Func<NotificationRequest, Task<bool>>? ShowOverride { get; set; }
+        public static Func<string, string, string>? PreferenceGetter { get; set; }
+
         private static readonly List<int> _defaultNotificationDays = [1, 3, 7];
         private static readonly List<TimeSpan> _notificationTimes =
         [
@@ -25,12 +29,36 @@ namespace perimapp.Services
 
         public static void UpdateSchedules()
         {
-            LocalNotificationCenter.Current.CancelAll();
+            if (CancelAllOverride != null)
+            {
+                CancelAllOverride();
+            }
+            else
+            {
+                try
+                {
+                    LocalNotificationCenter.Current.CancelAll();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[NotificationScheduler] Failed to cancel notifications: {ex.Message}");
+                }
+            }
 
             var allProducts = AppData.CurrentProducts.ToList();
             if (allProducts.Any())
             {
-                var settingsJson = Preferences.Get("NotificationDays", string.Empty);
+                string settingsJson = string.Empty;
+                try
+                {
+                    settingsJson = PreferenceGetter != null 
+                        ? PreferenceGetter("NotificationDays", string.Empty) 
+                        : Preferences.Get("NotificationDays", string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[NotificationScheduler] Preferences exception: {ex.Message}");
+                }
                 List<int> notificationDays;
                 if (string.IsNullOrEmpty(settingsJson))
                 {
@@ -114,7 +142,22 @@ namespace perimapp.Services
                         NotifyTime = notifyTime
                     }
                 };
-                LocalNotificationCenter.Current.Show(request).ContinueWith(
+                var task = ShowOverride != null
+                    ? ShowOverride(request)
+                    : Task.Run(async () =>
+                      {
+                          try
+                          {
+                              return await LocalNotificationCenter.Current.Show(request);
+                          }
+                          catch (Exception ex)
+                          {
+                              System.Diagnostics.Debug.WriteLine($"[NotificationScheduler] Failed to show notification: {ex.Message}");
+                              return false;
+                          }
+                      });
+
+                task.ContinueWith(
                     t => System.Diagnostics.Debug.WriteLine(t.Exception?.ToString()),
                     System.Threading.Tasks.TaskContinuationOptions.OnlyOnFaulted);
             }

@@ -8,11 +8,11 @@ namespace perimapp.Views
     {
         private EmailVerificationViewModel _viewModel;
 
-        public EmailVerificationView(ApiProfileService apiProfileService)
+        public EmailVerificationView(EmailVerificationViewModel viewModel)
         {
             InitializeComponent();
 
-            _viewModel = new EmailVerificationViewModel(apiProfileService);
+            _viewModel = viewModel;
             BindingContext = _viewModel;
         }
 

@@ -1,32 +1,55 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
+using perimapp.Services;
 using perimapp.Views;
 
 namespace perimapp.ViewModels
 {
     public partial class LoadingViewModel : ObservableObject
     {
+        private readonly INavigationService _navigationService;
+        private readonly LocalUserService _localUserService;
+        private readonly ISecureStorage _secureStorage;
+
+        public LoadingViewModel(
+            INavigationService navigationService,
+            LocalUserService localUserService,
+            ISecureStorage secureStorage)
+        {
+            _navigationService = navigationService;
+            _localUserService = localUserService;
+            _secureStorage = secureStorage;
+        }
+
         [RelayCommand]
         private async Task LoadAppAsync()
         {
             await Task.Delay(1500); 
 
-            var token = await SecureStorage.GetAsync("auth_token");
-            var localUserService = new Services.LocalUserService();
-            var user = await localUserService.LoadUserAsync();
+            string? token = null;
+            try 
+            { 
+                token = await _secureStorage.GetAsync("auth_token"); 
+            } 
+            catch { }
+
+            var user = await _localUserService.LoadUserAsync();
 
             if (!string.IsNullOrEmpty(token) && user != null)
             {
-                await Shell.Current.GoToAsync($"///{nameof(MainView)}");
+                await _navigationService.GoToAsync($"///{nameof(MainView)}");
             }
             else
             {
-                SecureStorage.Remove("auth_token");
-                localUserService.ClearUser();
-                await Shell.Current.GoToAsync($"///{nameof(StartingView)}");
+                try 
+                { 
+                    _secureStorage.Remove("auth_token"); 
+                } 
+                catch { }
+                _localUserService.ClearUser();
+                await _navigationService.GoToAsync($"///{nameof(StartingView)}");
             }
         }
     }

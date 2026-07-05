@@ -11,13 +11,22 @@ namespace perimapp.Services
     public class LocalProductService
     {
         private readonly string _filePath;
+        private readonly string _baseDirectory;
 
-        public LocalProductService()
+        public LocalProductService(string? baseDirectory = null)
         {
-            _filePath = Path.Combine(FileSystem.AppDataDirectory, "products.json");
+            try
+            {
+                _baseDirectory = baseDirectory ?? FileSystem.AppDataDirectory;
+            }
+            catch (Exception)
+            {
+                _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            }
+            _filePath = Path.Combine(_baseDirectory, "products.json");
         }
 
-        public async Task<List<ProductInfos>> LoadProductsAsync()
+        public virtual async Task<List<ProductInfos>> LoadProductsAsync()
         {
             try
             {
@@ -36,7 +45,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task SaveProductsAsync(List<ProductInfos> products)
+        public virtual async Task SaveProductsAsync(List<ProductInfos> products)
         {
             try
             {
@@ -52,20 +61,20 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<List<ProductInfos>> GetPendingSyncProductsAsync()
+        public virtual async Task<List<ProductInfos>> GetPendingSyncProductsAsync()
         {
             var products = await LoadProductsAsync();
             return products.Where(p => p.SyncState != SyncState.Synced).ToList();
         }
 
-        public async Task HardDeleteProductAsync(ProductInfos productToHardDelete)
+        public virtual async Task HardDeleteProductAsync(ProductInfos productToHardDelete)
         {
             var products = await LoadProductsAsync();
             products.RemoveAll(p => p.ProductUniqueId == productToHardDelete.ProductUniqueId);
             await SaveProductsAsync(products);
         }
 
-        public async Task AddProductAsync(ProductInfos product)
+        public virtual async Task AddProductAsync(ProductInfos product)
         {
             var products = await LoadProductsAsync();
 
@@ -79,7 +88,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task UpdateProductLocalAsync(ProductInfos updatedProduct)
+        public virtual async Task UpdateProductLocalAsync(ProductInfos updatedProduct)
         {
             var products = await LoadProductsAsync();
             var index = products.FindIndex(p => p.ProductUniqueId == updatedProduct.ProductUniqueId);
@@ -98,7 +107,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
+        public virtual async Task<bool> UpdateProductStateAsync(string productUniqueId, string newState)
         {
             try
             {
@@ -126,7 +135,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task EmptyTrashLocallyAsync()
+        public virtual async Task EmptyTrashLocallyAsync()
         {
             try
             {
@@ -161,11 +170,11 @@ namespace perimapp.Services
             }
         }
 
-        public async Task SaveCustomProductNameAsync(long barcode, string homeCode, string customName)
+        public virtual async Task SaveCustomProductNameAsync(long barcode, string homeCode, string customName)
         {
             try
             {
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(_baseDirectory, "custom_names.json");
                 var customNames = new Dictionary<string, string>();
 
                 if (File.Exists(customNamesPath))
@@ -186,11 +195,11 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<string?> GetCustomProductNameAsync(long barcode, string homeCode)
+        public virtual async Task<string?> GetCustomProductNameAsync(long barcode, string homeCode)
         {
             try
             {
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(_baseDirectory, "custom_names.json");
                 if (!File.Exists(customNamesPath)) return null;
 
                 using var stream = File.OpenRead(customNamesPath);
@@ -207,13 +216,13 @@ namespace perimapp.Services
             }
         }
 
-        public void ClearAllProducts()
+        public virtual void ClearAllProducts()
         {
             try
             {
                 if (File.Exists(_filePath)) File.Delete(_filePath);
 
-                string customNamesPath = Path.Combine(FileSystem.AppDataDirectory, "custom_names.json");
+                string customNamesPath = Path.Combine(_baseDirectory, "custom_names.json");
                 if (File.Exists(customNamesPath)) File.Delete(customNamesPath);
             }
             catch (Exception ex)

@@ -40,6 +40,14 @@ public static class MauiProgram
         builder.Services.AddSingleton<LocalProductService>();
         builder.Services.AddSingleton<LocalUserService>();
 
+        // Enregistrement des services système / IHM
+        builder.Services.AddSingleton<INavigationService, NavigationService>();
+        builder.Services.AddSingleton<IDialogService, DialogService>();
+        builder.Services.AddSingleton<IDispatcherService, DispatcherService>();
+        builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
+        builder.Services.AddSingleton<ISecureStorage>(SecureStorage.Default);
+        builder.Services.AddSingleton<IPreferences>(Preferences.Default);
+
         // Enregistrement des Views
         builder.Services.AddSingleton<MainView>();
         builder.Services.AddSingleton<ProfileView>();

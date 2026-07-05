@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Networking;
+using Microsoft.Maui.Networking;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -12,13 +12,26 @@ namespace perimapp.Services
         private readonly LocalProductService _localDb;
 
         private bool _isSyncing = false;
+        private readonly IConnectivity? _connectivity;
 
-        public SyncService(ApiProductService apiService, LocalProductService localDb)
+        public SyncService(ApiProductService apiService, LocalProductService localDb, IConnectivity? connectivity = null)
         {
             _apiService = apiService;
             _localDb = localDb;
+            _connectivity = connectivity;
 
-            Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
+            if (connectivity != null)
+            {
+                connectivity.ConnectivityChanged += OnConnectivityChanged;
+            }
+            else
+            {
+                try
+                {
+                    Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
+                }
+                catch (Exception) { }
+            }
         }
 
         private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
@@ -29,9 +42,19 @@ namespace perimapp.Services
             }
         }
 
-        public async Task ProcessSyncAsync()
+        public virtual async Task ProcessSyncAsync()
         {
-            if (_isSyncing || Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            NetworkAccess networkAccess = NetworkAccess.Unknown;
+            try
+            {
+                networkAccess = _connectivity != null ? _connectivity.NetworkAccess : Connectivity.Current.NetworkAccess;
+            }
+            catch (Exception)
+            {
+                networkAccess = NetworkAccess.Internet; // Fallback
+            }
+
+            if (_isSyncing || networkAccess != NetworkAccess.Internet)
                 return;
 
             try

@@ -8,10 +8,10 @@ namespace perimapp.Views
     {
         private DeletedProductViewModel _viewModel;
 
-        public DeletedProductView(LocalProductService localProductService)
+        public DeletedProductView(DeletedProductViewModel viewModel)
         {
             InitializeComponent();
-            _viewModel = new DeletedProductViewModel(localProductService);
+            _viewModel = viewModel;
             BindingContext = _viewModel;
         }
 

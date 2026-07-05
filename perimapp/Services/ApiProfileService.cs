@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -11,23 +11,45 @@ namespace perimapp.Services
     public class ApiProfileService
     {
         private readonly HttpClient _httpClient;
+        private readonly ISecureStorage? _secureStorage;
         private const string BaseApiUrl = "https://perimapp-web-api.onrender.com/api/";
 
-        public ApiProfileService()
+        public ApiProfileService(HttpClient? httpClient = null, ISecureStorage? secureStorage = null)
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
+            _httpClient = httpClient ?? new HttpClient();
+            if (_httpClient.BaseAddress == null)
+            {
+                _httpClient.BaseAddress = new Uri(BaseApiUrl);
+            }
+            _secureStorage = secureStorage;
         }
 
         private async Task AttachAuthenticationHeaderAsync()
         {
-            var token = await SecureStorage.GetAsync("auth_token");
+            string? token = null;
+            if (_secureStorage != null)
+            {
+                token = await _secureStorage.GetAsync("auth_token");
+            }
+            else
+            {
+                try
+                {
+                    token = await SecureStorage.GetAsync("auth_token");
+                }
+                catch (Exception)
+                {
+                    // Fallback
+                }
+            }
+
             if (!string.IsNullOrWhiteSpace(token))
             {
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
-        public async Task<UserProfileDetails?> GetOrCreateMyProfileAsync(string? providedHomeCode = null)
+        public virtual async Task<UserProfileDetails?> GetOrCreateMyProfileAsync(string? providedHomeCode = null)
         {
             try
             {
@@ -48,7 +70,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> UpdateNameAsync(string firstName, string lastName)
+        public virtual async Task<bool> UpdateNameAsync(string firstName, string lastName)
         {
             try
             {
@@ -64,7 +86,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> DeleteMyAccountAsync()
+        public virtual async Task<bool> DeleteMyAccountAsync()
         {
             try
             {
@@ -79,7 +101,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> CheckHomeCodeExistsAsync(string code)
+        public virtual async Task<bool> CheckHomeCodeExistsAsync(string code)
         {
             try
             {
@@ -93,7 +115,7 @@ namespace perimapp.Services
             }
         }
 
-        public async Task<bool> ValidateHomeJoinCodeAsync(string code)
+        public virtual async Task<bool> ValidateHomeJoinCodeAsync(string code)
         {
             try
             {

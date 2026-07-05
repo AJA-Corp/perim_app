@@ -2,17 +2,20 @@ using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.Controls;
+using perimapp.Services;
 using perimapp.Views;
-using perimapp.PopUp;
-using CommunityToolkit.Maui.Extensions;
 
 namespace perimapp.ViewModels
 {
     public partial class StartingViewModel : ObservableObject
     {
-        public StartingViewModel()
+        private readonly INavigationService _navigationService;
+        private readonly IDialogService _dialogService;
+
+        public StartingViewModel(INavigationService navigationService, IDialogService dialogService)
         {
+            _navigationService = navigationService;
+            _dialogService = dialogService;
         }
 
         [RelayCommand]
@@ -20,13 +23,12 @@ namespace perimapp.ViewModels
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(LogInView));
+                await _navigationService.GoToAsync(nameof(LogInView));
             }
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
-                await Shell.Current.ShowPopupAsync(errorPopup);
+                await _dialogService.ShowAlertAsync("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
             }
         }
 
@@ -35,13 +37,12 @@ namespace perimapp.ViewModels
         {
             try
             {
-                await Shell.Current.GoToAsync(nameof(SignUpView));
+                await _navigationService.GoToAsync(nameof(SignUpView));
             }
             catch (Exception error)
             {
                 Console.WriteLine("[DEBUG] " + error);
-                var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
-                await Shell.Current.ShowPopupAsync(errorPopup);
+                await _dialogService.ShowAlertAsync("Erreur", "Une erreur est survenue lors de la navigation. Veuillez réessayer.", "OK");
             }
         }
     }

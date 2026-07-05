@@ -9,10 +9,10 @@ namespace perimapp.Views
     {
         private ProfileViewModel _viewModel;
 
-        public ProfileView(LocalUserService localUserService, LocalProductService localProductService, ApiProfileService apiProfileService, AuthService authService)
+        public ProfileView(ProfileViewModel viewModel)
         {
             InitializeComponent();
-            _viewModel = new ProfileViewModel(localUserService, localProductService, apiProfileService, authService);
+            _viewModel = viewModel;
             BindingContext = _viewModel;
         }
 
