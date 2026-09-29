@@ -53,6 +53,18 @@ jobs:
         find drop/ -name "*-Signed.apk" -exec cp {} ./perimapp.apk \;
         ls -l perimapp.apk
 
+    - name: Extraire les dernières notes de release
+      run: |
+        # Extraire uniquement la première section de version (dernière entrée)
+        $content = Get-Content version_notes.md -Raw
+        $match = $content -match '## Version .+?(?=## Version|\Z)'
+        if ($match) {
+          $latestNotes = [regex]::Match($content, '## Version .+?(?=## Version|\Z)', 'Singleline').Value
+          $latestNotes | Out-File -FilePath release_notes.txt -Encoding UTF8
+        } else {
+          "Aucune note de version trouvée" | Out-File -FilePath release_notes.txt -Encoding UTF8
+        }
+
     - name: Distribuer sur Firebase App Distribution
       # Ne s'exécute que si FIREBASE_GROUP n'est pas vide
       if: env.FIREBASE_GROUP != ''
@@ -62,4 +74,4 @@ jobs:
         serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
         groups: ${{ env.FIREBASE_GROUP }}
         file: perimapp.apk
-        releaseNotesFile: version_notes.md
+        releaseNotesFile: release_notes.txt
