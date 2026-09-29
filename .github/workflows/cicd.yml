@@ -11,10 +11,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Checkout du code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Configurer .NET 10
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: '10.0.x'
 
@@ -28,7 +28,7 @@ jobs:
       run: dotnet publish -f net10.0-android -c Release -p:AndroidPackageFormat=apk -p:AndroidKeyStore=false -p:ApplicationVersion=${{ github.run_number }} -p:ApplicationDisplayVersion="1.1.0"
 
     - name: Sauvegarder l'artefact Android
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: perimapp-apk
         path: perimapp/bin/Release/net10.0-android/*-Signed.apk
@@ -40,10 +40,10 @@ jobs:
       FIREBASE_GROUP: ${{ github.ref == 'refs/heads/master' && 'beta-testeurs' || (github.ref == 'refs/heads/develop' && 'admins' || '') }}
     steps:
     - name: Checkout du code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Télécharger l'artefact Android
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: perimapp-apk
         path: drop
@@ -56,14 +56,12 @@ jobs:
     - name: Extraire les dernières notes de release
       run: |
         # Extraire uniquement la première section de version (dernière entrée)
-        $content = Get-Content version_notes.md -Raw
-        $match = $content -match '## Version .+?(?=## Version|\Z)'
-        if ($match) {
-          $latestNotes = [regex]::Match($content, '## Version .+?(?=## Version|\Z)', 'Singleline').Value
-          $latestNotes | Out-File -FilePath release_notes.txt -Encoding UTF8
-        } else {
-          "Aucune note de version trouvée" | Out-File -FilePath release_notes.txt -Encoding UTF8
-        }
+        if [ -f version_notes.md ]; then
+          awk '/^## Version/{if (p) exit; p=1} p' version_notes.md > release_notes.txt
+        fi
+        if [ ! -s release_notes.txt ]; then
+          echo "Aucune note de version trouvée" > release_notes.txt
+        fi
 
     - name: Distribuer sur Firebase App Distribution
       # Ne s'exécute que si FIREBASE_GROUP n'est pas vide
