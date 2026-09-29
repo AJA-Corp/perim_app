@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <MauiVersion>10.0.30</MauiVersion>
     <AcceptAndroidSDKLicenses>true</AcceptAndroidSDKLicenses>
@@ -36,18 +36,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BarcodeScanning.Native.Maui" Version="3.0.4" />
-    <PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
+    <PackageReference Include="BarcodeScanning.Native.Maui" Version="3.1.0" />
+    <PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     
-    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.70" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
-    <PackageReference Include="Microsoft.Maui.Core" Version="10.0.70" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Maui.Core" Version="10.0.110" />
 
     <PackageReference Include="Npgsql" Version="10.0.3" />
-    <PackageReference Include="Plugin.LocalNotification" Version="10.4.0" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="Plugin.LocalNotification" Version="14.1.2" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
     <PackageReference Include="DotNetMeteor.HotReload.Plugin" Version="3.3.0" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.13" />
   </ItemGroup>
 
   <ItemGroup>
@@ -85,11 +87,13 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net10.0-android'">
-    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0" />
-    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.2" />
+    <PackageReference Include="Xamarin.AndroidX.Collection.Jvm" Version="1.6.0.1" />
+    <PackageReference Include="Xamarin.AndroidX.Work.Runtime" Version="2.11.2.1" />
     <PackageReference Include="Xamarin.GooglePlayServices.Base">
-      <Version>118.10.0.1</Version>
+      <Version>118.11.0</Version>
     </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Fragment.Ktx" Version="1.9.0" />
+    <PackageReference Include="Xamarin.AndroidX.Tracing.Tracing.Ktx" Version="2.0.2" />
   </ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('-android'))">
