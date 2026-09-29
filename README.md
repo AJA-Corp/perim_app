@@ -37,7 +37,7 @@
 
 ## 📱 À propos
 
-**Perim'APP** est une application mobile développée en **.NET MAUI**, conçue pour aider les utilisateurs à suivre la date de péremption de leurs produits alimentaires.
+**Perim'App** est une application mobile développée en **.NET MAUI**, conçue pour aider les utilisateurs à suivre la date de péremption de leurs produits alimentaires.
 
 🎯 Objectif : **réduire le gaspillage alimentaire** en facilitant le suivi, l’organisation et la consommation à temps des produits.
 
@@ -54,7 +54,7 @@
 
 ## 🚀 Installation
 
-> Prérequis : .NET 9 SDK + Visual Studio 2022 (avec MAUI) ou JetBrains Rider
+> Prérequis : .NET 10 SDK + Visual Studio 2026 (avec MAUI)
 
 ```bash
 # Clonez le projet
@@ -91,9 +91,9 @@ git clone https://github.com/AJA-Corp/perim_app.git
 - [x] Affichage de produit (localement)
 - [x] Saisie manuelle des produits
 - [x] Système de rappels/notifications
-- [ ] Scanner de code-barres
+- [x] Scanner de code-barres
 - [ ] Reconnaissance d’image (OCR des dates ?)
-- [ ] Mode "famille"
+- [x] Mode "famille"
 
 ---
 
@@ -102,9 +102,9 @@ git clone https://github.com/AJA-Corp/perim_app.git
 Les contributions sont les bienvenues ! Voici comment faire :
 
 1. Fork le repo
-2. Crée ta branche (`git checkout -b feature/ma-feature`)
+2. Crée ta branche (`git checkout -b feature/DEV-ABCD`)
 3. Commit tes changements (`git commit -m 'feat: nouvelle fonctionnalité'`)
-4. Push ta branche (`git push origin feature/ma-feature`)
+4. Push ta branche (`git push origin feature/DEV-ABCD`)
 5. Ouvre une **pull request**
 
 ---

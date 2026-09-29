@@ -6,6 +6,7 @@ riderModule.iml
 *.iml
 .gradle
 /local.properties
+/.idea/
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
@@ -18,3 +19,5 @@ riderModule.iml
 .externalNativeBuild
 .cxx
 local.properties
+.vs/
+perimapp/perimapp.csproj.user

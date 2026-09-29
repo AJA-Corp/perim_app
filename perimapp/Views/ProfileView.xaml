@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:headers="clr-namespace:perimapp.Headers"
+             xmlns:viewmodels="clr-namespace:perimapp.ViewModels"
+             x:DataType="viewmodels:ProfileViewModel"
+             x:Class="perimapp.Views.ProfileView"
+             BackgroundColor="#FFF">
+
+    <ContentPage.Resources>
+        <Style x:Key="CardTitleStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterBold"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="TextColor" Value="DarkSlateGray"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+
+        <Style x:Key="CardContentStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterMedium"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="Margin" Value="0,5,0,0"/>
+        </Style>
+
+        <Style x:Key="CardMiniContentStyle" TargetType="Label">
+            <Setter Property="FontFamily" Value="InterMedium"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+        </Style>
+
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+
+        <headers:SharedHeader Grid.Row="0" HeaderText="Profil"/>
+
+        <Grid Grid.Row="1">
+
+            <ScrollView VerticalOptions="Center">
+                <VerticalStackLayout Spacing="15" Padding="15" VerticalOptions="Start">
+
+                    <Border WidthRequest="150" HeightRequest="150"
+                            StrokeShape="RoundRectangle 75"
+                            Stroke="Transparent"
+                            BackgroundColor="Black"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            Margin="0,15,0,0">
+                        <Image Source="profile_placeholder.png"
+                               Aspect="AspectFill"/>
+                    </Border>
+
+                    <Label x:Name="NameLabel"
+                           Text="{Binding UserName}"
+                           Style="{StaticResource CardTitleStyle}"/>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="Fill">
+                        <Label Text="Quantité de produits enregistrés :"
+                               Style="{StaticResource CardContentStyle}"/>
+                        <Label Text="{Binding RegisteredProductsCount}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="Fill">
+                        <Label Text="Produits perdus :"
+                               Style="{StaticResource CardContentStyle}"/>
+                        <Label Text="{Binding LostProductsCount}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5"
+                                         Padding="0,10"
+                                         HorizontalOptions="Fill">
+                        <Label Text="Code foyer :" Style="{StaticResource CardContentStyle}"/>
+                        <Label x:Name="FoyerCodeLabel"
+                               Text="{Binding FamilyCode}"
+                               Style="{StaticResource CardMiniContentStyle}"/>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <ImageButton Source="parameter_button.png"
+                         Command="{Binding ToggleSettingsCommand}"
+                         HeightRequest="20"
+                         WidthRequest="20"
+                         HorizontalOptions="End"
+                         VerticalOptions="Start"
+                         Margin="0, 15, 15, 0"
+                         BackgroundColor="Transparent"/>
+
+            <Border x:Name="SettingsMenu"
+                    IsVisible="{Binding IsMenuVisible}"
+                    HorizontalOptions="End"
+                    VerticalOptions="Start"
+                    Margin="0, 60, 15, 0"
+                    Padding="0"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="White"
+                    Stroke="LightGray"
+                    WidthRequest="180">
+                <!--
+                <Border.Shadow>
+                    <Shadow Brush="Black"
+                            Offset="0, 2"
+                            Radius="5"
+                            Opacity="0.2" />
+                </Border.Shadow>
+                -->
+
+                <VerticalStackLayout Spacing="0">
+
+                    <Button Text="Modifier profil"
+                            Command="{Binding EditProfileCommand}"
+                            TextColor="Black"
+                            BackgroundColor="White"
+                            BorderColor="Transparent"
+                            CornerRadius="10"
+                            FontSize="16"
+                            HorizontalOptions="Fill"/>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#e0e0e0" />
+
+                    <Button Text="Supprimer compte"
+                            Command="{Binding DeleteAccountCommand}"
+                            TextColor="Red"
+                            BackgroundColor="White"
+                            BorderColor="Transparent"
+                            CornerRadius="10"
+                            FontSize="16"
+                            HorizontalOptions="Fill"/>
+
+                    <BoxView HeightRequest="1" BackgroundColor="#e0e0e0" />
+
+                    <Button Text="Déconnexion"
+                            Command="{Binding LogoutCommand}"
+                            TextColor="Black"
+                            BackgroundColor="White"
+                            BorderColor="Transparent"
+                            CornerRadius="10"
+                            FontSize="16"
+                            HorizontalOptions="Fill"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2"
+              HeightRequest="80"
+              BackgroundColor="#58BF7F"
+              HorizontalOptions="Fill"
+              VerticalOptions="End">
+            <Button Text="Activer les notifications"
+                    BackgroundColor="White"
+                    TextColor="Black"
+                    CornerRadius="30"
+                    FontSize="24"
+                    Padding="0,5"
+                    Margin="30,10"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Center"
+                    Command="{Binding ActivateNotificationsCommand}"/>
+        </Grid>
+    </Grid>
+</ContentPage>

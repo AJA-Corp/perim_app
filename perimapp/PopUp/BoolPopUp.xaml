@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="perimapp.PopUp.BoolPopUp"
+    CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <toolkit:Popup.Content>
+    <Border Padding="20"
+            StrokeThickness="0"
+            BackgroundColor="White"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            WidthRequest="300">
+
+        <VerticalStackLayout Spacing="15">
+            <Label x:Name="TitleLabel"
+                   TextColor="Black"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <Label x:Name="MessageLabel"
+                   TextColor="DarkSlateGray"
+                   FontSize="15"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,5,0,10"/>
+
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <Button x:Name="NegativeButton"
+                        Clicked="OnNegativeClicked"
+                        BackgroundColor="LightGray"
+                        TextColor="Black"
+                        WidthRequest="120"
+                        CornerRadius="8"/>
+
+                <Button x:Name="AffirmativeButton"
+                        Clicked="OnAffirmativeClicked"
+                        BackgroundColor="#58BF7F"
+                        TextColor="White"
+                        WidthRequest="120"
+                        CornerRadius="8"/>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+    </toolkit:Popup.Content>
+</toolkit:Popup>
