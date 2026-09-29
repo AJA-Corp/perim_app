@@ -8,3 +8,4 @@
 ## Version 1.1.2 - 29/06/2026
 
 - Ajout des certifications de sécurité pour Android
+- Correction du reload de la page principale

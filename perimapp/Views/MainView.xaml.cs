@@ -22,17 +22,29 @@ namespace perimapp.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+            System.Diagnostics.Debug.WriteLine($"[MAINVIEW] OnAppearing - NeedsAutoRefresh: {perimapp.Data.AppData.NeedsAutoRefresh}");
 
             if (perimapp.Data.AppData.NeedsAutoRefresh)
             {
+                System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du RefreshCommand");
                 perimapp.Data.AppData.NeedsAutoRefresh = false;
 
                 await _viewModel.RefreshCommand.ExecuteAsync(null);
             }
             else
             {
+                System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du LoadProductsCommand");
                 await _viewModel.LoadProductsCommand.ExecuteAsync(null);
             }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            System.Diagnostics.Debug.WriteLine("[MAINVIEW] OnDisappearing - Réactivation du NeedsAutoRefresh");
+            // Réactiver le flag de refresh automatique quand on quitte la MainView
+            // pour assurer un reload des données au retour
+            perimapp.Data.AppData.NeedsAutoRefresh = true;
         }
 
         private void OnProductSelectionChanged(object sender, SelectionChangedEventArgs e)

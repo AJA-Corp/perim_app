@@ -44,6 +44,7 @@ namespace perimapp.ViewModels
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine("[MAINVM] Chargement des produits démarré");
                 var allProducts = await _localProductService.LoadProductsAsync();
 
                 var activeProducts = allProducts
@@ -59,11 +60,13 @@ namespace perimapp.ViewModels
 
                     DisplayedProductsCount = AppData.CurrentProducts.Count;
                     perimapp.Services.NotificationScheduler.UpdateSchedules();
+                    System.Diagnostics.Debug.WriteLine($"[MAINVM] {AppData.CurrentProducts.Count} produits chargés");
                 });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du chargement des produits : {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[MAINVM] Erreur de chargement : {ex}");
                 var errorPopup = new InfosPopUp("Erreur", "Une erreur est survenue lors du chargement des produits. Veuillez réessayer plus tard.", "OK");
                 await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
@@ -74,13 +77,16 @@ namespace perimapp.ViewModels
         {
             try
             {
+                System.Diagnostics.Debug.WriteLine("[MAINVM] Refresh démarré");
                 await _syncService.ProcessSyncAsync();
 
                 await LoadProductsAsync();
+                System.Diagnostics.Debug.WriteLine("[MAINVM] Refresh terminé avec succès");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Erreur lors du rafraîchissement : {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"[MAINVM] Erreur de refresh : {ex}");
             }
             finally
             {
