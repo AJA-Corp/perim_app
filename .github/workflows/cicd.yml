@@ -54,6 +54,7 @@ jobs:
         ls -l perimapp.apk
 
     - name: Extraire les dernières notes de release
+      shell: pwsh
       run: |
         # Extraire uniquement la première section de version (dernière entrée)
         $content = Get-Content version_notes.md -Raw
