@@ -5,6 +5,8 @@ using System.Text.Json;
 using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.AndroidOption;
+using Plugin.LocalNotification.Core.Models;
+using Plugin.LocalNotification.Core.Models.AndroidOption;
 using perimapp.Data;
 
 namespace perimapp.Services
@@ -17,10 +19,10 @@ namespace perimapp.Services
             new(7, 0, 0),
             new(11, 0, 0),
             new(18, 0, 0),
-            new(15, 45, 0),
-            new(15, 50, 0),
-            new(15, 55, 0),
-            new(16, 0, 0)
+            new(21, 0, 0),
+            new(21, 5, 0),
+            new(21, 10, 0),
+            new(21, 15, 0)
         ];
 
         public static void UpdateSchedules()

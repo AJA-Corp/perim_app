@@ -11,32 +11,28 @@ namespace perimapp.Services
 {
     public class ApiProductService
     {
-        private readonly HttpClient _httpClient;
-
         private const string BaseApiUrl = "https://perimapp-web-api.onrender.com/api/";
 
-        public ApiProductService()
+        private async Task<HttpClient> CreateAuthenticatedClientAsync()
         {
-            _httpClient = new HttpClient();
-            _httpClient.BaseAddress = new Uri(BaseApiUrl);
-        }
+            var client = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
 
-        private async Task AttachAuthenticationHeaderAsync()
-        {
             var token = await SecureStorage.GetAsync("auth_token");
             if (!string.IsNullOrWhiteSpace(token))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
+
+            return client;
         }
 
         public async Task<ProductInfos?> SearchProductAsync(long barcode)
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
 
-                var response = await _httpClient.GetAsync($"Products/search/{barcode}");
+                var response = await client.GetAsync($"Products/search/{barcode}");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -55,9 +51,9 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
 
-                var response = await _httpClient.PostAsJsonAsync("Inventory/add", product);
+                var response = await client.PostAsJsonAsync("Inventory/add", product);
 
                 return response.IsSuccessStatusCode;
             }
@@ -72,9 +68,9 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
 
-                var response = await _httpClient.GetAsync("Inventory/my-inventory");
+                var response = await client.GetAsync("Inventory/my-inventory");
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -95,8 +91,8 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
-                var response = await _httpClient.PutAsJsonAsync($"Inventory/state/{productUniqueId}", newState);
+                using var client = await CreateAuthenticatedClientAsync();
+                var response = await client.PutAsJsonAsync($"Inventory/state/{productUniqueId}", newState);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -110,8 +106,8 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
-                var response = await _httpClient.PostAsJsonAsync("Inventory/sync", pendingProducts);
+                using var client = await CreateAuthenticatedClientAsync();
+                var response = await client.PostAsJsonAsync("Inventory/sync", pendingProducts);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -125,8 +121,8 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
-                var response = await _httpClient.DeleteAsync("Inventory/trash/empty");
+                using var client = await CreateAuthenticatedClientAsync();
+                var response = await client.DeleteAsync("Inventory/trash/empty");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -140,7 +136,7 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
 
                 var customNameObj = new
                 {
@@ -149,7 +145,7 @@ namespace perimapp.Services
                     customName = customName
                 };
 
-                var response = await _httpClient.PostAsJsonAsync("CustomProductNames", customNameObj);
+                var response = await client.PostAsJsonAsync("CustomProductNames", customNameObj);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -163,7 +159,9 @@ namespace perimapp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"api/CustomProductNames/{barcode}/{homeCode}");
+                using var client = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
+
+                var response = await client.GetAsync($"api/CustomProductNames/{barcode}/{homeCode}");
 
                 if (response.IsSuccessStatusCode)
                 {

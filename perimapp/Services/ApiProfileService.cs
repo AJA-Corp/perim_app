@@ -10,31 +10,28 @@ namespace perimapp.Services
 {
     public class ApiProfileService
     {
-        private readonly HttpClient _httpClient;
         private const string BaseApiUrl = "https://perimapp-web-api.onrender.com/api/";
 
-        public ApiProfileService()
+        private async Task<HttpClient> CreateAuthenticatedClientAsync()
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
-        }
+            var client = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
 
-        private async Task AttachAuthenticationHeaderAsync()
-        {
             var token = await SecureStorage.GetAsync("auth_token");
             if (!string.IsNullOrWhiteSpace(token))
             {
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             }
+
+            return client;
         }
 
         public async Task<UserProfileDetails?> GetOrCreateMyProfileAsync(string? providedHomeCode = null)
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
 
-                var response = await _httpClient.GetAsync($"FamilyInfos/me?homeCode={providedHomeCode}");
-
+                var response = await client.GetAsync($"FamilyInfos/me?homeCode={providedHomeCode}");
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<UserProfileDetails>();
@@ -52,9 +49,10 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
+                using var client = await CreateAuthenticatedClientAsync();
                 var dto = new { FirstName = firstName, LastName = lastName };
-                var response = await _httpClient.PutAsJsonAsync("FamilyInfos/me", dto);
+
+                var response = await client.PutAsJsonAsync("FamilyInfos/me", dto);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -68,8 +66,8 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
-                var response = await _httpClient.DeleteAsync("FamilyInfos/me");
+                using var client = await CreateAuthenticatedClientAsync();
+                var response = await client.DeleteAsync("FamilyInfos/me");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -83,7 +81,8 @@ namespace perimapp.Services
         {
             try
             {
-                var response = await _httpClient.GetAsync($"FamilyInfos/check-code/{code}");
+                using var client = new HttpClient { BaseAddress = new Uri(BaseApiUrl) };
+                var response = await client.GetAsync($"FamilyInfos/check-code/{code}");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -97,8 +96,8 @@ namespace perimapp.Services
         {
             try
             {
-                await AttachAuthenticationHeaderAsync();
-                var response = await _httpClient.PostAsync($"FamilyInfos/validate-join?code={code}", null);
+                using var client = await CreateAuthenticatedClientAsync();
+                var response = await client.PostAsync($"FamilyInfos/validate-join?code={code}", null);
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)

@@ -40,6 +40,7 @@ namespace perimapp.ViewModels
             string email = EmailText?.Trim() ?? "";
             string password = PasswordText ?? "";
 
+            // Validation basique
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
                 var errorPopup = new InfosPopUp("Erreur", "Veuillez entrer votre email et votre mot de passe.", "OK");
@@ -47,10 +48,15 @@ namespace perimapp.ViewModels
                 return;
             }
 
+            // Log les données (sans afficher le mot de passe)
+            System.Diagnostics.Debug.WriteLine($"[VIEWMODEL LOGIN] Email: {email}, Password length: {password.Length}");
+
             bool isLoginSuccessful = await _authService.SignInAsync(email, password);
 
             if (isLoginSuccessful)
             {
+                System.Diagnostics.Debug.WriteLine("[VIEWMODEL LOGIN] Connexion réussie, récupération du profil...");
+
                 string pendingCode = Preferences.Get("pending_home_code", "");
                 var myProfile = await _apiProfileService.GetOrCreateMyProfileAsync(pendingCode);
 
@@ -67,6 +73,8 @@ namespace perimapp.ViewModels
                     AppData.CurrentUser = myProfile;
                     AppData.CurrentUserId = myProfile.Id;
 
+                    System.Diagnostics.Debug.WriteLine("[VIEWMODEL LOGIN] Profil récupéré - Navigation vers l'app");
+
                     if (!myProfile.IsValidated)
                     {
                         await Shell.Current.GoToAsync(nameof(EmailVerificationView));
@@ -78,15 +86,16 @@ namespace perimapp.ViewModels
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine("[VIEWMODEL LOGIN] ERREUR: Impossible de récupérer le profil");
                     SecureStorage.Remove("auth_token");
-                    await Shell.Current.CurrentPage.DisplayAlertAsync("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
-                    var errorPopup = new InfosPopUp("Erreur Serveur", "Impossible de récupérer votre profil.", "OK");
+                    var errorPopup = new InfosPopUp("Erreur Serveur", "Impossible de récupérer votre profil. Vérifiez votre connexion internet.", "OK");
                     await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
                 }
             }
             else
             {
-                var errorPopup = new InfosPopUp("Erreur", "Email ou mot de passe incorrect.", "OK");
+                System.Diagnostics.Debug.WriteLine("[VIEWMODEL LOGIN] ERREUR: Authentification échouée");
+                var errorPopup = new InfosPopUp("Erreur de Connexion", "Email ou mot de passe incorrect. Vérifiez vos identifiants.", "OK");
                 await Shell.Current.CurrentPage.ShowPopupAsync(errorPopup);
             }
         }
