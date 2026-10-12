@@ -36,6 +36,12 @@ namespace perimapp.ViewModels
         }
 
         [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
         private async Task DeleteAllAsync()
         {
             if (!Products.Any()) return;

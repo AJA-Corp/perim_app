@@ -4,7 +4,7 @@
              x:Class="perimapp.Views.DetailsView"
              xmlns:localModels="clr-namespace:perimapp.Models"
              xmlns:localConverters="clr-namespace:perimapp.Converters"  
-             xmlns:headers="clr-namespace:perimapp.Headers" 
+             xmlns:components="clr-namespace:perimapp.Components" 
              BackgroundColor="White">
 
     <ContentPage.Resources>
@@ -14,8 +14,8 @@
 
     <ContentPage.Content>
         <Grid RowDefinitions="Auto, *, Auto">
-            <headers:SharedHeader Grid.Row="0" HeaderText="Perim'App">
-            </headers:SharedHeader>
+            <components:SharedHeader Grid.Row="0" HeaderText="Perim'App">
+            </components:SharedHeader>
 
             <ScrollView Grid.Row="1" 
                         Padding="10" 

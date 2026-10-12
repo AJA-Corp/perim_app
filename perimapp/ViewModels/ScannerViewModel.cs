@@ -37,6 +37,7 @@ namespace perimapp.ViewModels
         public void StopCamera()
         {
             IsCameraEnabled = false;
+            IsTorchOn = false;
         }
 
         public void HandleBarcodeScanned(OnDetectionFinishedEventArg e)
@@ -77,7 +78,26 @@ namespace perimapp.ViewModels
             if (_isProcessing) return;
             _isProcessing = true; 
 
-            await Shell.Current.CurrentPage.Navigation.PopModalAsync();
+            try
+            {
+                StopCamera();
+
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    if (Shell.Current?.CurrentPage?.Navigation?.ModalStack?.Count > 0)
+                    {
+                        await Shell.Current.CurrentPage.Navigation.PopModalAsync();
+                    }
+                    else if (Shell.Current?.Navigation?.ModalStack?.Count > 0)
+                    {
+                        await Shell.Current.Navigation.PopModalAsync();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ScannerViewModel] Erreur fermeture CancelAsync : {ex.Message}");
+            }
         }
 
         [RelayCommand]

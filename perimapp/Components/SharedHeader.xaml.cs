@@ -2,7 +2,7 @@ using Microsoft.Maui.Controls;
 using System;
 using perimapp.Views;
 
-namespace perimapp.Headers
+namespace perimapp.Components
 {
     public partial class SharedHeader : ContentView
     {
@@ -26,7 +26,7 @@ namespace perimapp.Headers
 
         public SharedHeader()
         {
-            InitializeComponent ();
+            InitializeComponent();
             BindingContext = this;
         }
 

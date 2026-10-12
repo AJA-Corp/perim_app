@@ -27,71 +27,78 @@ namespace perimapp.Services
 
         public static void UpdateSchedules()
         {
-            LocalNotificationCenter.Current.CancelAll();
-
-            var allProducts = AppData.CurrentProducts.ToList();
-            if (allProducts.Any())
+            try
             {
-                var settingsJson = Preferences.Get("NotificationDays", string.Empty);
-                List<int> notificationDays;
-                if (string.IsNullOrEmpty(settingsJson))
+                LocalNotificationCenter.Current.CancelAll();
+
+                var allProducts = AppData.CurrentProducts.ToList();
+                if (allProducts.Any())
                 {
-                    notificationDays = _defaultNotificationDays;
-                }
-                else
-                {
-                    try
-                    {
-                        notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson) ?? _defaultNotificationDays;
-                    }
-                    catch (JsonException)
+                    var settingsJson = Preferences.Get("NotificationDays", string.Empty);
+                    List<int> notificationDays;
+                    if (string.IsNullOrEmpty(settingsJson))
                     {
                         notificationDays = _defaultNotificationDays;
                     }
-                }
-
-                int notificationId = 1000;
-
-                var startDay = DateTime.Today;
-                var endDay = DateTime.Today.AddDays(15);
-
-                for (var date = startDay; date < endDay; date = date.AddDays(1))
-                {
-                    var currentDate = DateOnly.FromDateTime(date);
-                    var dlcTodayProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == currentDate).ToList();
-                    if (dlcTodayProducts.Any())
+                    else
                     {
-                        string title = "Péremption aujourd'hui ⚠️";
-                        string description = dlcTodayProducts.Count == 1
-                            ? $"Le produit '{dlcTodayProducts.First().Name}' périme aujourd'hui !"
-                            : $"{dlcTodayProducts.Count} produits périment aujourd'hui !";
-
-                        ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
-                    }
-
-                    var upcomingMessages = new List<string>();
-
-                    foreach (var days in notificationDays.OrderBy(d => d))
-                    {
-                        var targetDate = DateOnly.FromDateTime(date.AddDays(days));
-                        var expiringProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == targetDate).ToList();
-                        if (expiringProducts.Any())
+                        try
                         {
-                            string dayText = days > 1 ? "jours" : "jour";
-                            upcomingMessages.Add(expiringProducts.Count == 1
-                                ? $"Dans {days} {dayText} : 1 produit ({expiringProducts.First().Name})"
-                                : $"Dans {days} {dayText} : {expiringProducts.Count} produits");
+                            notificationDays = JsonSerializer.Deserialize<List<int>>(settingsJson) ?? _defaultNotificationDays;
+                        }
+                        catch (JsonException)
+                        {
+                            notificationDays = _defaultNotificationDays;
                         }
                     }
 
-                    if (upcomingMessages.Any())
-                    {
-                        string title = "Péremptions à surveiller 🗓️";
-                        string description = "• " + string.Join("\n• ", upcomingMessages);
+                    int notificationId = 1000;
 
-                        ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
+                    var startDay = DateTime.Today;
+                    var endDay = DateTime.Today.AddDays(15);
+
+                    for (var date = startDay; date < endDay; date = date.AddDays(1))
+                    {
+                        var currentDate = DateOnly.FromDateTime(date);
+                        var dlcTodayProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == currentDate).ToList();
+                        if (dlcTodayProducts.Any())
+                        {
+                            string title = "Péremption aujourd'hui ⚠️";
+                            string description = dlcTodayProducts.Count == 1
+                                ? $"Le produit '{dlcTodayProducts.First().Name}' périme aujourd'hui !"
+                                : $"{dlcTodayProducts.Count} produits périment aujourd'hui !";
+
+                            ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
+                        }
+
+                        var upcomingMessages = new List<string>();
+
+                        foreach (var days in notificationDays.OrderBy(d => d))
+                        {
+                            var targetDate = DateOnly.FromDateTime(date.AddDays(days));
+                            var expiringProducts = allProducts.Where(p => p.Dlc.HasValue && p.Dlc.Value == targetDate).ToList();
+                            if (expiringProducts.Any())
+                            {
+                                string dayText = days > 1 ? "jours" : "jour";
+                                upcomingMessages.Add(expiringProducts.Count == 1
+                                    ? $"Dans {days} {dayText} : 1 produit ({expiringProducts.First().Name})"
+                                    : $"Dans {days} {dayText} : {expiringProducts.Count} produits");
+                            }
+                        }
+
+                        if (upcomingMessages.Any())
+                        {
+                            string title = "Péremptions à surveiller 🗓️";
+                            string description = "• " + string.Join("\n• ", upcomingMessages);
+
+                            ScheduleNotification(title, description, date, _notificationTimes, ref notificationId);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NotificationScheduler] Erreur UpdateSchedules : {ex.Message}");
             }
         }
 
