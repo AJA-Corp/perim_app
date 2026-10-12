@@ -4,18 +4,70 @@
              x:Class="perimapp.Views.DeletedProductView"
              xmlns:localModels="clr-namespace:perimapp.Models"
              xmlns:localConverters="clr-namespace:perimapp.Converters"
-             xmlns:headers="clr-namespace:perimapp.Headers" 
+             xmlns:components="clr-namespace:perimapp.Components" 
              BackgroundColor="White">
 
     <ContentPage.Content>
-        <Grid RowDefinitions="Auto, *, Auto">
+        <Grid RowDefinitions="Auto, Auto, *, Auto">
 
-            <headers:SharedHeader Grid.Row="0" HeaderText="Produits Supprimés" />
+            <!-- Bande verte tout en haut -->
+            <BoxView Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="15" HorizontalOptions="Fill" />
 
-            <CollectionView Grid.Row="1" 
+            <!-- En-tête avec bouton retour, titre et bouton "Tout supprimer" -->
+            <Grid Grid.Row="1" Padding="15,12,15,12" BackgroundColor="White">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Bouton Retour -->
+                <ImageButton Grid.Column="0"
+                             Source="arrow_back.png"
+                             Command="{Binding GoBackCommand}"
+                             WidthRequest="38"
+                             HeightRequest="38"
+                             CornerRadius="19"
+                             BackgroundColor="#F5F5F5"
+                             Padding="9"
+                             VerticalOptions="Center"
+                             Margin="0,0,10,0" />
+
+                <!-- Titre -->
+                <Label Grid.Column="1"
+                       Text="Produits Supprimés"
+                       FontSize="22"
+                       FontFamily="InterBold"
+                       TextColor="Black"
+                       VerticalOptions="Center"
+                       LineBreakMode="TailTruncation" />
+
+                <!-- Bouton Supprimer tout -->
+                <Button Grid.Column="2"
+                        Text="Tout supprimer"
+                        Command="{Binding DeleteAllCommand}"
+                        TextColor="#FF5252"
+                        BackgroundColor="#FFEBEE"
+                        CornerRadius="16"
+                        FontSize="12"
+                        FontFamily="InterMedium"
+                        HeightRequest="34"
+                        Padding="10,0"
+                        VerticalOptions="Center" />
+            </Grid>
+
+            <CollectionView Grid.Row="2" 
                             ItemsSource="{Binding Products}"
                             SelectionMode="None"
                             Margin="10">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,50,0,0">
+                        <Label Text="Aucun produit dans la corbeille"
+                               TextColor="Gray"
+                               FontSize="16"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="localModels:ProductInfos">
                         <Border Padding="0"
@@ -69,16 +121,9 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-            <Button Grid.Row="2"
-                    Command="{Binding DeleteAllCommand}"
-                    BackgroundColor="#FF5252"
-                    HeightRequest="70"
-                    HorizontalOptions="Fill"
-                    ImageSource="bin_white.png"
-                    Padding="8"
-                    CornerRadius="5"
-                    VerticalOptions="End"
-                    Margin="0, 0, 0, -4"/>
+
+            <!-- Navbar du bas -->
+            <components:BottomNavBar Grid.Row="3" ActiveTab="" />
         </Grid>
     </ContentPage.Content>
 </ContentPage>

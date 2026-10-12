@@ -53,6 +53,8 @@ public static class MauiProgram
         builder.Services.AddTransient<StartingView>();
         builder.Services.AddTransient<LogInView>();
         builder.Services.AddTransient<SignUpView>();
+        builder.Services.AddTransient<NotificationsView>();
+        builder.Services.AddTransient<SettingsView>();
 
         // Enregistrement des ViewModels
         builder.Services.AddSingleton<perimapp.ViewModels.MainViewModel>();
@@ -67,6 +69,8 @@ public static class MauiProgram
         builder.Services.AddTransient<perimapp.ViewModels.LoadingViewModel>();
         builder.Services.AddTransient<perimapp.ViewModels.LogInViewModel>();
         builder.Services.AddTransient<perimapp.ViewModels.SignUpViewModel>();
+        builder.Services.AddTransient<perimapp.ViewModels.NotificationsViewModel>();
+        builder.Services.AddTransient<perimapp.ViewModels.SettingsViewModel>();
 
         // AddSingleton crée une seule instance pour toute la durée de vie de l'application
         // AddTransient crée une nouvelle instance à chaque fois que le service est demandé

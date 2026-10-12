@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:perimapp.Components"
+             xmlns:viewmodels="clr-namespace:perimapp.ViewModels"
+             x:Class="perimapp.Views.SettingsView"
+             x:DataType="viewmodels:SettingsViewModel"
+             BackgroundColor="#F7F9FA"
+             Title="Paramètres">
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto">
+        <!-- Bande verte tout en haut -->
+        <BoxView Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="15" HorizontalOptions="Fill" />
+
+        <!-- En-tête -->
+        <Grid Grid.Row="1" Padding="20,15,20,10" BackgroundColor="White">
+            <Label Text="Paramètres"
+                   FontSize="26"
+                   FontFamily="InterBold"
+                   TextColor="Black"
+                   VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Contenu des paramètres -->
+        <ScrollView Grid.Row="2" Padding="15">
+            <VerticalStackLayout Spacing="16">
+
+                <!-- Section Compte -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="{RoundRectangle CornerRadius='12'}"
+                        BackgroundColor="White"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="COMPTE &amp; FOYER"
+                               FontSize="12"
+                               FontFamily="InterBold"
+                               TextColor="#757575" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding UserName}"
+                                       FontSize="18"
+                                       FontFamily="InterBold"
+                                       TextColor="Black" />
+                                <Label Text="{Binding UserEmail}"
+                                       FontSize="14"
+                                       TextColor="#616161" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Modifier"
+                                    FontSize="13"
+                                    TextColor="#58BF7F"
+                                    BackgroundColor="#E8F5E9"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding EditProfileCommand}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="#EEEEEE" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Code de votre foyer"
+                                       FontSize="14"
+                                       TextColor="Black" />
+                                <Label Text="{Binding FamilyCode}"
+                                       FontSize="13"
+                                       TextColor="#58BF7F"
+                                       FontFamily="InterBold" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Copier"
+                                    FontSize="13"
+                                    TextColor="#58BF7F"
+                                    BackgroundColor="#E8F5E9"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding CopyFamilyCodeCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Section Notifications -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="{RoundRectangle CornerRadius='12'}"
+                        BackgroundColor="White"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="NOTIFICATIONS"
+                               FontSize="12"
+                               FontFamily="InterBold"
+                               TextColor="#757575" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Alertes de péremption"
+                                       FontSize="15"
+                                       TextColor="Black" />
+                                <Label Text="Définir le délai des alertes DLC"
+                                       FontSize="12"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Configurer"
+                                    FontSize="13"
+                                    TextColor="#58BF7F"
+                                    BackgroundColor="#E8F5E9"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding ConfigureNotificationsCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Section Données & Synchronisation -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="{RoundRectangle CornerRadius='12'}"
+                        BackgroundColor="White"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="DONNÉES"
+                               FontSize="12"
+                               FontFamily="InterBold"
+                               TextColor="#757575" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Synchroniser les données"
+                                       FontSize="15"
+                                       TextColor="Black" />
+                                <Label Text="Mettre à jour le stock avec le cloud"
+                                       FontSize="12"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Synchroniser"
+                                    FontSize="13"
+                                    TextColor="White"
+                                    BackgroundColor="#58BF7F"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding SyncDataCommand}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="#EEEEEE" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Historique des suppressions"
+                                       FontSize="15"
+                                       TextColor="Black" />
+                                <Label Text="Consulter les produits retirés"
+                                       FontSize="12"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="Voir"
+                                    FontSize="13"
+                                    TextColor="#58BF7F"
+                                    BackgroundColor="#E8F5E9"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding ViewDeletedProductsCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Section Application -->
+                <Border Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="{RoundRectangle CornerRadius='12'}"
+                        BackgroundColor="White"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="APPLICATION"
+                               FontSize="12"
+                               FontFamily="InterBold"
+                               TextColor="#757575" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="Version de l'application"
+                                       FontSize="15"
+                                       TextColor="Black" />
+                                <Label Text="{Binding AppVersion, StringFormat='Perim\'App v{0}'}"
+                                       FontSize="12"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+                            <Button Grid.Column="1"
+                                    Text="À propos"
+                                    FontSize="13"
+                                    TextColor="#58BF7F"
+                                    BackgroundColor="#E8F5E9"
+                                    CornerRadius="16"
+                                    HeightRequest="36"
+                                    Padding="12,0"
+                                    Command="{Binding AboutAppCommand}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Déconnexion -->
+                <Button Text="Se déconnecter"
+                        TextColor="#E53935"
+                        BackgroundColor="White"
+                        BorderColor="#FFCDD2"
+                        BorderWidth="1"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        FontSize="15"
+                        FontFamily="InterBold"
+                        Command="{Binding LogoutCommand}"
+                        Margin="0,5,0,20" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Navbar du bas -->
+        <components:BottomNavBar Grid.Row="3" ActiveTab="Settings" />
+    </Grid>
+</ContentPage>

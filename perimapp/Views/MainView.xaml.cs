@@ -22,19 +22,26 @@ namespace perimapp.Views
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            System.Diagnostics.Debug.WriteLine($"[MAINVIEW] OnAppearing - NeedsAutoRefresh: {perimapp.Data.AppData.NeedsAutoRefresh}");
-
-            if (perimapp.Data.AppData.NeedsAutoRefresh)
+            try
             {
-                System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du RefreshCommand");
-                perimapp.Data.AppData.NeedsAutoRefresh = false;
+                System.Diagnostics.Debug.WriteLine($"[MAINVIEW] OnAppearing - NeedsAutoRefresh: {perimapp.Data.AppData.NeedsAutoRefresh}");
 
-                await _viewModel.RefreshCommand.ExecuteAsync(null);
+                if (perimapp.Data.AppData.NeedsAutoRefresh)
+                {
+                    System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du RefreshCommand");
+                    perimapp.Data.AppData.NeedsAutoRefresh = false;
+
+                    await _viewModel.RefreshCommand.ExecuteAsync(null);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du LoadProductsCommand");
+                    await _viewModel.LoadProductsCommand.ExecuteAsync(null);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("[MAINVIEW] Déclenchement du LoadProductsCommand");
-                await _viewModel.LoadProductsCommand.ExecuteAsync(null);
+                System.Diagnostics.Debug.WriteLine($"[MAINVIEW] Erreur OnAppearing: {ex.Message}");
             }
         }
 

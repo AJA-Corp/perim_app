@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="perimapp.Components.BottomNavBar"
+             BackgroundColor="Transparent"
+             HeightRequest="60">
+
+    <Grid VerticalOptions="End">
+
+        <!-- Fond vert de la barre de navigation -->
+        <Border BackgroundColor="#58BF7F"
+                StrokeThickness="0"
+                HeightRequest="60"
+                VerticalOptions="End">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,-3" Radius="8" Opacity="0.25" />
+            </Border.Shadow>
+            <Grid ColumnDefinitions="*, *, *, *, *"
+                  HorizontalOptions="Fill"
+                  VerticalOptions="Fill">
+
+                <!-- 1. Accueil / Page principale -->
+                <ImageButton x:Name="HomeBtn"
+                             Grid.Column="0"
+                             Source="nav_home.png"
+                             WidthRequest="28"
+                             HeightRequest="28"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Clicked="OnHomeClicked" />
+
+                <!-- 2. Profil de l'utilisateur -->
+                <ImageButton x:Name="ProfileBtn"
+                             Grid.Column="1"
+                             Source="nav_profile.png"
+                             WidthRequest="28"
+                             HeightRequest="28"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Clicked="OnProfileClicked" />
+
+                <!-- 3. Colonne vide pour le bouton central surélevé -->
+                <BoxView Grid.Column="2" BackgroundColor="Transparent" />
+
+                <!-- 4. Notifications du foyer -->
+                <ImageButton x:Name="NotificationsBtn"
+                             Grid.Column="3"
+                             Source="nav_bell.png"
+                             WidthRequest="28"
+                             HeightRequest="28"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Clicked="OnNotificationsClicked" />
+
+                <!-- 5. Paramètres de l'application -->
+                <ImageButton x:Name="SettingsBtn"
+                             Grid.Column="4"
+                             Source="nav_settings.png"
+                             WidthRequest="28"
+                             HeightRequest="28"
+                             BackgroundColor="Transparent"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Clicked="OnSettingsClicked" />
+            </Grid>
+        </Border>
+
+        <!-- 3. Bouton central d'ajout de produit surélevé entouré de vert -->
+        <Border WidthRequest="70"
+                HeightRequest="70"
+                StrokeShape="{RoundRectangle CornerRadius=50}"
+                Stroke="#58BF7F"
+                StrokeThickness="3.5"
+                BackgroundColor="White"
+                HorizontalOptions="Center"
+                VerticalOptions="Start"
+                Margin="0,-8,0,0">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnAddProductClicked" />
+            </Border.GestureRecognizers>
+
+            <Label Text="+"
+                   FontSize="36"
+                   FontFamily="InterMedium"
+                   TextColor="#58BF7F"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="0,-7,0,0" />
+        </Border>
+    </Grid>
+</ContentView>

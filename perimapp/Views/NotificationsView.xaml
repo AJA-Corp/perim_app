@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:perimapp.Components"
+             xmlns:viewmodels="clr-namespace:perimapp.ViewModels"
+             xmlns:models="clr-namespace:perimapp.Models"
+             x:Class="perimapp.Views.NotificationsView"
+             x:DataType="viewmodels:NotificationsViewModel"
+             BackgroundColor="#F7F9FA"
+             Title="Notifications">
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto">
+        <!-- Bande verte tout en haut -->
+        <BoxView Grid.Row="0" BackgroundColor="#58BF7F" HeightRequest="15" HorizontalOptions="Fill" />
+
+        <!-- En-tête -->
+        <Grid Grid.Row="1" Padding="20,12,20,10" BackgroundColor="White" ColumnSpacing="15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Start">
+                <Label Text="Notifications"
+                       FontSize="26"
+                       FontFamily="InterBold"
+                       TextColor="Black"
+                       VerticalOptions="Start" />
+                <Label Text="{Binding FoyerCode, StringFormat='Activité du foyer : {0}'}"
+                       FontSize="13"
+                       TextColor="#757575"
+                       FontFamily="InterMedium" />
+            </VerticalStackLayout>
+
+            <Border Grid.Column="1"
+                    BackgroundColor="#E8F5E9"
+                    Stroke="#58BF7F"
+                    StrokeThickness="1"
+                    StrokeShape="{RoundRectangle CornerRadius='12'}"
+                    Padding="12,5"
+                    VerticalOptions="Start"
+                    Margin="10,4,0,0">
+                <Label Text="{Binding TotalCount, StringFormat='{0} événements'}"
+                       TextColor="#58BF7F"
+                       FontSize="12"
+                       FontFamily="InterMedium" />
+            </Border>
+        </Grid>
+
+        <!-- Filtres horizontaux -->
+        <ScrollView Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalScrollBarVisibility="Never"
+                    Padding="15,8"
+                    BackgroundColor="White">
+            <HorizontalStackLayout Spacing="8">
+                <Button Text="Tous"
+                        HeightRequest="34"
+                        FontSize="13"
+                        CornerRadius="17"
+                        Padding="14,0"
+                        TextColor="White"
+                        BackgroundColor="#9E9E9E"
+                        Command="{Binding SetFilterCommand}"
+                        CommandParameter="Tous">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Tous">
+                            <Setter Property="BackgroundColor" Value="#58BF7F" />
+                            <Setter Property="FontAttributes" Value="Bold" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="Ajouts"
+                        HeightRequest="34"
+                        FontSize="13"
+                        CornerRadius="17"
+                        Padding="14,0"
+                        TextColor="White"
+                        BackgroundColor="#9E9E9E"
+                        Command="{Binding SetFilterCommand}"
+                        CommandParameter="Ajouts">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Ajouts">
+                            <Setter Property="BackgroundColor" Value="#58BF7F" />
+                            <Setter Property="FontAttributes" Value="Bold" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="Modifications"
+                        HeightRequest="34"
+                        FontSize="13"
+                        CornerRadius="17"
+                        Padding="14,0"
+                        TextColor="White"
+                        BackgroundColor="#9E9E9E"
+                        Command="{Binding SetFilterCommand}"
+                        CommandParameter="Modifs">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Modifs">
+                            <Setter Property="BackgroundColor" Value="#58BF7F" />
+                            <Setter Property="FontAttributes" Value="Bold" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="Suppressions"
+                        HeightRequest="34"
+                        FontSize="13"
+                        CornerRadius="17"
+                        Padding="14,0"
+                        TextColor="White"
+                        BackgroundColor="#9E9E9E"
+                        Command="{Binding SetFilterCommand}"
+                        CommandParameter="Suppressions">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Suppressions">
+                            <Setter Property="BackgroundColor" Value="#58BF7F" />
+                            <Setter Property="FontAttributes" Value="Bold" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <Button Text="Membres"
+                        HeightRequest="34"
+                        FontSize="13"
+                        CornerRadius="17"
+                        Padding="14,0"
+                        TextColor="White"
+                        BackgroundColor="#9E9E9E"
+                        Command="{Binding SetFilterCommand}"
+                        CommandParameter="Membres">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding SelectedFilter}" Value="Membres">
+                            <Setter Property="BackgroundColor" Value="#58BF7F" />
+                            <Setter Property="FontAttributes" Value="Bold" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Liste des événements -->
+        <RefreshView Grid.Row="3"
+                     IsRefreshing="{Binding IsRefreshing}"
+                     Command="{Binding RefreshCommand}"
+                     RefreshColor="#58BF7F">
+            <CollectionView ItemsSource="{Binding FilteredNotifications}"
+                            SelectionMode="None"
+                            Margin="15,10">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10" Margin="0,50,0,0">
+                        <Label Text="Aucune activité récente pour le foyer"
+                               TextColor="Gray"
+                               FontSize="16"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:HouseholdNotificationItem">
+                        <Border Margin="0,0,0,10"
+                                Padding="12"
+                                Stroke="#E0E0E0"
+                                StrokeThickness="1"
+                                StrokeShape="{RoundRectangle CornerRadius='10'}"
+                                BackgroundColor="White">
+                            <Border.Shadow>
+                                <Shadow Brush="#15000000" Offset="0,2" Radius="4" Opacity="0.2" />
+                            </Border.Shadow>
+
+                            <Grid ColumnDefinitions="Auto, *, Auto">
+                                <!-- Badge type -->
+                                <Border Grid.Column="0"
+                                        BackgroundColor="{Binding BadgeColor}"
+                                        WidthRequest="50"
+                                        HeightRequest="24"
+                                        StrokeThickness="0"
+                                        StrokeShape="{RoundRectangle CornerRadius='6'}"
+                                        VerticalOptions="Start"
+                                        Margin="0,2,10,0">
+                                    <Label Text="{Binding TypeLabel}"
+                                           TextColor="White"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Détails -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Title}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="Black" />
+                                    <Label Text="{Binding Description}"
+                                           FontSize="14"
+                                           TextColor="#424242"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="1" />
+                                    <Label Text="{Binding Detail}"
+                                           FontSize="12"
+                                           TextColor="Gray" />
+                                </VerticalStackLayout>
+
+                                <!-- Timestamp -->
+                                <Label Grid.Column="2"
+                                       Text="{Binding FormattedTimestamp}"
+                                       FontSize="11"
+                                       TextColor="#9E9E9E"
+                                       VerticalOptions="Start"
+                                       Margin="5,2,0,0" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <!-- Navbar du bas -->
+        <components:BottomNavBar Grid.Row="4" ActiveTab="Notifications" />
+    </Grid>
+</ContentPage>

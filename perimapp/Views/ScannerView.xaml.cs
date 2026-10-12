@@ -33,7 +33,15 @@ public partial class ScannerView : ContentPage
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-        _viewModel.StopCamera();
+        try
+        {
+            Camera.CameraEnabled = false;
+            _viewModel.StopCamera();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ScannerView] Erreur OnDisappearing: {ex.Message}");
+        }
     }
 
     private void Camera_OnDetectionFinished(object sender, OnDetectionFinishedEventArg e)
